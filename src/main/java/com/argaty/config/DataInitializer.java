@@ -1,8 +1,8 @@
 package com.argaty.config;
 
 import java.io.IOException;
-import java.nio.file. Files;
-import java. nio.file.Path;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.springframework.boot.CommandLineRunner;
@@ -36,7 +36,7 @@ public class DataInitializer implements CommandLineRunner {
      */
     private void createUploadDirectories() {
         String[] directories = {
-            appProperties. getUpload().getDir(),
+            appProperties.getUpload().getDir(),
             appProperties.getUpload().getProductImages(),
             appProperties.getUpload().getUserAvatars(),
             appProperties.getUpload().getBanners(),

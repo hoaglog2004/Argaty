@@ -27,7 +27,10 @@ public class SecurityConfig {
 
     /**
      * Cấu hình Security Filter Chain
-     * TẠM THỜI: Cho phép tất cả để test
+     * 
+     * PUBLIC: Home, Products, Categories, About, Contact, FAQ, Auth, Static
+     * PROTECTED: Cart, Checkout, Profile, Orders, Wishlist
+     * ADMIN: Dashboard and management
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -37,29 +40,48 @@ public class SecurityConfig {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             )
             
-            // Cấu hình authorize requests (cho phép khách xem toàn bộ site)
+            // Cấu hình authorize requests
             .authorizeHttpRequests(auth -> auth
+                // PUBLIC - No authentication required
                 .requestMatchers(
                     "/",
                     "/home",
+                    "/about",
+                    "/contact",
+                    "/faq",
+                    "/policy/**",
+                    "/products",
                     "/products/**",
+                    "/categories/**",
+                    "/brands/**",
+                    "/auth/**",
+                    "/api/public/**",
                     "/static/**",
                     "/uploads/**",
                     "/css/**",
                     "/js/**",
                     "/images/**",
-                    "/auth/**",
-                    "/api/public/**"
+                    "/favicon.ico"
                 ).permitAll()
 
-                // Admin routes - yêu cầu role ADMIN
+                // ADMIN ONLY - Requires ADMIN role
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                // Staff routes - yêu cầu role STAFF hoặc ADMIN
-                .requestMatchers("/staff/**").hasAnyRole("STAFF", "ADMIN")
+                // PROTECTED - Requires authentication (any authenticated user)
+                .requestMatchers(
+                    "/cart/**",
+                    "/checkout/**",
+                    "/profile/**",
+                    "/wishlist/**",
+                    "/api/cart/**",
+                    "/api/wishlist/**",
+                    "/api/address/**",
+                    "/api/reviews/**",
+                    "/api/notifications/**"
+                ).authenticated()
 
-                // Các request khác: cho phép tất cả (khách không cần đăng nhập)
-                .anyRequest().permitAll()
+                // All other requests - deny by default (secure by default)
+                .anyRequest().authenticated()
             )
             
             // Cấu hình form login
