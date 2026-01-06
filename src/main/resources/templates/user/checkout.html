@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/main}"
+>
+  <head>
+    <title>Thanh toán</title>
+  </head>
+
+  <body>
+    <main layout:fragment="content">
+      <div class="checkout-page">
+        <div class="container">
+          <!-- Breadcrumb -->
+          <nav class="breadcrumb">
+            <div class="breadcrumb__item">
+              <a th:href="@{/}"><i class="bx bx-home"></i> Trang chủ</a>
+            </div>
+            <span class="breadcrumb__separator"
+              ><i class="bx bx-chevron-right"></i
+            ></span>
+            <div class="breadcrumb__item">
+              <a th:href="@{/cart}">Giỏ hàng</a>
+            </div>
+            <span class="breadcrumb__separator"
+              ><i class="bx bx-chevron-right"></i
+            ></span>
+            <div class="breadcrumb__item">Thanh toán</div>
+          </nav>
+
+          <h1 class="section-title mb-4">Thanh toán</h1>
+
+          <!-- Checkout Form -->
+          <form
+            th:action="@{/checkout}"
+            method="post"
+            th:object="${checkoutRequest}"
+            id="checkoutForm"
+          >
+            <input
+              type="hidden"
+              th:name="${_csrf.parameterName}"
+              th:value="${_csrf.token}"
+            />
+
+            <div
+              class="checkout-layout"
+              style="display: grid; grid-template-columns: 1fr 420px; gap: 30px"
+            >
+              <!-- Left Column -->
+              <div class="checkout-left">
+                <!-- Shipping Address -->
+                <div class="checkout-section">
+                  <h3 class="checkout-section__title">
+                    <i class="bx bx-map"></i> Địa chỉ giao hàng
+                  </h3>
+
+                  <!-- Saved Addresses -->
+                  <div
+                    th:if="${addresses != null && !addresses.isEmpty()}"
+                    class="address-list"
+                  >
+                    <div
+                      th:each="addr : ${addresses}"
+                      class="address-card"
+                      th:classappend="${addr.isDefault} ? 'selected' : ''"
+                      th:data-address-id="${addr.id}"
+                      onclick="selectAddress(this)"
+                    >
+                      <input
+                        type="radio"
+                        name="savedAddressId"
+                        th:value="${addr.id}"
+                        class="address-card__radio"
+                        th:checked="${addr.isDefault}"
+                      />
+                      <div
+                        class="address-card__name"
+                        th:text="${addr.receiverName}"
+                      >
+                        Tên
+                      </div>
+                      <div class="address-card__phone" th:text="${addr.phone}">
+                        SĐT
+                      </div>
+                      <div
+                        class="address-card__detail"
+                        th:text="${addr.fullAddress}"
+                      >
+                        Địa chỉ
+                      </div>
+                      <span
+                        th:if="${addr.isDefault}"
+                        class="address-card__default-badge"
+                        >Mặc định</span
+                      >
+                    </div>
+
+                    <!-- Add New Address -->
+                    <div
+                      class="address-card"
+                      onclick="toggleNewAddressForm()"
+                      style="
+                        justify-content: center;
+                        align-items: center;
+                        min-height: 150px;
+                      "
+                    >
+                      <div class="text-center">
+                        <i
+                          class="bx bx-plus"
+                          style="font-size: 32px; color: var(--primary)"
+                        ></i>
+                        <p class="text-muted mt-2">Thêm địa chỉ mới</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- New Address Form -->
+                  <div
+                    id="newAddressForm"
+                    th:classappend="${addresses == null || addresses.isEmpty()} ? '' : 'd-none'"
+                  >
+                    <div
+                      class="row"
+                      style="
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 20px;
+                      "
+                    >
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Họ tên người nhận
+                          <span class="text-danger">*</span></label
+                        >
+                        <input
+                          type="text"
+                          th:field="*{receiverName}"
+                          class="form-control"
+                          placeholder="Nhập họ tên"
+                          required
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Số điện thoại
+                          <span class="text-danger">*</span></label
+                        >
+                        <input
+                          type="tel"
+                          th:field="*{receiverPhone}"
+                          class="form-control"
+                          placeholder="Nhập số điện thoại"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Email</label>
+                      <input
+                        type="email"
+                        th:field="*{receiverEmail}"
+                        class="form-control"
+                        placeholder="Nhập email (tùy chọn)"
+                      />
+                    </div>
+
+                    <div
+                      class="row"
+                      style="
+                        display: grid;
+                        grid-template-columns: 1fr 1fr 1fr;
+                        gap: 20px;
+                      "
+                    >
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Tỉnh/Thành phố
+                          <span class="text-danger">*</span></label
+                        >
+                        <select
+                          th:field="*{city}"
+                          class="form-control form-select"
+                          id="citySelect"
+                          required
+                        >
+                          <option value="">Chọn Tỉnh/TP</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label"
+                          >Quận/Huyện <span class="text-danger">*</span></label
+                        >
+                        <select
+                          th:field="*{district}"
+                          class="form-control form-select"
+                          id="districtSelect"
+                          required
+                        >
+                          <option value="">Chọn Quận/Huyện</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Phường/Xã</label>
+                        <select
+                          th:field="*{ward}"
+                          class="form-control form-select"
+                          id="wardSelect"
+                        >
+                          <option value="">Chọn Phường/Xã</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label"
+                        >Địa chỉ chi tiết
+                        <span class="text-danger">*</span></label
+                      >
+                      <input
+                        type="text"
+                        th:field="*{shippingAddress}"
+                        class="form-control"
+                        placeholder="Số nhà, tên đường..."
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="checkout-section">
+                  <h3 class="checkout-section__title">
+                    <i class="bx bx-credit-card"></i> Phương thức thanh toán
+                  </h3>
+
+                  <div class="payment-methods">
+                    <label class="payment-method selected" data-method="COD">
+                      <input
+                        type="radio"
+                        th:field="*{paymentMethod}"
+                        value="COD"
+                        checked
+                        style="display: none"
+                      />
+                      <div class="payment-method__icon">
+                        <i class="bx bx-money"></i>
+                      </div>
+                      <div class="payment-method__info">
+                        <div class="payment-method__name">
+                          Thanh toán khi nhận hàng (COD)
+                        </div>
+                        <div class="payment-method__desc">
+                          Thanh toán bằng tiền mặt khi nhận hàng
+                        </div>
+                      </div>
+                      <i
+                        class="bx bx-check-circle text-success"
+                        style="font-size: 24px"
+                      ></i>
+                    </label>
+
+                    <label class="payment-method" data-method="VNPAY">
+                      <input
+                        type="radio"
+                        th:field="*{paymentMethod}"
+                        value="VNPAY"
+                        style="display: none"
+                      />
+                      <div class="payment-method__icon">
+                        <img
+                          th:src="@{/images/payments/vnpay.svg}"
+                          alt="VNPay"
+                          style="width: 40px"
+                        />
+                      </div>
+                      <div class="payment-method__info">
+                        <div class="payment-method__name">VNPay</div>
+                        <div class="payment-method__desc">
+                          Thanh toán qua VNPay QR, ATM, Visa, Master
+                        </div>
+                      </div>
+                      <i
+                        class="bx bx-check-circle text-success"
+                        style="font-size: 24px; opacity: 0"
+                      ></i>
+                    </label>
+
+                    <label class="payment-method" data-method="MOMO">
+                      <input
+                        type="radio"
+                        th:field="*{paymentMethod}"
+                        value="MOMO"
+                        style="display: none"
+                      />
+                      <div class="payment-method__icon">
+                        <img
+                          th:src="@{/images/payments/momo.svg}"
+                          alt="Momo"
+                          style="width: 40px"
+                        />
+                      </div>
+                      <div class="payment-method__info">
+                        <div class="payment-method__name">Ví MoMo</div>
+                        <div class="payment-method__desc">
+                          Thanh toán qua ví điện tử MoMo
+                        </div>
+                      </div>
+                      <i
+                        class="bx bx-check-circle text-success"
+                        style="font-size: 24px; opacity: 0"
+                      ></i>
+                    </label>
+
+                    <label class="payment-method" data-method="BANK_TRANSFER">
+                      <input
+                        type="radio"
+                        th:field="*{paymentMethod}"
+                        value="BANK_TRANSFER"
+                        style="display: none"
+                      />
+                      <div class="payment-method__icon">
+                        <i class="bx bx-building"></i>
+                      </div>
+                      <div class="payment-method__info">
+                        <div class="payment-method__name">
+                          Chuyển khoản ngân hàng
+                        </div>
+                        <div class="payment-method__desc">
+                          Chuyển khoản trực tiếp qua tài khoản ngân hàng
+                        </div>
+                      </div>
+                      <i
+                        class="bx bx-check-circle text-success"
+                        style="font-size: 24px; opacity: 0"
+                      ></i>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Order Note -->
+                <div class="checkout-section">
+                  <h3 class="checkout-section__title">
+                    <i class="bx bx-note"></i> Ghi chú đơn hàng
+                  </h3>
+                  <div class="form-group mb-0">
+                    <textarea
+                      th:field="*{note}"
+                      class="form-control"
+                      rows="3"
+                      placeholder="Ghi chú về đơn hàng, ví dụ: thời gian hay chỉ dẫn địa điểm giao hàng chi tiết hơn. "
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column - Order Summary -->
+              <div class="checkout-right">
+                <div class="cart-summary" style="position: sticky; top: 100px">
+                  <h3 class="cart-summary__title">
+                    Đơn hàng của bạn
+                    <span
+                      class="text-muted"
+                      style="font-size: 14px; font-weight: normal"
+                    >
+                      (<span th:text="${cart.totalItems}">0</span> sản phẩm)
+                    </span>
+                  </h3>
+
+                  <!-- Order Items -->
+                  <div
+                    class="order-items"
+                    style="
+                      max-height: 300px;
+                      overflow-y: auto;
+                      margin-bottom: 20px;
+                    "
+                  >
+                    <div
+                      th:each="item : ${cart.items}"
+                      th:if="${item.isSelected}"
+                      class="order-item"
+                    >
+                      <div class="order-item__image">
+                        <img
+                          th:src="${item.productImage}"
+                          th:alt="${item.productName}"
+                        />
+                        <span
+                          class="order-item__qty"
+                          style="
+                            position: absolute;
+                            top: -8px;
+                            right: -8px;
+                            width: 24px;
+                            height: 24px;
+                            background: var(--primary);
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 12px;
+                            font-weight: 700;
+                          "
+                          th:text="${item.quantity}"
+                          >1</span
+                        >
+                      </div>
+                      <div class="order-item__info">
+                        <div
+                          class="order-item__name"
+                          th:text="${item.productName}"
+                        >
+                          Sản phẩm
+                        </div>
+                        <div
+                          th:if="${item.variantName}"
+                          class="order-item__variant"
+                          th:text="${item.variantName}"
+                        >
+                          Variant
+                        </div>
+                      </div>
+                      <div
+                        class="order-item__price"
+                        th:text="${#numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                      >
+                        0 ₫
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Voucher -->
+                  <div class="voucher-section mb-4">
+                    <div class="voucher-form">
+                      <input
+                        type="text"
+                        name="voucherCode"
+                        th:field="*{voucherCode}"
+                        class="form-control"
+                        placeholder="Nhập mã giảm giá"
+                        id="voucherInput"
+                      />
+                      <button
+                        type="button"
+                        class="btn btn-dark"
+                        onclick="applyVoucher()"
+                      >
+                        Áp dụng
+                      </button>
+                    </div>
+                    <div
+                      id="voucherMessage"
+                      class="mt-2"
+                      style="font-size: 13px"
+                    ></div>
+                  </div>
+
+                  <!-- Summary -->
+                  <div class="cart-summary__row">
+                    <span class="cart-summary__label">Tạm tính</span>
+                    <span
+                      class="cart-summary__value"
+                      id="subtotalValue"
+                      th:text="${#numbers.formatDecimal(subtotal, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                      >0 ₫</span
+                    >
+                  </div>
+
+                  <div class="cart-summary__row">
+                    <span class="cart-summary__label">Phí vận chuyển</span>
+                    <span class="cart-summary__value" id="shippingValue">
+                      <span
+                        th:if="${shippingFee. compareTo(T(java.math.BigDecimal).ZERO) == 0}"
+                        class="text-success"
+                        >Miễn phí</span
+                      >
+                      <span
+                        th:unless="${shippingFee.compareTo(T(java.math.BigDecimal).ZERO) == 0}"
+                        th:text="${#numbers.formatDecimal(shippingFee, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                        >30,000 ₫</span
+                      >
+                    </span>
+                  </div>
+
+                  <div
+                    class="cart-summary__row"
+                    id="discountRow"
+                    style="display: none"
+                  >
+                    <span class="cart-summary__label">Giảm giá</span>
+                    <span
+                      class="cart-summary__value text-success"
+                      id="discountValue"
+                      >-0 ₫</span
+                    >
+                  </div>
+
+                  <div class="cart-summary__total">
+                    <span class="cart-summary__total-label">Tổng cộng</span>
+                    <span
+                      class="cart-summary__total-value"
+                      id="totalValue"
+                      th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                      >0 ₫</span
+                    >
+                  </div>
+
+                  <button
+                    type="submit"
+                    class="btn btn-primary btn-lg btn-block mt-4"
+                    id="placeOrderBtn"
+                  >
+                    <i class="bx bx-check-circle"></i>
+                    Đặt hàng
+                  </button>
+
+                  <p
+                    class="text-center text-muted mt-3"
+                    style="font-size: 12px"
+                  >
+                    Bằng việc đặt hàng, bạn đồng ý với
+                    <a th:href="@{/policy/terms}" class="text-cyan"
+                      >Điều khoản sử dụng</a
+                    >
+                  </p>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+      <script>
+        // Select saved address
+        function selectAddress(card) {
+            document.querySelectorAll('.address-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            card.querySelector('input[type="radio"]').checked = true;
+
+            // Hide new address form
+            document.getElementById('newAddressForm').classList.add('d-none');
+        }
+
+        // Toggle new address form
+        function toggleNewAddressForm() {
+            const form = document.getElementById('newAddressForm');
+            form.classList.toggle('d-none');
+
+            if (! form.classList.contains('d-none')) {
+                // Deselect saved addresses
+                document.querySelectorAll('.address-card').forEach(c => c.classList.remove('selected'));
+                document.querySelectorAll('.address-card input[type="radio"]').forEach(r => r.checked = false);
+            }
+        }
+
+        // Payment method selection
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', function() {
+                document.querySelectorAll('.payment-method').forEach(m => {
+                    m.classList.remove('selected');
+                    m.querySelector('. bx-check-circle').style.opacity = '0';
+                });
+
+                this.classList.add('selected');
+                this.querySelector('.bx-check-circle').style.opacity = '1';
+                this.querySelector('input[type="radio"]').checked = true;
+            });
+        });
+
+        // Apply voucher
+        async function applyVoucher() {
+            const code = document.getElementById('voucherInput').value.trim();
+            if (!code) {
+                showToast('warning', 'Cảnh báo', 'Vui lòng nhập mã giảm giá');
+                return;
+            }
+
+            try {
+                const subtotal = [[${subtotal}]];
+                const response = await fetch('/api/vouchers/check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code, orderAmount: subtotal })
+                });
+
+                const data = await response.json();
+                const messageEl = document.getElementById('voucherMessage');
+
+                if (data.success) {
+                    messageEl.innerHTML = `<span class="text-success"><i class='bx bx-check'></i> ${data.message}</span>`;
+
+                    document.getElementById('discountRow').style.display = 'flex';
+                    document.getElementById('discountValue').textContent = '-' + formatCurrency(data.data.discountAmount);
+                    document.getElementById('totalValue').textContent = formatCurrency(data.data.finalAmount);
+
+                    showToast('success', 'Thành công', 'Áp dụng mã giảm giá thành công');
+                } else {
+                    messageEl. innerHTML = `<span class="text-danger"><i class='bx bx-x'></i> ${data.message}</span>`;
+                }
+            } catch (error) {
+                showToast('error', 'Lỗi', 'Không thể kiểm tra mã giảm giá');
+            }
+        }
+
+        // Form validation
+        document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+            const btn = document.getElementById('placeOrderBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bx bx-loader bx-spin"></i> Đang xử lý...';
+        });
+
+        // Load Vietnam provinces (simplified)
+        // In production, use a proper API or static data
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load cities/provinces
+            const cities = [
+                'Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Hải Phòng', 'Cần Thơ',
+                'An Giang', 'Bà Rịa - Vũng Tàu', 'Bắc Giang', 'Bắc Kạn', 'Bạc Liêu',
+                // ... add more
+            ];
+
+            const citySelect = document.getElementById('citySelect');
+            cities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = city;
+                citySelect.appendChild(option);
+            });
+        });
+      </script>
+
+      <style>
+        .order-item {
+          position: relative;
+        }
+
+        .order-item__image {
+          position: relative;
+        }
+
+        @media (max-width: 992px) {
+          .checkout-layout {
+            grid-template-columns: 1fr !important;
+          }
+
+          .checkout-right {
+            order: -1;
+          }
+        }
+      </style>
+    </th:block>
+  </body>
+</html>

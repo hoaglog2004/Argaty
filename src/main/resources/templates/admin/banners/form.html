@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/admin}"
+>
+  <head>
+    <title th:text="${isEdit} ? 'Sửa banner' : 'Thêm banner'">Banner</title>
+  </head>
+
+  <body>
+    <div layout:fragment="content">
+      <div class="admin-page-header">
+        <h1
+          class="admin-page-title"
+          th:text="${isEdit} ?  'Sửa banner' : 'Thêm banner mới'"
+        >
+          Banner
+        </h1>
+        <a th:href="@{/admin/banners}" class="btn btn-ghost"
+          ><i class="bx bx-arrow-back"></i> Quay lại</a
+        >
+      </div>
+
+      <div class="admin-form-card" style="max-width: 700px">
+        <form
+          th:action="${isEdit} ? @{/admin/banners/{id}/edit(id=${banner.id})} : @{/admin/banners/create}"
+          method="post"
+          th:object="${bannerRequest}"
+          enctype="multipart/form-data"
+        >
+          <input
+            type="hidden"
+            th:name="${_csrf.parameterName}"
+            th:value="${_csrf.token}"
+          />
+
+          <div class="form-group">
+            <label class="form-label"
+              >Hình ảnh <span class="text-danger">*</span></label
+            >
+            <div
+              class="image-upload"
+              onclick="document.getElementById('bannerImage').click()"
+            >
+              <input
+                type="file"
+                id="bannerImage"
+                name="imageFile"
+                accept="image/*"
+                style="display: none"
+                onchange="previewBanner(this)"
+              />
+              <div id="bannerPreviewContainer">
+                <img
+                  th:if="${banner != null && banner.imageUrl}"
+                  th:src="${banner.imageUrl}"
+                  id="bannerPreview"
+                  style="max-width: 100%; max-height: 200px; border-radius: 8px"
+                />
+                <div th:unless="${banner != null && banner.imageUrl}">
+                  <i class="bx bx-cloud-upload image-upload__icon"></i>
+                  <p class="image-upload__text">Click để tải ảnh banner</p>
+                  <p class="image-upload__hint">
+                    Kích thước đề xuất: 1920x600px
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-form-grid">
+            <div class="form-group">
+              <label class="form-label">Tiêu đề</label>
+              <input
+                type="text"
+                th:field="*{title}"
+                class="form-control"
+                placeholder="Tiêu đề banner (tùy chọn)"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Subtitle</label>
+              <input
+                type="text"
+                th:field="*{subtitle}"
+                class="form-control"
+                placeholder="Mô tả ngắn (tùy chọn)"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Link</label>
+            <input
+              type="text"
+              th:field="*{link}"
+              class="form-control"
+              placeholder="URL khi click vào banner (VD: /products/sale)"
+            />
+          </div>
+
+          <div class="admin-form-grid">
+            <div class="form-group">
+              <label class="form-label">Vị trí hiển thị</label>
+              <select th:field="*{position}" class="form-control form-select">
+                <option value="HOME_SLIDER">Slider trang chủ</option>
+                <option value="HOME_BANNER">Banner trang chủ</option>
+                <option value="CATEGORY_BANNER">Banner danh mục</option>
+                <option value="POPUP">Popup</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Thứ tự hiển thị</label>
+              <input
+                type="number"
+                th:field="*{displayOrder}"
+                class="form-control"
+                min="0"
+                value="0"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-check">
+              <input
+                type="checkbox"
+                th:field="*{isActive}"
+                class="form-check-input"
+              />
+              <span class="form-check-label">Hiển thị banner</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <i class="bx bx-save"></i>
+            <span th:text="${isEdit} ? 'Cập nhật' : 'Tạo banner'">Lưu</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+      <script>
+        function previewBanner(input) {
+          if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              const container = document.getElementById(
+                "bannerPreviewContainer"
+              );
+              container.innerHTML = `<img src="${e.target.result}" id="bannerPreview" style="max-width: 100%; max-height: 200px; border-radius: 8px;">`;
+            };
+            reader.readAsDataURL(input.files[0]);
+          }
+        }
+      </script>
+    </th:block>
+  </body>
+</html>

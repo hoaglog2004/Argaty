@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <footer th:fragment="footer" class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div class="footer__grid">
+          <!-- Brand -->
+          <div class="footer__brand">
+            <div class="footer__logo">
+              <div class="footer__logo-icon">
+                <i class="bx bx-planet"></i>
+              </div>
+              <span class="footer__logo-text">ARGATY</span>
+            </div>
+            <p class="footer__desc">
+              Argaty - Thiên đường Gaming Gear. Chúng tôi cung cấp các sản phẩm
+              gaming gear chính hãng, chất lượng cao với giá cả cạnh tranh nhất
+              thị trường.
+            </p>
+            <div class="footer__social">
+              <a href="#" class="footer__social-link" title="Facebook">
+                <i class="bx bxl-facebook"></i>
+              </a>
+              <a href="#" class="footer__social-link" title="Instagram">
+                <i class="bx bxl-instagram"></i>
+              </a>
+              <a href="#" class="footer__social-link" title="YouTube">
+                <i class="bx bxl-youtube"></i>
+              </a>
+              <a href="#" class="footer__social-link" title="Discord">
+                <i class="bx bxl-discord-alt"></i>
+              </a>
+              <a href="#" class="footer__social-link" title="TikTok">
+                <i class="bx bxl-tiktok"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Quick Links -->
+          <div class="footer__column">
+            <h4 class="footer__title">Danh mục</h4>
+            <div class="footer__links">
+              <a
+                th:href="@{/products(category='chuot-gaming')}"
+                class="footer__link"
+              >
+                <i class="bx bx-chevron-right"></i> Chuột Gaming
+              </a>
+              <a
+                th:href="@{/products(category='ban-phim-gaming')}"
+                class="footer__link"
+              >
+                <i class="bx bx-chevron-right"></i> Bàn phím Gaming
+              </a>
+              <a
+                th:href="@{/products(category='tai-nghe-gaming')}"
+                class="footer__link"
+              >
+                <i class="bx bx-chevron-right"></i> Tai nghe Gaming
+              </a>
+              <a
+                th:href="@{/products(category='ghe-gaming')}"
+                class="footer__link"
+              >
+                <i class="bx bx-chevron-right"></i> Ghế Gaming
+              </a>
+              <a
+                th:href="@{/products(category='phu-kien')}"
+                class="footer__link"
+              >
+                <i class="bx bx-chevron-right"></i> Phụ kiện
+              </a>
+            </div>
+          </div>
+
+          <!-- Support -->
+          <div class="footer__column">
+            <h4 class="footer__title">Hỗ trợ</h4>
+            <div class="footer__links">
+              <a th:href="@{/faq}" class="footer__link">
+                <i class="bx bx-chevron-right"></i> FAQ
+              </a>
+              <a th:href="@{/policy/shipping}" class="footer__link">
+                <i class="bx bx-chevron-right"></i> Chính sách vận chuyển
+              </a>
+              <a th:href="@{/policy/return}" class="footer__link">
+                <i class="bx bx-chevron-right"></i> Chính sách đổi trả
+              </a>
+              <a th:href="@{/policy/warranty}" class="footer__link">
+                <i class="bx bx-chevron-right"></i> Chính sách bảo hành
+              </a>
+              <a th:href="@{/policy/privacy}" class="footer__link">
+                <i class="bx bx-chevron-right"></i> Chính sách bảo mật
+              </a>
+            </div>
+          </div>
+
+          <!-- Contact -->
+          <div class="footer__column">
+            <h4 class="footer__title">Liên hệ</h4>
+            <div class="footer__contact">
+              <div class="footer__contact-item">
+                <div class="footer__contact-icon">
+                  <i class="bx bx-map"></i>
+                </div>
+                <div>
+                  <span>123 Đường ABC, Quận XYZ</span><br />
+                  <span>TP. Hồ Chí Minh, Việt Nam</span>
+                </div>
+              </div>
+              <div class="footer__contact-item">
+                <div class="footer__contact-icon">
+                  <i class="bx bx-phone"></i>
+                </div>
+                <div>
+                  <span
+                    >Hotline:
+                    <a href="tel:1900123456" class="text-cyan"
+                      >1900 123 456</a
+                    ></span
+                  >
+                </div>
+              </div>
+              <div class="footer__contact-item">
+                <div class="footer__contact-icon">
+                  <i class="bx bx-envelope"></i>
+                </div>
+                <div>
+                  <span
+                    >Email:
+                    <a href="mailto:support@argaty.com" class="text-cyan"
+                      >support@argaty.com</a
+                    ></span
+                  >
+                </div>
+              </div>
+              <div class="footer__contact-item">
+                <div class="footer__contact-icon">
+                  <i class="bx bx-time"></i>
+                </div>
+                <div>
+                  <span>8:00 - 22:00 (T2 - CN)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom -->
+      <div class="footer__bottom">
+        <p class="footer__copyright">
+          ©
+          <span th:text="${#dates.year(#dates.createNow())}">2024</span> Argaty.
+          All rights reserved.
+        </p>
+        <div class="footer__payments">
+          <img
+            th:src="@{/images/payments/visa.svg}"
+            alt="Visa"
+            class="footer__payment-icon"
+          />
+          <img
+            th:src="@{/images/payments/mastercard.svg}"
+            alt="Mastercard"
+            class="footer__payment-icon"
+          />
+          <img
+            th:src="@{/images/payments/momo.svg}"
+            alt="Momo"
+            class="footer__payment-icon"
+          />
+          <img
+            th:src="@{/images/payments/zalopay.svg}"
+            alt="ZaloPay"
+            class="footer__payment-icon"
+          />
+          <img
+            th:src="@{/images/payments/vnpay.svg}"
+            alt="VNPay"
+            class="footer__payment-icon"
+          />
+          <img
+            th:src="@{/images/payments/cod.svg}"
+            alt="COD"
+            class="footer__payment-icon"
+          />
+        </div>
+      </div>
+    </div>
+  </footer>
+</html>

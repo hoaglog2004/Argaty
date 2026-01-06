@@ -1,0 +1,142 @@
+<! DOCTYPE html>
+<html xmlns: th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout: decorate="~{layouts/main}">
+
+<head>
+    <title>Đặt hàng thành công</title>
+</head>
+
+<body>
+<main layout:fragment="content">
+    <div class="order-success-page" style="padding: 120px 0 80px;">
+        <div class="container">
+            <div class="success-card card glass text-center" style="max-width: 700px; margin: 0 auto; padding: 50px;">
+                
+                <!-- Success Animation -->
+                <div class="success-icon" style="width: 120px; height: 120px; margin: 0 auto 30px; background: var(--gradient-aurora); border-radius: 50%; display: flex; align-items:  center; justify-content: center; animation: pulse-glow 2s infinite;">
+                    <i class='bx bx-check' style="font-size: 60px; color: #fff;"></i>
+                </div>
+                
+                <h1 class="text-gradient mb-3">Đặt hàng thành công!</h1>
+                <p class="text-secondary mb-4" style="font-size: 18px;">
+                    Cảm ơn bạn đã đặt hàng tại Argaty.  Đơn hàng của bạn đang được xử lý.
+                </p>
+                
+                <!-- Order Info -->
+                <div class="order-info card p-4 mb-4" style="background: var(--bg-void); text-align: left;">
+                    <div class="d-flex justify-between mb-3">
+                        <span class="text-muted">Mã đơn hàng: </span>
+                        <span class="text-cyan" style="font-family: var(--font-heading); font-weight: 700; font-size: 18px;" th:text="${order.orderCode}">ARG123456</span>
+                    </div>
+                    <div class="d-flex justify-between mb-3">
+                        <span class="text-muted">Ngày đặt: </span>
+                        <span th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 12:00</span>
+                    </div>
+                    <div class="d-flex justify-between mb-3">
+                        <span class="text-muted">Trạng thái:</span>
+                        <span class="status-badge status-badge--pending" th:text="${order.statusDisplayName}">Chờ xác nhận</span>
+                    </div>
+                    <div class="d-flex justify-between mb-3">
+                        <span class="text-muted">Phương thức thanh toán:</span>
+                        <span th: text="${order.paymentMethodDisplayName}">COD</span>
+                    </div>
+                    <div class="d-flex justify-between">
+                        <span class="text-muted">Tổng tiền:</span>
+                        <span class="text-cyan" style="font-family: var(--font-heading); font-weight: 700; font-size: 20px;" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
+                    </div>
+                </div>
+                
+                <!-- Shipping Info -->
+                <div class="shipping-info card p-4 mb-4" style="background: var(--bg-void); text-align: left;">
+                    <h4 class="mb-3"><i class='bx bx-map text-primary'></i> Địa chỉ giao hàng</h4>
+                    <p class="mb-1"><strong th:text="${order.receiverName}">Tên</strong></p>
+                    <p class="mb-1 text-cyan" th:text="${order.receiverPhone}">SĐT</p>
+                    <p class="text-muted" th:text="${order.fullAddress}">Địa chỉ</p>
+                </div>
+                
+                <!-- Order Items -->
+                <div class="order-items-preview card p-4 mb-4" style="background: var(--bg-void); text-align: left;">
+                    <h4 class="mb-3"><i class='bx bx-package text-primary'></i> Sản phẩm đã đặt</h4>
+                    <div th:each="item : ${order. items}" class="order-item mb-3" style="display: flex; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
+                        <div style="width: 60px; height: 60px; border-radius: 8px; overflow: hidden; flex-shrink: 0;">
+                            <img th:src="${item.productImage}" th:alt="${item. productName}" style="width: 100%; height:  100%; object-fit: cover;">
+                        </div>
+                        <div style="flex:  1;">
+                            <p class="mb-1" th:text="${item.productName}">Sản phẩm</p>
+                            <p class="text-muted" style="font-size: 13px;">
+                                <span th:if="${item.variantName}" th:text="${item.variantName} + ' | '"></span>
+                                x<span th:text="${item.quantity}">1</span>
+                            </p>
+                        </div>
+                        <div class="text-cyan" style="font-weight: 600;" th:text="${#numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</div>
+                    </div>
+                </div>
+                
+                <!-- Info Notice -->
+                <div class="alert alert-info mb-4">
+                    <i class='bx bx-info-circle'></i>
+                    <span>Chúng tôi sẽ gửi email xác nhận đơn hàng và thông tin theo dõi đến <strong th:text="${order.receiverEmail}">email@example.com</strong></span>
+                </div>
+                
+                <!-- Actions -->
+                <div class="d-flex gap-3 justify-center flex-wrap">
+                    <a th:href="@{/profile/orders/{code}(code=${order.orderCode})}" class="btn btn-primary btn-lg">
+                        <i class='bx bx-package'></i>
+                        Theo dõi đơn hàng
+                    </a>
+                    <a th:href="@{/products}" class="btn btn-outline btn-lg">
+                        <i class='bx bx-shopping-bag'></i>
+                        Tiếp tục mua sắm
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<th:block layout: fragment="scripts">
+<script>
+// Confetti effect (optional)
+document.addEventListener('DOMContentLoaded', function() {
+    // Simple confetti animation
+    for (let i = 0; i < 50; i++) {
+        createConfetti();
+    }
+});
+
+function createConfetti() {
+    const confetti = document.createElement('div');
+    confetti.style.cssText = `
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background: ${['var(--primary)', 'var(--accent-cyan)', 'var(--accent-pink)', 'var(--star-gold)'][Math.floor(Math.random() * 4)]};
+        left: ${Math.random() * 100}vw;
+        top: -10px;
+        border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
+        pointer-events: none;
+        z-index: 9999;
+        animation: confetti-fall ${3 + Math.random() * 2}s linear forwards;
+    `;
+    
+    document.body.appendChild(confetti);
+    
+    setTimeout(() => confetti.remove(), 5000);
+}
+
+// Add confetti animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes confetti-fall {
+        to {
+            transform: translateY(100vh) rotate(720deg);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+</script>
+</th:block>
+</body>
+</html>

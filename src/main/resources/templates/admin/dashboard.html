@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/admin}"
+>
+  <head>
+    <title>Dashboard</title>
+  </head>
+
+  <body>
+    <div layout:fragment="content">
+      <div class="admin-page-header">
+        <h1 class="admin-page-title">Dashboard</h1>
+        <div class="admin-page-actions">
+          <select
+            class="form-control form-select"
+            style="width: auto"
+            onchange="changePeriod(this.value)"
+          >
+            <option value="today">Hôm nay</option>
+            <option value="week" selected>7 ngày qua</option>
+            <option value="month">30 ngày qua</option>
+            <option value="year">Năm nay</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="dashboard-stats">
+        <div class="dashboard-stat-card">
+          <div class="dashboard-stat-card__info">
+            <h3
+              th:text="${#numbers.formatDecimal(stats.revenueThisMonth, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+            >
+              0 ₫
+            </h3>
+            <p>Doanh thu tháng</p>
+            <div class="dashboard-stat-card__change positive">
+              <i class="bx bx-up-arrow-alt"></i> +12.5%
+            </div>
+          </div>
+          <div class="dashboard-stat-card__icon purple">
+            <i class="bx bx-dollar-circle"></i>
+          </div>
+        </div>
+
+        <div class="dashboard-stat-card">
+          <div class="dashboard-stat-card__info">
+            <h3 th:text="${stats.ordersThisMonth}">0</h3>
+            <p>Đơn hàng tháng</p>
+            <div class="dashboard-stat-card__change positive">
+              <i class="bx bx-up-arrow-alt"></i> +8.2%
+            </div>
+          </div>
+          <div class="dashboard-stat-card__icon cyan">
+            <i class="bx bx-package"></i>
+          </div>
+        </div>
+
+        <div class="dashboard-stat-card">
+          <div class="dashboard-stat-card__info">
+            <h3 th:text="${stats.totalProducts}">0</h3>
+            <p>Tổng sản phẩm</p>
+            <p
+              class="text-warning"
+              style="font-size: 12px"
+              th:if="${stats.outOfStockProducts > 0}"
+            >
+              <span th:text="${stats.outOfStockProducts}">0</span> hết hàng
+            </p>
+          </div>
+          <div class="dashboard-stat-card__icon pink">
+            <i class="bx bx-box"></i>
+          </div>
+        </div>
+
+        <div class="dashboard-stat-card">
+          <div class="dashboard-stat-card__info">
+            <h3 th:text="${stats.totalUsers}">0</h3>
+            <p>Khách hàng</p>
+            <div class="dashboard-stat-card__change positive">
+              <i class="bx bx-up-arrow-alt"></i> +<span
+                th:text="${stats.newUsersThisMonth}"
+                >0</span
+              >
+              mới
+            </div>
+          </div>
+          <div class="dashboard-stat-card__icon green">
+            <i class="bx bx-user"></i>
+          </div>
+        </div>
+
+        <div class="dashboard-stat-card">
+          <div class="dashboard-stat-card__info">
+            <h3 th:text="${stats.pendingOrders}">0</h3>
+            <p>Chờ xử lý</p>
+          </div>
+          <div class="dashboard-stat-card__icon orange">
+            <i class="bx bx-time"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="dashboard-charts">
+        <div class="dashboard-chart-card">
+          <div class="dashboard-chart-card__header">
+            <h4 class="dashboard-chart-card__title">Doanh thu 7 ngày qua</h4>
+          </div>
+          <div class="chart-container" style="height: 300px">
+            <canvas
+              id="revenueChart"
+              th:data-labels="${stats.chartLabels}"
+              th:data-values="${stats.chartValues}"
+            ></canvas>
+          </div>
+        </div>
+
+        <div class="dashboard-chart-card">
+          <div class="dashboard-chart-card__header">
+            <h4 class="dashboard-chart-card__title">Trạng thái đơn hàng</h4>
+          </div>
+          <div class="order-status-list">
+            <div
+              class="d-flex justify-between align-center p-3"
+              style="border-bottom: 1px solid var(--border-color)"
+            >
+              <span class="text-warning"
+                ><i class="bx bx-time"></i> Chờ xác nhận</span
+              >
+              <strong th:text="${stats.pendingOrders}">0</strong>
+            </div>
+            <div
+              class="d-flex justify-between align-center p-3"
+              style="border-bottom: 1px solid var(--border-color)"
+            >
+              <span class="text-info"
+                ><i class="bx bx-check"></i> Đã xác nhận</span
+              >
+              <strong th:text="${stats.processingOrders}">0</strong>
+            </div>
+            <div
+              class="d-flex justify-between align-center p-3"
+              style="border-bottom: 1px solid var(--border-color)"
+            >
+              <span class="text-primary"
+                ><i class="bx bx-car"></i> Đang giao</span
+              >
+              <strong th:text="${stats.shippingOrders}">0</strong>
+            </div>
+            <div
+              class="d-flex justify-between align-center p-3"
+              style="border-bottom: 1px solid var(--border-color)"
+            >
+              <span class="text-success"
+                ><i class="bx bx-check-double"></i> Hoàn thành</span
+              >
+              <strong th:text="${stats.completedOrders}">0</strong>
+            </div>
+            <div class="d-flex justify-between align-center p-3">
+              <span class="text-danger"><i class="bx bx-x"></i> Đã hủy</span>
+              <strong th:text="${stats.cancelledOrders}">0</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Orders & Top Products -->
+      <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px">
+        <!-- Recent Orders -->
+        <div class="admin-table-wrapper">
+          <div
+            class="d-flex justify-between align-center p-4"
+            style="border-bottom: 1px solid var(--border-color)"
+          >
+            <h4 class="mb-0">Đơn hàng gần đây</h4>
+            <a th:href="@{/admin/orders}" class="btn btn-ghost btn-sm"
+              >Xem tất cả</a
+            >
+          </div>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Mã đơn</th>
+                <th>Khách hàng</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="order :  ${recentOrders}">
+                <td>
+                  <span class="text-cyan" th:text="${order.orderCode}"
+                    >ARG123</span
+                  >
+                </td>
+                <td th:text="${order.customerName}">Khách hàng</td>
+                <td
+                  th:text="${#numbers.formatDecimal(order. totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                >
+                  0 ₫
+                </td>
+                <td>
+                  <span
+                    class="status-badge"
+                    th:classappend="'status-badge--' + ${order.status.name().toLowerCase()}"
+                    th:text="${order.statusDisplayName}"
+                    >Trạng thái</span
+                  >
+                </td>
+              </tr>
+              <tr th:if="${recentOrders == null || recentOrders.isEmpty()}">
+                <td colspan="4" class="text-center text-muted p-4">
+                  Chưa có đơn hàng
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Top Products -->
+        <div class="card">
+          <div class="card-header">
+            <h4 class="mb-0">Top sản phẩm bán chạy</h4>
+          </div>
+          <div class="card-body p-0">
+            <div
+              th:each="product, stat : ${stats.topSellingProducts}"
+              class="d-flex align-center gap-3 p-3"
+              style="border-bottom: 1px solid var(--border-color)"
+            >
+              <span class="text-muted" th:text="${stat.index + 1}">#1</span>
+              <div style="flex: 1">
+                <p class="mb-0" th:text="${product.productName}">Sản phẩm</p>
+                <small class="text-muted"
+                  >Đã bán: <span th:text="${product.soldCount}">0</span></small
+                >
+              </div>
+            </div>
+            <div
+              th:if="${stats.topSellingProducts == null || stats.topSellingProducts.isEmpty()}"
+              class="text-center text-muted p-4"
+            >
+              Chưa có dữ liệu
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          const canvas = document.getElementById("revenueChart");
+          if (canvas && typeof Chart !== "undefined") {
+            const labels = canvas.dataset.labels?.split(",") || [
+              "T2",
+              "T3",
+              "T4",
+              "T5",
+              "T6",
+              "T7",
+              "CN",
+            ];
+            const values = canvas.dataset.values?.split(",").map(Number) || [
+              0, 0, 0, 0, 0, 0, 0,
+            ];
+
+            new Chart(canvas, {
+              type: "line",
+              data: {
+                labels: labels,
+                datasets: [
+                  {
+                    label: "Doanh thu",
+                    data: values,
+                    borderColor: "#8b5cf6",
+                    backgroundColor: "rgba(139, 92, 246, 0.1)",
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    grid: { color: "rgba(139, 92, 246, 0.1)" },
+                    ticks: { color: "#64748b" },
+                  },
+                  x: {
+                    grid: { display: false },
+                    ticks: { color: "#64748b" },
+                  },
+                },
+              },
+            });
+          }
+        });
+      </script>
+    </th:block>
+  </body>
+</html>

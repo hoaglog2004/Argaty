@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/main}"
+>
+  <head>
+    <title>Câu hỏi thường gặp</title>
+  </head>
+
+  <body>
+    <main layout:fragment="content">
+      <div class="faq-page" style="padding: 120px 0 80px">
+        <div class="container" style="max-width: 900px">
+          <div class="text-center mb-5">
+            <h1 class="section-title text-gradient">Câu hỏi thường gặp</h1>
+            <p class="section-subtitle">
+              Tìm câu trả lời cho những thắc mắc phổ biến
+            </p>
+          </div>
+
+          <!-- Search -->
+          <div class="card p-4 mb-5">
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Tìm kiếm câu hỏi..."
+                id="faqSearch"
+              />
+              <button class="btn btn-primary">
+                <i class="bx bx-search"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- FAQ Categories -->
+          <div class="faq-categories mb-4">
+            <button class="btn btn-dark active" data-category="all">
+              Tất cả
+            </button>
+            <button class="btn btn-ghost" data-category="order">
+              Đặt hàng
+            </button>
+            <button class="btn btn-ghost" data-category="shipping">
+              Vận chuyển
+            </button>
+            <button class="btn btn-ghost" data-category="payment">
+              Thanh toán
+            </button>
+            <button class="btn btn-ghost" data-category="warranty">
+              Bảo hành
+            </button>
+          </div>
+
+          <!-- FAQ List -->
+          <div class="faq-list">
+            <div class="faq-item card mb-3" data-category="order">
+              <div class="faq-question p-4" onclick="toggleFaq(this)">
+                <h4 class="mb-0 d-flex justify-between align-center">
+                  <span>Làm sao để đặt hàng tại Argaty?</span>
+                  <i class="bx bx-chevron-down"></i>
+                </h4>
+              </div>
+              <div class="faq-answer p-4 pt-0" style="display: none">
+                <p class="text-secondary">
+                  Bạn có thể đặt hàng theo các bước sau:
+                </p>
+                <ol class="text-secondary" style="padding-left: 20px">
+                  <li>Chọn sản phẩm và thêm vào giỏ hàng</li>
+                  <li>Vào giỏ hàng và nhấn "Thanh toán"</li>
+                  <li>
+                    Điền thông tin giao hàng và chọn phương thức thanh toán
+                  </li>
+                  <li>Xác nhận đơn hàng</li>
+                </ol>
+              </div>
+            </div>
+
+            <div class="faq-item card mb-3" data-category="shipping">
+              <div class="faq-question p-4" onclick="toggleFaq(this)">
+                <h4 class="mb-0 d-flex justify-between align-center">
+                  <span>Thời gian giao hàng là bao lâu?</span>
+                  <i class="bx bx-chevron-down"></i>
+                </h4>
+              </div>
+              <div class="faq-answer p-4 pt-0" style="display: none">
+                <p class="text-secondary">
+                  <strong>Nội thành HCM, Hà Nội: </strong> 1-2 ngày<br />
+                  <strong>Các tỉnh thành khác:</strong> 3-5 ngày<br />
+                  <strong>Vùng sâu, vùng xa:</strong> 5-7 ngày
+                </p>
+                <p class="text-muted">
+                  Lưu ý: Thời gian có thể thay đổi tùy thuộc vào đơn vị vận
+                  chuyển và điều kiện thời tiết.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item card mb-3" data-category="shipping">
+              <div class="faq-question p-4" onclick="toggleFaq(this)">
+                <h4 class="mb-0 d-flex justify-between align-center">
+                  <span>Phí vận chuyển là bao nhiêu?</span>
+                  <i class="bx bx-chevron-down"></i>
+                </h4>
+              </div>
+              <div class="faq-answer p-4 pt-0" style="display: none">
+                <p class="text-secondary">
+                  Phí vận chuyển mặc định là
+                  <strong class="text-cyan">30,000 ₫</strong>. <br />
+                  <strong class="text-success">Miễn phí ship</strong> cho đơn
+                  hàng từ <strong>500,000 ₫</strong> trở lên.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/admin}"
+>
+  <head>
+    <title>Quản lý thương hiệu</title>
+  </head>
+
+  <body>
+    <div layout:fragment="content">
+      <div class="admin-page-header">
+        <h1 class="admin-page-title">Quản lý thương hiệu</h1>
+        <a th:href="@{/admin/brands/create}" class="btn btn-primary">
+          <i class="bx bx-plus"></i> Thêm thương hiệu
+        </a>
+      </div>
+
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width: 60px">STT</th>
+              <th>Thương hiệu</th>
+              <th>Slug</th>
+              <th>Số sản phẩm</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="brand, stat : ${brands}">
+              <td th:text="${stat.index + 1}">1</td>
+              <td>
+                <div class="d-flex align-center gap-3">
+                  <div
+                    style="
+                      width: 50px;
+                      height: 50px;
+                      border-radius: 8px;
+                      background: var(--bg-void);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      overflow: hidden;
+                    "
+                  >
+                    <img
+                      th:if="${brand.logo}"
+                      th:src="${brand.logo}"
+                      style="
+                        max-width: 100%;
+                        max-height: 100%;
+                        object-fit: contain;
+                      "
+                    />
+                    <i
+                      th:unless="${brand.logo}"
+                      class="bx bx-image"
+                      style="font-size: 24px; color: var(--text-muted)"
+                    ></i>
+                  </div>
+                  <span th:text="${brand.name}">Brand</span>
+                </div>
+              </td>
+              <td><code th:text="${brand.slug}">slug</code></td>
+              <td th:text="${brand.productCount}">0</td>
+              <td>
+                <span
+                  th:if="${brand.isActive}"
+                  class="status-badge status-badge--completed"
+                  >Active</span
+                >
+                <span
+                  th:unless="${brand.isActive}"
+                  class="status-badge status-badge--cancelled"
+                  >Inactive</span
+                >
+              </td>
+              <td>
+                <div class="table-actions">
+                  <a
+                    th:href="@{/admin/brands/{id}/edit(id=${brand.id})}"
+                    class="table-action-btn edit"
+                    title="Sửa"
+                  >
+                    <i class="bx bx-edit"></i>
+                  </a>
+                  <form
+                    th:action="@{/admin/brands/{id}/delete(id=${brand.id})}"
+                    method="post"
+                    style="display: inline"
+                  >
+                    <input
+                      type="hidden"
+                      th:name="${_csrf.parameterName}"
+                      th:value="${_csrf.token}"
+                    />
+                    <button
+                      type="button"
+                      class="table-action-btn delete"
+                      title="Xóa"
+                      onclick="confirmDelete('Bạn có chắc muốn xóa thương hiệu này? ', () => this.closest('form').submit())"
+                    >
+                      <i class="bx bx-trash"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <tr th:if="${brands == null || brands.isEmpty()}">
+              <td colspan="6" class="text-center text-muted p-5">
+                Chưa có thương hiệu nào
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}">
+
+<head>
+    <title th:text="${currentCategory != null} ? ${currentCategory.name} :  (${currentBrand != null} ? ${currentBrand. name} : (${searchKeyword != null} ? 'Tìm kiếm:  ' + ${searchKeyword} :  'Tất cả sản phẩm'))">Sản phẩm</title>
+</head>
+
+<body>
+<main layout:fragment="content">
+    <div class="products-page" style="padding: 120px 0 80px;">
+        <div class="container">
+            
+            <!-- Breadcrumb -->
+            <nav class="breadcrumb">
+                <div class="breadcrumb__item">
+                    <a th:href="@{/}"><i class='bx bx-home'></i> Trang chủ</a>
+                </div>
+                <span class="breadcrumb__separator"><i class='bx bx-chevron-right'></i></span>
+                <div class="breadcrumb__item">
+                    <a th:href="@{/products}">Sản phẩm</a>
+                </div>
+                <th:block th:if="${currentCategory}">
+                    <span class="breadcrumb__separator"><i class='bx bx-chevron-right'></i></span>
+                    <div class="breadcrumb__item" th:text="${currentCategory.name}">Danh mục</div>
+                </th:block>
+                <th:block th:if="${currentBrand}">
+                    <span class="breadcrumb__separator"><i class='bx bx-chevron-right'></i></span>
+                    <div class="breadcrumb__item" th:text="${currentBrand.name}">Thương hiệu</div>
+                </th:block>
+                <th:block th:if="${searchKeyword}">
+                    <span class="breadcrumb__separator"><i class='bx bx-chevron-right'></i></span>
+                    <div class="breadcrumb__item">Tìm kiếm: "<span th:text="${searchKeyword}"></span>"</div>
+                </th:block>
+            </nav>
+            
+            <!-- Page Header -->
+            <div class="section-header" style="text-align: left; margin-bottom: 30px;">
+                <h1 class="section-title" style="font-size: 2rem;" 
+                    th:text="${currentCategory != null} ? ${currentCategory.name} : (${currentBrand != null} ? ${currentBrand.name} : (${searchKeyword != null} ? 'Kết quả tìm kiếm' : (${pageTitle != null} ? ${pageTitle} : 'Tất cả sản phẩm')))">
+                    Sản phẩm
+                </h1>
+                <p class="text-muted" th:if="${products.totalElements > 0}">
+                    Hiển thị <span th:text="${products.content.size()}">0</span> / 
+                    <span th:text="${products.totalElements}">0</span> sản phẩm
+                </p>
+            </div>
+            
+            <div class="products-layout" style="display: grid; grid-template-columns: 280px 1fr; gap: 30px;">
+                
+                <!-- Sidebar Filters -->
+                <aside class="products-sidebar">
+                    <form th:action="@{/products}" method="get" id="filterForm">
+                        <!-- Hidden inputs for current filters -->
+                        <input type="hidden" name="q" th:value="${searchKeyword}" th:if="${searchKeyword}">
+                        
+                        <!-- Categories Filter -->
+                        <div class="filter-section card p-4 mb-4">
+                            <h4 class="filter-title mb-3">
+                                <i class='bx bx-category text-primary'></i> Danh mục
+                            </h4>
+                            <div class="filter-options">
+                                <th:block th:each="cat : ${categories}">
+                                    <div class="form-check">
+                                        <input type="radio" name="category" th:value="${cat.slug}" 
+                                               th:id="'cat-' + ${cat.id}"
+                                               th:checked="${currentCategory != null && currentCategory.id == cat.id}"
+                                               class="form-check-input"
+                                               onchange="document.getElementById('filterForm').submit()">
+                                        <label th:for="'cat-' + ${cat.id}" class="form-check-label">
+                                            <span th:text="${cat.name}">Danh mục</span>
+                                            <span class="text-muted">(<span th:text="${cat.productCount}">0</span>)</span>
+                                        </label>
+                                    </div>
+                                    <!-- Children -->
+                                    <div th:if="${cat.children != null && ! cat.children.isEmpty()}" style="padding-left: 20px;">
+                                        <div th:each="child : ${cat. children}" class="form-check">
+                                            <input type="radio" name="category" th:value="${child.slug}" 
+                                                   th:id="'cat-' + ${child.id}"
+                                                   th:checked="${currentCategory != null && currentCategory.id == child. id}"
+                                                   class="form-check-input"
+                                                   onchange="document.getElementById('filterForm').submit()">
+                                            <label th:for="'cat-' + ${child.id}" class="form-check-label">
+                                                <span th:text="${child.name}">Sub</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </th:block>
+                            </div>
+                        </div>
+                        
+                        <!-- Brands Filter -->
+                        <div class="filter-section card p-4 mb-4">
+                            <h4 class="filter-title mb-3">
+                                <i class='bx bx-purchase-tag text-primary'></i> Thương hiệu
+                            </h4>
+                            <div class="filter-options" style="max-height: 250px; overflow-y: auto;">
+                                <th:block th:each="brand : ${brands}">
+                                    <div class="form-check">
+                                        <input type="radio" name="brand" th:value="${brand.slug}" 
+                                               th:id="'brand-' + ${brand.id}"
+                                               th:checked="${currentBrand != null && currentBrand. id == brand.id}"
+                                               class="form-check-input"
+                                               onchange="document.getElementById('filterForm').submit()">
+                                        <label th:for="'brand-' + ${brand.id}" class="form-check-label" th:text="${brand.name}">
+                                            Brand
+                                        </label>
+                                    </div>
+                                </th:block>
+                            </div>
+                        </div>
+                        
+                        <!-- Price Filter -->
+                        <div class="filter-section card p-4 mb-4">
+                            <h4 class="filter-title mb-3">
+                                <i class='bx bx-dollar text-primary'></i> Khoảng giá
+                            </h4>
+                            <div class="price-range">
+                                <div class="d-flex gap-2 mb-3">
+                                    <input type="number" name="minPrice" class="form-control" placeholder="Từ" 
+                                           th:value="${minPrice}" min="0">
+                                    <span class="align-center">-</span>
+                                    <input type="number" name="maxPrice" class="form-control" placeholder="Đến" 
+                                           th:value="${maxPrice}" min="0">
+                                </div>
+                                <button type="submit" class="btn btn-dark btn-sm btn-block">Áp dụng</button>
+                            </div>
+                            
+                            <!-- Quick Price Options -->
+                            <div class="quick-price-options mt-3">
+                                <button type="button" class="btn btn-ghost btn-sm" onclick="setPriceRange(0, 500000)">Dưới 500K</button>
+                                <button type="button" class="btn btn-ghost btn-sm" onclick="setPriceRange(500000, 1000000)">500K - 1Tr</button>
+                                <button type="button" class="btn btn-ghost btn-sm" onclick="setPriceRange(1000000, 2000000)">1Tr - 2Tr</button>
+                                <button type="button" class="btn btn-ghost btn-sm" onclick="setPriceRange(2000000, null)">Trên 2Tr</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Clear Filters -->
+                        <a th:href="@{/products}" class="btn btn-outline btn-block">
+                            <i class='bx bx-x'></i> Xóa bộ lọc
+                        </a>
+                    </form>
+                </aside>
+                
+                <!-- Products Content -->
+                <div class="products-content">
+                    <!-- Sort & View Options -->
+                    <div class="products-toolbar card p-3 mb-4" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                        <div class="toolbar-left d-flex align-center gap-3">
+                            <span class="text-muted">Sắp xếp:</span>
+                            <select class="form-select" style="width: auto;" id="sortSelect" onchange="changeSort(this. value)">
+                                <option value="newest" th:selected="${currentSort == 'newest'}">Mới nhất</option>
+                                <option value="price-asc" th:selected="${currentSort == 'price-asc'}">Giá tăng dần</option>
+                                <option value="price-desc" th:selected="${currentSort == 'price-desc'}">Giá giảm dần</option>
+                                <option value="name-asc" th:selected="${currentSort == 'name-asc'}">Tên A-Z</option>
+                                <option value="bestseller" th:selected="${currentSort == 'bestseller'}">Bán chạy</option>
+                                <option value="rating" th:selected="${currentSort == 'rating'}">Đánh giá cao</option>
+                            </select>
+                        </div>
+                        
+                        <div class="toolbar-right d-flex align-center gap-2">
+                            <button class="btn btn-ghost btn-icon" id="gridView" title="Dạng lưới">
+                                <i class='bx bx-grid-alt'></i>
+                            </button>
+                            <button class="btn btn-ghost btn-icon" id="listView" title="Dạng danh sách">
+                                <i class='bx bx-list-ul'></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Products Grid -->
+                    <div th:if="${products.content != null && ! products.content.isEmpty()}" class="products-grid" id="productsGrid">
+                        <th:block th:each="product :  ${products.content}">
+                            <th:block th:replace="~{fragments/product-card :: productCard(${product})}"></th:block>
+                        </th:block>
+                    </div>
+                    
+                    <!-- Empty State -->
+                    <div th:if="${products.content == null || products.content.isEmpty()}" class="empty-state">
+                        <div class="empty-state__icon">
+                            <i class='bx bx-search-alt'></i>
+                        </div>
+                        <h3 class="empty-state__title">Không tìm thấy sản phẩm</h3>
+                        <p class="empty-state__desc">
+                            Không có sản phẩm nào phù hợp với tiêu chí tìm kiếm.  Hãy thử thay đổi bộ lọc hoặc từ khóa. 
+                        </p>
+                        <a th:href="@{/products}" class="btn btn-primary">
+                            Xem tất cả sản phẩm
+                        </a>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <th:block th:replace="~{fragments/pagination :: pagination(${products}, '/products')}"></th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<th:block layout:fragment="scripts">
+<script>
+function changeSort(value) {
+    const url = new URL(window.location. href);
+    url.searchParams.set('sort', value);
+    url.searchParams.set('page', '0');
+    window.location.href = url.toString();
+}
+
+function setPriceRange(min, max) {
+    const form = document.getElementById('filterForm');
+    form.querySelector('[name="minPrice"]').value = min || '';
+    form.querySelector('[name="maxPrice"]').value = max || '';
+    form.submit();
+}
+
+// Grid/List view toggle
+document.getElementById('gridView')?.addEventListener('click', function() {
+    document.getElementById('productsGrid').classList.remove('list-view');
+    this.classList.add('active');
+    document.getElementById('listView').classList.remove('active');
+});
+
+document.getElementById('listView')?.addEventListener('click', function() {
+    document.getElementById('productsGrid').classList.add('list-view');
+    this.classList.add('active');
+    document.getElementById('gridView').classList.remove('active');
+});
+</script>
+
+<style>
+/* Responsive sidebar */
+@media (max-width: 992px) {
+    .products-layout {
+        grid-template-columns: 1fr ! important;
+    }
+    
+    .products-sidebar {
+        display: none;
+    }
+}
+
+/* List view styles */
+.products-grid.list-view {
+    grid-template-columns: 1fr ! important;
+}
+
+.products-grid.list-view .product-card {
+    flex-direction: row;
+}
+
+.products-grid.list-view .product-card__image {
+    width: 200px;
+    padding-top: 0;
+    height: 200px;
+}
+
+.products-grid.list-view .product-card__info {
+    padding: 20px;
+}
+
+.quick-price-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.quick-price-options .btn {
+    flex: 1;
+    min-width: calc(50% - 4px);
+}
+</style>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${errorCode} + ' - Argaty'">Lỗi - Argaty</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min. css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #8b5cf6;
+        --bg-space: #050412;
+        --text-primary: #f1f5f9;
+        --text-muted: #64748b;
+        --accent-cyan: #22d3ee;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--bg-space);
+        color: var(--text-primary);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+      }
+      .stars {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: radial-gradient(
+            2px 2px at 20px 30px,
+            #fff,
+            transparent
+          ),
+          radial-gradient(
+            2px 2px at 40px 70px,
+            rgba(255, 255, 255, 0.8),
+            transparent
+          ),
+          radial-gradient(1px 1px at 90px 40px, #fff, transparent);
+        background-size: 200px 200px;
+        animation: twinkle 4s ease-in-out infinite;
+      }
+      @keyframes twinkle {
+        0%,
+        100% {
+          opacity: 0.7;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+      .error-container {
+        text-align: center;
+        position: relative;
+        z-index: 1;
+        padding: 40px;
+      }
+      .error-code {
+        font-family: "Orbitron", sans-serif;
+        font-size: clamp(100px, 20vw, 200px);
+        font-weight: 900;
+        background: linear-gradient(135deg, #22d3ee, #8b5cf6, #f472b6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1;
+        text-shadow: 0 0 60px rgba(139, 92, 246, 0.5);
+      }
+      .error-title {
+        font-family: "Orbitron", sans-serif;
+        font-size: clamp(20px, 4vw, 32px);
+        margin: 20px 0;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+      .error-message {
+        color: var(--text-muted);
+        font-size: 16px;
+        max-width: 400px;
+        margin: 0 auto 30px;
+        line-height: 1.6;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 28px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+        color: #fff;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+      }
+      .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 40px rgba(139, 92, 246, 0.6);
+      }
+      .planet {
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle at 30% 30%,
+          rgba(139, 92, 246, 0.3),
+          rgba(15, 12, 35, 0.8)
+        );
+        box-shadow: inset -20px -20px 60px rgba(0, 0, 0, 0.8),
+          0 0 40px rgba(139, 92, 246, 0.2);
+        bottom: -100px;
+        right: -50px;
+        opacity: 0.5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stars"></div>
+    <div class="planet"></div>
+
+    <div class="error-container">
+      <div class="error-code" th:text="${errorCode}">404</div>
+      <h1 class="error-title" th:text="${errorTitle}">Không tìm thấy trang</h1>
+      <p class="error-message" th:text="${errorMessage}">
+        Trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển.
+      </p>
+      <a th:href="@{/}" class="btn">
+        <i class="bx bx-home"></i> Về trang chủ
+      </a>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/admin}"
+>
+  <head>
+    <title>Cài đặt hệ thống</title>
+  </head>
+
+  <body>
+    <div layout:fragment="content">
+      <div class="admin-page-header">
+        <h1 class="admin-page-title">Cài đặt hệ thống</h1>
+      </div>
+
+      <div class="tabs mb-4">
+        <button class="tab active" data-tab="general">Chung</button>
+        <button class="tab" data-tab="shipping">Vận chuyển</button>
+        <button class="tab" data-tab="payment">Thanh toán</button>
+        <button class="tab" data-tab="email">Email</button>
+      </div>
+
+      <!-- General Settings -->
+      <div class="tab-content active" id="general">
+        <div class="admin-form-card" style="max-width: 700px">
+          <div class="admin-form-card__header">
+            <h4 class="admin-form-card__title">
+              <i class="bx bx-cog text-primary"></i> Cài đặt chung
+            </h4>
+          </div>
+
+          <form th:action="@{/admin/settings/general}" method="post">
+            <input
+              type="hidden"
+              th:name="${_csrf.parameterName}"
+              th:value="${_csrf.token}"
+            />
+
+            <div class="form-group">
+              <label class="form-label">Tên cửa hàng</label>
+              <input
+                type="text"
+                name="storeName"
+                class="form-control"
+                th:value="${settings.storeName}"
+                placeholder="Argaty - Gaming Gear"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Email liên hệ</label>
+              <input
+                type="email"
+                name="contactEmail"
+                class="form-control"
+                th:value="${settings.contactEmail}"
+                placeholder="support@argaty.com"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Số điện thoại</label>
+              <input
+                type="text"
+                name="contactPhone"
+                class="form-control"
+                th:value="${settings.contactPhone}"
+                placeholder="1900 123 456"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Địa chỉ</label>
+              <textarea
+                name="address"
+                class="form-control"
+                rows="2"
+                th:text="${settings.address}"
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Mô tả SEO</label>
+              <textarea
+                name="seoDescription"
+                class="form-control"
+                rows="3"
+                th:text="${settings.seoDescription}"
+              ></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+              <i class="bx bx-save"></i> Lưu cài đặt
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Shipping Settings -->
+      <div class="tab-content" id="shipping">
+        <div class="admin-form-card" style="max-width: 700px">
+          <div class="admin-form-card__header">
+            <h4 class="admin-form-card__title">
+              <i class="bx bx-package text-primary"></i> Cài đặt vận chuyển
+            </h4>
+          </div>
+
+          <form th:action="@{/admin/settings/shipping}" method="post">
+            <input
+              type="hidden"
+              th:name="${_csrf.parameterName}"
+              th:value="${_csrf.token}"
+            />
+
+            <div class="form-group">
+              <label class="form-label">Phí ship mặc định (VNĐ)</label>
+              <input
+                type="number"
+                name="defaultShippingFee"
+                class="form-control"
+                th:value="${settings.defaultShippingFee}"
+                min="0"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Miễn phí ship từ (VNĐ)</label>
+              <input
+                type="number"
+                name="freeShippingThreshold"
+                class="form-control"
+                th:value="${settings.freeShippingThreshold}"
+                min="0"
+              />
+              <p class="text-muted" style="font-size: 12px">
+                Đơn hàng từ số tiền này sẽ được miễn phí ship
+              </p>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+              <i class="bx bx-save"></i> Lưu cài đặt
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Payment Settings -->
+      <div class="tab-content" id="payment">
+        <div class="admin-form-card" style="max-width: 700px">
+          <div class="admin-form-card__header">
+            <h4 class="admin-form-card__title">
+              <i class="bx bx-credit-card text-primary"></i> Cài đặt thanh toán
+            </h4>
+          </div>
+
+          <form th:action="@{/admin/settings/payment}" method="post">
+            <input
+              type="hidden"
+              th:name="${_csrf.parameterName}"
+              th:value="${_csrf.token}"
+            />
+
+            <div class="form-group">
+              <label class="form-check">
+                <input
+                  type="checkbox"
+                  name="codEnabled"
+                  class="form-check-input"
+                  th:checked="${settings.codEnabled}"
+                />
+                <span class="form-check-label"
+                  >COD - Thanh toán khi nhận hàng</span
+                >
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label class="form-check">
+                <input
+                  type="checkbox"
+                  name="bankTransferEnabled"
+                  class="form-check-input"
+                  th:checked="${settings.bankTransferEnabled}"
+                />
+                <span class="form-check-label">Chuyển khoản ngân hàng</span>
+              </label>
+            </div>
+
+            <div class="form-group" id="bankInfo">
+              <label class="form-label">Thông tin ngân hàng</label>
+              <textarea
+                name="bankInfo"
+                class="form-control"
+                rows="4"
+                th:text="${settings.bankInfo}"
+                placeholder="Ngân hàng:  ... &#10;Số TK: ... &#10;Chủ TK: ..."
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-check">
+                <input
+                  type="checkbox"
+                  name="vnpayEnabled"
+                  class="form-check-input"
+                  th:checked="${settings. vnpayEnabled}"
+                />
+                <span class="form-check-label">VNPay</span>
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label class="form-check">
+                <input
+                  type="checkbox"
+                  name="momoEnabled"
+                  class="form-check-input"
+                  th:checked="${settings.momoEnabled}"
+                />
+                <span class="form-check-label">Ví MoMo</span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+              <i class="bx bx-save"></i> Lưu cài đặt
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Email Settings -->
+      <div class="tab-content" id="email">
+        <div class="admin-form-card" style="max-width: 700px">
+          <div class="admin-form-card__header">
+            <h4 class="admin-form-card__title">
+              <i class="bx bx-envelope text-primary"></i> Cài đặt Email
+            </h4>
+          </div>
+
+          <form th:action="@{/admin/settings/email}" method="post">
+            <input
+              type="hidden"
+              th:name="${_csrf.parameterName}"
+              th:value="${_csrf.token}"
+            />
+
+            <div class="admin-form-grid">
+              <div class="form-group">
+                <label class="form-label">SMTP Host</label>
+                <input
+                  type="text"
+                  name="smtpHost"
+                  class="form-control"
+                  th:value="${settings.smtpHost}"
+                  placeholder="smtp.gmail.com"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label">SMTP Port</label>
+                <input type="number" name="smtpPort" class="form-control" th:
+                value="${settings.smtpPort}" placeholder="587">
+              </div>
+            </div>
+
+            <div class="admin-form-grid">
+              <div class="form-group">
+                <label class="form-label">Email gửi</label>
+                <input
+                  type="email"
+                  name="smtpUsername"
+                  class="form-control"
+                  th:value="${settings. smtpUsername}"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Mật khẩu ứng dụng</label>
+                <input
+                  type="password"
+                  name="smtpPassword"
+                  class="form-control"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            <div class="d-flex gap-3">
+              <button type="submit" class="btn btn-primary">
+                <i class="bx bx-save"></i> Lưu cài đặt
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline"
+                onclick="testEmail()"
+              >
+                <i class="bx bx-send"></i> Gửi email test
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+      <script>
+        // Tab switching
+        document.querySelectorAll(".tab").forEach((tab) => {
+          tab.addEventListener("click", function () {
+            const tabId = this.dataset.tab;
+
+            document
+              .querySelectorAll(".tab")
+              .forEach((t) => t.classList.remove("active"));
+            document
+              .querySelectorAll(".tab-content")
+              .forEach((c) => c.classList.remove("active"));
+
+            this.classList.add("active");
+            document.getElementById(tabId)?.classList.add("active");
+          });
+        });
+
+        function testEmail() {
+          showToast("info", "Đang gửi", "Đang gửi email test.. .");
+          // Implement test email
+        }
+      </script>
+    </th:block>
+  </body>
+</html>

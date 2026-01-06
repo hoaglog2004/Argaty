@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/main}"
+>
+  <head>
+    <title>Thông báo</title>
+  </head>
+
+  <body>
+    <main layout:fragment="content">
+      <div class="profile-page">
+        <div class="container">
+          <nav class="breadcrumb">
+            <div class="breadcrumb__item">
+              <a th:href="@{/}"><i class="bx bx-home"></i> Trang chủ</a>
+            </div>
+            <span class="breadcrumb__separator"
+              ><i class="bx bx-chevron-right"></i
+            ></span>
+            <div class="breadcrumb__item">
+              <a th:href="@{/profile}">Tài khoản</a>
+            </div>
+            <span class="breadcrumb__separator"
+              ><i class="bx bx-chevron-right"></i
+            ></span>
+            <div class="breadcrumb__item">Thông báo</div>
+          </nav>
+
+          <div class="profile-layout">
+            <th:block th:replace="~{user/profile/overview :: aside}"></th:block>
+
+            <div class="profile-content">
+              <div class="profile-content__header">
+                <h2 class="profile-content__title">Thông báo</h2>
+                <button
+                  th:if="${notifications != null && ! notifications.isEmpty()}"
+                  class="btn btn-ghost btn-sm"
+                  onclick="markAllAsRead()"
+                >
+                  <i class="bx bx-check-double"></i> Đánh dấu tất cả đã đọc
+                </button>
+              </div>
+
+              <!-- Notifications List -->
+              <div
+                th:if="${notifications != null && ! notifications.isEmpty()}"
+                class="notifications-list"
+              >
+                <div
+                  th:each="notif : ${notifications}"
+                  class="notification-item card p-4 mb-3"
+                  th:classappend="${! notif.isRead} ? 'unread' : ''"
+                  th:data-id="${notif.id}"
+                >
+                  <div class="d-flex gap-4">
+                    <div
+                      class="notification-icon"
+                      style="
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-shrink: 0;
+                      "
+                      th:classappend="${notif.type == 'ORDER'} ? 'bg-primary' : (${notif.type == 'PROMOTION'} ? 'bg-pink' : 'bg-cyan')"
+                    >
+                      <i
+                        th:class="${notif.type == 'ORDER'} ? 'bx bx-package' : (${notif.type == 'PROMOTION'} ?  'bx bx-gift' : 'bx bx-bell')"
+                        style="font-size: 24px; color: #fff"
+                      ></i>
+                    </div>
+                    <div style="flex: 1">
+                      <div class="d-flex justify-between align-center mb-1">
+                        <h4
+                          class="mb-0"
+                          style="font-size: 15px"
+                          th:text="${notif.title}"
+                        >
+                          Tiêu đề
+                        </h4>
+                        <span
+                          class="text-muted"
+                          style="font-size: 12px"
+                          th:text="${#temporals.format(notif. createdAt, 'dd/MM/yyyy HH:mm')}"
+                          >01/01/2024</span
+                        >
+                      </div>
+                      <p
+                        class="text-secondary mb-2"
+                        th:text="${notif. content}"
+                      >
+                        Nội dung thông báo...
+                      </p>
+                      <a
+                        th:if="${notif.link}"
+                        th:href="${notif.link}"
+                        class="text-cyan"
+                        style="font-size: 13px"
+                      >
+                        Xem chi tiết <i class="bx bx-right-arrow-alt"></i>
+                      </a>
+                    </div>
+                    <button
+                      th:unless="${notif.isRead}"
+                      class="btn btn-ghost btn-icon btn-sm"
+                      onclick="markAsRead(this)"
+                      th:data-id="${notif.id}"
+                      title="Đánh dấu đã đọc"
+                    >
+                      <i class="bx bx-check"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Empty State -->
+              <div
+                th:if="${notifications == null || notifications.isEmpty()}"
+                class="empty-state"
+              >
+                <div class="empty-state__icon">
+                  <i class="bx bx-bell-off"></i>
+                </div>
+                <h3 class="empty-state__title">Không có thông báo</h3>
+                <p class="empty-state__desc">
+                  Bạn sẽ nhận được thông báo khi có cập nhật mới về đơn hàng,
+                  khuyến mãi...
+                </p>
+              </div>
+
+              <!-- Pagination -->
+              <th:block
+                th:if="${notifications != null}"
+                th:replace="~{fragments/pagination :: pagination(${notifications}, '/profile/notifications')}"
+              ></th:block>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+      <script>
+        async function markAsRead(btn) {
+          const id = btn.dataset.id;
+          try {
+            const response = await fetch(`/api/notifications/${id}/read`, {
+              method: "PATCH",
+            });
+            const data = await response.json();
+            if (data.success) {
+              btn.closest(".notification-item").classList.remove("unread");
+              btn.remove();
+            }
+          } catch (error) {
+            console.error("Error:", error);
+          }
+        }
+
+        async function markAllAsRead() {
+          try {
+            const response = await fetch("/api/notifications/read-all", {
+              method: "PATCH",
+            });
+            const data = await response.json();
+            if (data.success) {
+              document
+                .querySelectorAll(".notification-item. unread")
+                .forEach((item) => {
+                  item.classList.remove("unread");
+                  item.querySelector(".btn-icon")?.remove();
+                });
+              showToast("success", "Thành công", "Đã đánh dấu tất cả đã đọc");
+            }
+          } catch (error) {
+            showToast("error", "Lỗi", "Không thể cập nhật");
+          }
+        }
+      </script>
+      <style>
+        .notification-item. unread {
+          background: rgba(139, 92, 246, 0.05);
+          border-color: var(--primary);
+        }
+        .notification-item.unread::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 4px;
+          background: var(--gradient-nebula);
+          border-radius: 4px 0 0 4px;
+        }
+        .notification-item {
+          position: relative;
+        }
+        .bg-primary {
+          background: rgba(139, 92, 246, 0.15) !important;
+        }
+        .bg-pink {
+          background: rgba(244, 114, 182, 0.15) !important;
+        }
+        .bg-cyan {
+          background: rgba(34, 211, 238, 0.15) !important;
+        }
+      </style>
+    </th:block>
+  </body>
+</html>

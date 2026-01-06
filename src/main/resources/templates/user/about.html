@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/main}"
+>
+  <head>
+    <title>Giới thiệu</title>
+  </head>
+
+  <body>
+    <main layout:fragment="content">
+      <div class="about-page" style="padding: 120px 0 80px">
+        <div class="container">
+          <!-- Hero -->
+          <div class="text-center mb-5">
+            <h1 class="section-title text-gradient">Về Argaty</h1>
+            <p class="section-subtitle">
+              Thiên đường Gaming Gear cho game thủ Việt
+            </p>
+          </div>
+
+          <!-- Story -->
+          <div class="card glass p-5 mb-5">
+            <div
+              style="
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+                align-items: center;
+              "
+            >
+              <div>
+                <h2 class="text-gradient-cosmic mb-4">
+                  Câu chuyện của chúng tôi
+                </h2>
+                <p class="text-secondary mb-3" style="line-height: 1.9">
+                  <strong class="text-primary">Argaty</strong> được thành lập
+                  vào năm 2020 với sứ mệnh mang đến cho game thủ Việt Nam những
+                  sản phẩm gaming gear chất lượng cao nhất với giá cả hợp lý.
+                </p>
+                <p class="text-secondary mb-3" style="line-height: 1.9">
+                  Xuất phát từ niềm đam mê gaming, chúng tôi hiểu rằng thiết bị
+                  tốt không chỉ nâng cao trải nghiệm chơi game mà còn giúp game
+                  thủ phát huy tối đa khả năng của mình.
+                </p>
+                <p class="text-secondary" style="line-height: 1.9">
+                  Với đội ngũ tư vấn viên là những game thủ thực thụ, chúng tôi
+                  cam kết sẽ giúp bạn tìm được thiết bị phù hợp nhất.
+                </p>
+              </div>
+              <div style="position: relative">
+                <div
+                  style="
+                    padding-top: 75%;
+                    background: var(--gradient-cosmic);
+                    border-radius: 20px;
+                    position: relative;
+                    overflow: hidden;
+                  "
+                >
+                  <div
+                    style="
+                      position: absolute;
+                      inset: 0;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                    "
+                  >
+                    <i
+                      class="bx bx-planet"
+                      style="font-size: 120px; color: rgba(255, 255, 255, 0.3)"
+                    ></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="stats-section mb-5">
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 24px;
+              "
+            >
+              <div class="card text-center p-4">
+                <div
+                  class="text-gradient"
+                  style="
+                    font-family: var(--font-heading);
+                    font-size: 48px;
+                    font-weight: 800;
+                  "
+                >
+                  10K+
+                </div>
+                <p class="text-muted mb-0">Sản phẩm</p>
+              </div>
+              <div class="card text-center p-4">
+                <div
+                  class="text-gradient"
+                  style="
+                    font-family: var(--font-heading);
+                    font-size: 48px;
+                    font-weight: 800;
+                  "
+                >
+                  50K+
+                </div>
+                <p class="text-muted mb-0">Khách hàng</p>
+              </div>
+              <div class="card text-center p-4">
+                <div
+                  class="text-gradient"
+                  style="
+                    font-family: var(--font-heading);
+                    font-size: 48px;
+                    font-weight: 800;
+                  "
+                >
+                  99%
+                </div>
+                <p class="text-muted mb-0">Hài lòng</p>
+              </div>
+              <div class="card text-center p-4">
+                <div
+                  class="text-gradient"
+                  style="
+                    font-family: var(--font-heading);
+                    font-size: 48px;
+                    font-weight: 800;
+                  "
+                >
+                  5+
+                </div>
+                <p class="text-muted mb-0">Năm kinh nghiệm</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Values -->
+          <div class="values-section">
+            <h2 class="section-title text-center mb-5">Giá trị cốt lõi</h2>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 24px;
+              "
+            >
+              <div class="card text-center p-4">
+                <div class="category-card__icon" style="margin: 0 auto 20px">
+                  <i class="bx bx-check-shield"></i>
+                </div>
+                <h4 class="mb-3">Chính hãng 100%</h4>
+                <p class="text-muted">
+                  Cam kết sản phẩm chính hãng từ các thương hiệu uy tín hàng đầu
+                  thế giới.
+                </p>
+              </div>
+              <div class="card text-center p-4">
+                <div
+                  class="category-card__icon"
+                  style="
+                    margin: 0 auto 20px;
+                    background: var(--gradient-aurora);
+                  "
+                >
+                  <i class="bx bx-heart"></i>
+                </div>
+                <h4 class="mb-3">Tận tâm phục vụ</h4>
+                <p class="text-muted">
+                  Đội ngũ CSKH luôn sẵn sàng hỗ trợ bạn 24/7 với sự tận tình và
+                  chuyên nghiệp.
+                </p>
+              </div>
+              <div class="card text-center p-4">
+                <div class="category-card__icon" style="margin: 0 auto 20px">
+                  <i class="bx bx-trending-up"></i>
+                </div>
+                <h4 class="mb-3">Không ngừng phát triển</h4>
+                <p class="text-muted">
+                  Luôn cập nhật những sản phẩm mới nhất và xu hướng gaming gear
+                  toàn cầu.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/admin}"
+>
+  <head>
+    <title>Quản lý đánh giá</title>
+  </head>
+
+  <body>
+    <div layout:fragment="content">
+      <div class="admin-page-header">
+        <h1 class="admin-page-title">Quản lý đánh giá</h1>
+      </div>
+
+      <div class="admin-filters">
+        <div class="admin-search">
+          <i class="bx bx-search"></i>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Tìm theo sản phẩm, người dùng..."
+            th:value="${searchKeyword}"
+          />
+        </div>
+        <select
+          class="form-control form-select admin-filter-select"
+          name="rating"
+          data-param="rating"
+        >
+          <option value="">Tất cả đánh giá</option>
+          <option value="5" th:selected="${selectedRating == 5}">5 sao</option>
+          <option value="4" th:selected="${selectedRating == 4}">4 sao</option>
+          <option value="3" th:selected="${selectedRating == 3}">3 sao</option>
+          <option value="2" th:selected="${selectedRating == 2}">2 sao</option>
+          <option value="1" th:selected="${selectedRating == 1}">1 sao</option>
+        </select>
+        <select
+          class="form-control form-select admin-filter-select"
+          name="status"
+          data-param="status"
+        >
+          <option value="">Tất cả trạng thái</option>
+          <option value="pending" th:selected="${selectedStatus == 'pending'}">
+            Chờ duyệt
+          </option>
+          <option
+            value="approved"
+            th:selected="${selectedStatus == 'approved'}"
+          >
+            Đã duyệt
+          </option>
+          <option
+            value="rejected"
+            th:selected="${selectedStatus == 'rejected'}"
+          >
+            Từ chối
+          </option>
+        </select>
+      </div>
+
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Sản phẩm</th>
+              <th>Người đánh giá</th>
+              <th>Đánh giá</th>
+              <th>Nội dung</th>
+              <th>Ngày</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="review : ${reviews.content}">
+              <td>
+                <div class="d-flex align-center gap-3">
+                  <div
+                    style="
+                      width: 50px;
+                      height: 50px;
+                      border-radius: 8px;
+                      overflow: hidden;
+                      background: var(--bg-void);
+                    "
+                  >
+                    <img
+                      th:src="${review.productImage}"
+                      style="width: 100%; height: 100%; object-fit: cover"
+                    />
+                  </div>
+                  <div style="max-width: 150px">
+                    <p
+                      class="mb-0 text-truncate"
+                      th:text="${review.productName}"
+                    >
+                      Sản phẩm
+                    </p>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <p class="mb-0" th:text="${review.userName}">User</p>
+                <small class="text-muted" th:text="${review.userEmail}"
+                  >email</small
+                >
+              </td>
+              <td>
+                <div class="d-flex align-center gap-1">
+                  <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                    <i
+                      th:class="${i < = review.rating} ? 'bx bxs-star' : 'bx bx-star'"
+                      style="color: var(--star-gold); font-size: 14px"
+                    ></i>
+                  </th:block>
+                </div>
+              </td>
+              <td>
+                <p
+                  class="mb-0"
+                  style="
+                    max-width: 200px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  "
+                  th:text="${review.comment}"
+                >
+                  Nội dung...
+                </p>
+              </td>
+              <td
+                th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy')}"
+              >
+                01/01/2024
+              </td>
+              <td>
+                <span
+                  th:if="${review.isApproved}"
+                  class="status-badge status-badge--completed"
+                  >Đã duyệt</span
+                >
+                <span
+                  th:if="${review.isRejected}"
+                  class="status-badge status-badge--cancelled"
+                  >Từ chối</span
+                >
+                <span
+                  th:if="${! review.isApproved && ! review.isRejected}"
+                  class="status-badge status-badge--pending"
+                  >Chờ duyệt</span
+                >
+              </td>
+              <td>
+                <div class="table-actions">
+                  <button
+                    class="table-action-btn"
+                    title="Xem chi tiết"
+                    onclick="viewReview([[${review.id}]])"
+                  >
+                    <i class="bx bx-show"></i>
+                  </button>
+                  <form
+                    th:unless="${review.isApproved}"
+                    th:action="@{/admin/reviews/{id}/approve(id=${review.id})}"
+                    method="post"
+                    style="display: inline"
+                  >
+                    <input
+                      type="hidden"
+                      th:name="${_csrf.parameterName}"
+                      th:value="${_csrf.token}"
+                    />
+                    <button
+                      type="submit"
+                      class="table-action-btn"
+                      title="Duyệt"
+                      style="color: var(--success)"
+                    >
+                      <i class="bx bx-check"></i>
+                    </button>
+                  </form>
+                  <form
+                    th:unless="${review.isRejected}"
+                    th:action="@{/admin/reviews/{id}/reject(id=${review.id})}"
+                    method="post"
+                    style="display: inline"
+                  >
+                    <input
+                      type="hidden"
+                      th:name="${_csrf.parameterName}"
+                      th:value="${_csrf.token}"
+                    />
+                    <button
+                      type="submit"
+                      class="table-action-btn"
+                      title="Từ chối"
+                      style="color: var(--danger)"
+                    >
+                      <i class="bx bx-x"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <tr th:if="${reviews.content == null || reviews.content.isEmpty()}">
+              <td colspan="7" class="text-center text-muted p-5">
+                Không có đánh giá nào
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <th:block
+        th:replace="~{fragments/pagination :: pagination(${reviews}, '/admin/reviews')}"
+      ></th:block>
+    </div>
+  </body>
+</html>

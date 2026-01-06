@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/main}"
+>
+  <head>
+    <title>Giỏ hàng</title>
+  </head>
+
+  <body>
+    <main layout:fragment="content">
+      <div class="cart-page">
+        <div class="container">
+          <!-- Breadcrumb -->
+          <nav class="breadcrumb">
+            <div class="breadcrumb__item">
+              <a th:href="@{/}"><i class="bx bx-home"></i> Trang chủ</a>
+            </div>
+            <span class="breadcrumb__separator"
+              ><i class="bx bx-chevron-right"></i
+            ></span>
+            <div class="breadcrumb__item">Giỏ hàng</div>
+          </nav>
+
+          <h1 class="section-title mb-4">Giỏ hàng của bạn</h1>
+
+          <!-- Empty Cart -->
+          <div
+            th:if="${cart.items == null || cart.items.isEmpty()}"
+            class="empty-state"
+          >
+            <div class="empty-state__icon">
+              <i class="bx bx-cart"></i>
+            </div>
+            <h3 class="empty-state__title">Giỏ hàng trống</h3>
+            <p class="empty-state__desc">
+              Bạn chưa có sản phẩm nào trong giỏ hàng. Hãy tiếp tục mua sắm!
+            </p>
+            <a th:href="@{/products}" class="btn btn-primary btn-lg">
+              <i class="bx bx-shopping-bag"></i>
+              Tiếp tục mua sắm
+            </a>
+          </div>
+
+          <!-- Cart Content -->
+          <div
+            th:if="${cart.items != null && !cart.items.isEmpty()}"
+            class="cart-layout"
+            style="display: grid; grid-template-columns: 1fr 380px; gap: 30px"
+          >
+            <!-- Cart Items -->
+            <div class="cart-items">
+              <div class="cart-table">
+                <!-- Header -->
+                <div class="cart-table__header">
+                  <div class="cart-table__header-cell">
+                    <input
+                      type="checkbox"
+                      id="selectAll"
+                      class="cart-item__checkbox"
+                      th:checked="${cart.selectedItems == cart.totalItems}"
+                      onchange="toggleSelectAll(this. checked)"
+                    />
+                  </div>
+                  <div class="cart-table__header-cell">Sản phẩm</div>
+                  <div class="cart-table__header-cell">Đơn giá</div>
+                  <div class="cart-table__header-cell">Số lượng</div>
+                  <div class="cart-table__header-cell">Thành tiền</div>
+                  <div class="cart-table__header-cell"></div>
+                </div>
+
+                <!-- Items -->
+                <div
+                  th:each="item : ${cart.items}"
+                  class="cart-item"
+                  th:data-item-id="${item.id}"
+                >
+                  <div>
+                    <input
+                      type="checkbox"
+                      class="cart-item__checkbox item-checkbox"
+                      th:checked="${item.isSelected}"
+                      th:data-item-id="${item.id}"
+                      onchange="toggleItemSelected(this)"
+                    />
+                  </div>
+
+                  <div class="cart-item__product">
+                    <div class="cart-item__image">
+                      <a
+                        th:href="@{/products/{slug}(slug=${item.productSlug})}"
+                      >
+                        <img
+                          th:src="${item.productImage}"
+                          th:alt="${item.productName}"
+                        />
+                      </a>
+                    </div>
+                    <div class="cart-item__info">
+                      <a
+                        th:href="@{/products/{slug}(slug=${item. productSlug})}"
+                        class="cart-item__name"
+                        th:text="${item.productName}"
+                      >
+                        Tên sản phẩm
+                      </a>
+                      <div
+                        th:if="${item.variantName}"
+                        class="cart-item__variant"
+                      >
+                        <span th:text="${item.variantName}">Variant</span>
+                        <span
+                          th:if="${item.variantColor}"
+                          class="text-cyan"
+                          th:text="' - ' + ${item.variantColor}"
+                        ></span>
+                      </div>
+                      <div
+                        th:unless="${item.isInStock}"
+                        class="text-danger"
+                        style="font-size: 12px"
+                      >
+                        <i class="bx bx-error"></i> Hết hàng
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    class="cart-item__price"
+                    th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                  >
+                    0 ₫
+                  </div>
+
+                  <div class="cart-item__quantity">
+                    <div class="quantity-selector">
+                      <button
+                        class="quantity-btn"
+                        th:data-item-id="${item.id}"
+                        onclick="updateQuantity(this, -1)"
+                      >
+                        <i class="bx bx-minus"></i>
+                      </button>
+                      <input
+                        type="number"
+                        class="quantity-input"
+                        th:value="${item.quantity}"
+                        min="1"
+                        th:max="${item.availableQuantity}"
+                        th:data-item-id="${item.id}"
+                        onchange="updateQuantityDirect(this)"
+                      />
+                      <button
+                        class="quantity-btn"
+                        th:data-item-id="${item.id}"
+                        onclick="updateQuantity(this, 1)"
+                      >
+                        <i class="bx bx-plus"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div
+                    class="cart-item__subtotal"
+                    th:text="${#numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                  >
+                    0 ₫
+                  </div>
+
+                  <div>
+                    <button
+                      class="cart-item__remove"
+                      th:data-item-id="${item.id}"
+                      onclick="removeItem(this)"
+                      title="Xóa"
+                    >
+                      <i class="bx bx-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div
+                class="cart-actions mt-4 d-flex justify-between align-center flex-wrap gap-3"
+              >
+                <a th:href="@{/products}" class="btn btn-ghost">
+                  <i class="bx bx-left-arrow-alt"></i>
+                  Tiếp tục mua sắm
+                </a>
+                <button class="btn btn-dark" onclick="clearCart()">
+                  <i class="bx bx-trash"></i>
+                  Xóa giỏ hàng
+                </button>
+              </div>
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="cart-summary-wrapper">
+              <div class="cart-summary">
+                <h3 class="cart-summary__title">Tóm tắt đơn hàng</h3>
+
+                <!-- Voucher -->
+                <div class="voucher-section mb-4">
+                  <label class="form-label">Mã giảm giá</label>
+                  <div class="voucher-form">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="voucherCode"
+                      placeholder="Nhập mã giảm giá"
+                    />
+                    <button class="btn btn-dark" onclick="applyVoucher()">
+                      Áp dụng
+                    </button>
+                  </div>
+                  <div
+                    id="voucherMessage"
+                    class="mt-2"
+                    style="font-size: 13px"
+                  ></div>
+
+                  <!-- Available Vouchers -->
+                  <div
+                    th:if="${availableVouchers != null && ! availableVouchers.isEmpty()}"
+                    class="mt-3"
+                  >
+                    <p class="text-muted" style="font-size: 13px">
+                      Voucher có thể sử dụng:
+                    </p>
+                    <div
+                      th:each="voucher : ${availableVouchers}"
+                      class="voucher-item"
+                      style="
+                        padding: 10px;
+                        background: var(--bg-void);
+                        border-radius: 8px;
+                        margin-top: 8px;
+                        cursor: pointer;
+                      "
+                      th:data-code="${voucher.code}"
+                      onclick="document.getElementById('voucherCode').value = this.dataset.code; applyVoucher();"
+                    >
+                      <div class="d-flex justify-between align-center">
+                        <span class="text-cyan" th:text="${voucher. code}"
+                          >CODE</span
+                        >
+                        <span
+                          class="text-primary"
+                          th:text="${voucher. discountDisplay}"
+                          >Giảm</span
+                        >
+                      </div>
+                      <p
+                        class="text-muted"
+                        style="font-size: 12px; margin-top: 4px"
+                        th:text="${voucher.name}"
+                      >
+                        Voucher name
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="cart-summary__row">
+                  <span class="cart-summary__label"
+                    >Tạm tính (<span th:text="${cart.selectedItems}">0</span>
+                    sản phẩm)</span
+                  >
+                  <span
+                    class="cart-summary__value"
+                    id="subtotal"
+                    th:text="${#numbers.formatDecimal(cart.selectedAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                    >0 ₫</span
+                  >
+                </div>
+
+                <div class="cart-summary__row">
+                  <span class="cart-summary__label">Phí vận chuyển</span>
+                  <span class="cart-summary__value" id="shippingFee">
+                    <span
+                      th:if="${shippingFee. compareTo(T(java.math.BigDecimal).ZERO) == 0}"
+                      class="text-success"
+                      >Miễn phí</span
+                    >
+                    <span
+                      th:unless="${shippingFee.compareTo(T(java.math. BigDecimal).ZERO) == 0}"
+                      th:text="${#numbers.formatDecimal(shippingFee, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                      >30,000 ₫</span
+                    >
+                  </span>
+                </div>
+
+                <div
+                  class="cart-summary__row"
+                  id="discountRow"
+                  style="display: none"
+                >
+                  <span class="cart-summary__label">Giảm giá</span>
+                  <span
+                    class="cart-summary__value text-success"
+                    id="discountAmount"
+                    >-0 ₫</span
+                  >
+                </div>
+
+                <!-- Free Shipping Progress -->
+                <div
+                  th:if="${cart.selectedAmount. compareTo(freeShippingThreshold) < 0}"
+                  class="free-shipping-progress mt-3 p-3"
+                  style="background: var(--bg-void); border-radius: 8px"
+                >
+                  <p style="font-size: 13px">
+                    <i class="bx bx-gift text-primary"></i>
+                    Mua thêm
+                    <span
+                      class="text-cyan"
+                      th:text="${#numbers.formatDecimal(freeShippingThreshold. subtract(cart.selectedAmount), 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                      >0 ₫</span
+                    >
+                    để được miễn phí ship
+                  </p>
+                  <div class="rating-bar__track mt-2">
+                    <div
+                      class="rating-bar__fill"
+                      th:style="'width: ' + ${cart.selectedAmount.multiply(100).divide(freeShippingThreshold, 0, T(java.math.RoundingMode).HALF_UP)} + '%'"
+                    ></div>
+                  </div>
+                </div>
+
+                <div class="cart-summary__total">
+                  <span class="cart-summary__total-label">Tổng cộng</span>
+                  <span
+                    class="cart-summary__total-value"
+                    id="totalAmount"
+                    th:text="${#numbers.formatDecimal(cart.selectedAmount. add(shippingFee), 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                    >0 ₫</span
+                  >
+                </div>
+
+                <a
+                  th:href="@{/checkout}"
+                  class="btn btn-primary btn-lg btn-block mt-4"
+                  th:classappend="${cart.selectedItems == 0} ? 'disabled' : ''"
+                >
+                  <i class="bx bx-credit-card"></i>
+                  Tiến hành thanh toán
+                </a>
+
+                <p class="text-center text-muted mt-3" style="font-size: 12px">
+                  <i class="bx bx-lock-alt"></i> Thanh toán an toàn & bảo mật
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+      <script th:src="@{/js/cart. js}"></script>
+      <script>
+        // Toggle select all
+        async function toggleSelectAll(checked) {
+          await fetch("/api/cart/select-all? selected=" + checked, {
+            method: "PATCH",
+          });
+          location.reload();
+        }
+
+        // Toggle item selected
+        async function toggleItemSelected(checkbox) {
+          const itemId = checkbox.dataset.itemId;
+          await fetch("/api/cart/items/" + itemId + "/toggle", {
+            method: "PATCH",
+          });
+          location.reload();
+        }
+
+        // Update quantity
+        async function updateQuantity(btn, delta) {
+          const itemId = btn.dataset.itemId;
+          const input = btn.parentElement.querySelector(". quantity-input");
+          let newQty = parseInt(input.value) + delta;
+          newQty = Math.max(1, Math.min(newQty, parseInt(input.max) || 999));
+
+          await updateCartItem(itemId, newQty);
+        }
+
+        async function updateQuantityDirect(input) {
+          const itemId = input.dataset.itemId;
+          let newQty = parseInt(input.value) || 1;
+          newQty = Math.max(1, Math.min(newQty, parseInt(input.max) || 999));
+
+          await updateCartItem(itemId, newQty);
+        }
+
+        async function updateCartItem(itemId, quantity) {
+          try {
+            const response = await fetch("/api/cart/items/" + itemId, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ quantity: quantity }),
+            });
+
+            const data = await response.json();
+            if (data.success) {
+              location.reload();
+            } else {
+              showToast("error", "Lỗi", data.message);
+            }
+          } catch (error) {
+            showToast("error", "Lỗi", "Không thể cập nhật giỏ hàng");
+          }
+        }
+
+        // Remove item
+        async function removeItem(btn) {
+          const itemId = btn.dataset.itemId;
+
+          if (!confirm("Bạn có chắc muốn xóa sản phẩm này? ")) return;
+
+          try {
+            const response = await fetch("/api/cart/items/" + itemId, {
+              method: "DELETE",
+            });
+            const data = await response.json();
+
+            if (data.success) {
+              showToast(
+                "success",
+                "Thành công",
+                "Đã xóa sản phẩm khỏi giỏ hàng"
+              );
+              document
+                .querySelector(`.cart-item[data-item-id="${itemId}"]`)
+                .remove();
+              updateCartCount();
+
+              // Reload if cart is empty
+              if (document.querySelectorAll(".cart-item").length === 0) {
+                location.reload();
+              }
+            } else {
+              showToast("error", "Lỗi", data.message);
+            }
+          } catch (error) {
+            showToast("error", "Lỗi", "Không thể xóa sản phẩm");
+          }
+        }
+
+        // Clear cart
+        async function clearCart() {
+          if (!confirm("Bạn có chắc muốn xóa toàn bộ giỏ hàng? ")) return;
+
+          try {
+            const response = await fetch("/api/cart", { method: "DELETE" });
+            const data = await response.json();
+
+            if (data.success) {
+              showToast("success", "Thành công", "Đã xóa giỏ hàng");
+              location.reload();
+            }
+          } catch (error) {
+            showToast("error", "Lỗi", "Không thể xóa giỏ hàng");
+          }
+        }
+
+        // Apply voucher
+        async function applyVoucher() {
+          const code = document.getElementById("voucherCode").value.trim();
+          if (!code) {
+            showToast("warning", "Cảnh báo", "Vui lòng nhập mã giảm giá");
+            return;
+          }
+
+          try {
+            const subtotal = /*[[${cart.selectedAmount}]]*/ 0;
+            const response = await fetch("/api/vouchers/check", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ code: code, orderAmount: subtotal }),
+            });
+
+            const data = await response.json();
+            const messageEl = document.getElementById("voucherMessage");
+
+            if (data.success) {
+              messageEl.innerHTML = `<span class="text-success"><i class='bx bx-check'></i> ${data.message}</span>`;
+
+              // Update discount display
+              document.getElementById("discountRow").style.display = "flex";
+              document.getElementById("discountAmount").textContent =
+                "-" +
+                new Intl.NumberFormat("vi-VN").format(
+                  data.data.discountAmount
+                ) +
+                " ₫";
+              document.getElementById("totalAmount").textContent =
+                new Intl.NumberFormat("vi-VN").format(data.data.finalAmount) +
+                " ₫";
+
+              // Store voucher code for checkout
+              sessionStorage.setItem("voucherCode", code);
+            } else {
+              messageEl.innerHTML = `<span class="text-danger"><i class='bx bx-x'></i> ${data.message}</span>`;
+            }
+          } catch (error) {
+            showToast("error", "Lỗi", "Không thể kiểm tra mã giảm giá");
+          }
+        }
+      </script>
+
+      <style>
+        @media (max-width: 992px) {
+          .cart-layout {
+            grid-template-columns: 1fr !important;
+          }
+
+          .cart-summary-wrapper {
+            order: -1;
+          }
+        }
+      </style>
+    </th:block>
+  </body>
+</html>

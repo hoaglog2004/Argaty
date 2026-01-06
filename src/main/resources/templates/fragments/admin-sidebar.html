@@ -1,0 +1,109 @@
+<! DOCTYPE html>
+<html xmlns: th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<aside th:fragment="sidebar" class="admin-sidebar" id="adminSidebar">
+    <!-- Logo -->
+    <div class="admin-sidebar__header">
+        <a th:href="@{/admin}" class="admin-sidebar__logo">
+            <div class="admin-sidebar__logo-icon">
+                <i class='bx bx-planet'></i>
+            </div>
+            <span class="admin-sidebar__logo-text">ARGATY</span>
+        </a>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="admin-sidebar__nav">
+        <!-- Dashboard -->
+        <a th:href="@{/admin}" class="admin-nav__item" th:classappend="${adminPage == 'dashboard'} ? 'active' : ''">
+            <i class='bx bxs-dashboard'></i>
+            <span>Dashboard</span>
+        </a>
+        
+        <!-- Separator -->
+        <div class="admin-nav__separator">
+            <span>Quản lý bán hàng</span>
+        </div>
+        
+        <!-- Orders -->
+        <a th:href="@{/admin/orders}" class="admin-nav__item" th:classappend="${adminPage == 'orders'} ? 'active' : ''">
+            <i class='bx bxs-package'></i>
+            <span>Đơn hàng</span>
+            <span class="admin-nav__badge" th:if="${pendingOrdersCount > 0}" th:text="${pendingOrdersCount}">0</span>
+        </a>
+        
+        <!-- Products -->
+        <a th:href="@{/admin/products}" class="admin-nav__item" th:classappend="${adminPage == 'products'} ? 'active' : ''">
+            <i class='bx bxs-box'></i>
+            <span>Sản phẩm</span>
+        </a>
+        
+        <!-- Categories -->
+        <a th:href="@{/admin/categories}" class="admin-nav__item" th:classappend="${adminPage == 'categories'} ? 'active' : ''">
+            <i class='bx bxs-category'></i>
+            <span>Danh mục</span>
+        </a>
+        
+        <!-- Brands -->
+        <a th:href="@{/admin/brands}" class="admin-nav__item" th:classappend="${adminPage == 'brands'} ? 'active' : ''">
+            <i class='bx bxs-purchase-tag'></i>
+            <span>Thương hiệu</span>
+        </a>
+        
+        <!-- Separator -->
+        <div class="admin-nav__separator">
+            <span>Marketing</span>
+        </div>
+        
+        <!-- Vouchers -->
+        <a th:href="@{/admin/vouchers}" class="admin-nav__item" th:classappend="${adminPage == 'vouchers'} ? 'active' : ''">
+            <i class='bx bxs-discount'></i>
+            <span>Voucher</span>
+        </a>
+        
+        <!-- Banners -->
+        <a th:href="@{/admin/banners}" class="admin-nav__item" th:classappend="${adminPage == 'banners'} ? 'active' : ''">
+            <i class='bx bxs-image'></i>
+            <span>Banner</span>
+        </a>
+        
+        <!-- Separator -->
+        <div class="admin-nav__separator">
+            <span>Khách hàng</span>
+        </div>
+        
+        <!-- Users -->
+        <a th:href="@{/admin/users}" class="admin-nav__item" th:classappend="${adminPage == 'users'} ?  'active' : ''">
+            <i class='bx bxs-user-detail'></i>
+            <span>Người dùng</span>
+        </a>
+        
+        <!-- Reviews -->
+        <a th:href="@{/admin/reviews}" class="admin-nav__item" th:classappend="${adminPage == 'reviews'} ? 'active' : ''">
+            <i class='bx bxs-star'></i>
+            <span>Đánh giá</span>
+        </a>
+        
+        <!-- Separator (Admin Only) -->
+        <div class="admin-nav__separator" sec:authorize="hasRole('ADMIN')">
+            <span>Hệ thống</span>
+        </div>
+        
+        <!-- Settings (Admin Only) -->
+        <a th:href="@{/admin/settings}" class="admin-nav__item" sec:authorize="hasRole('ADMIN')" th:classappend="${adminPage == 'settings'} ?  'active' : ''">
+            <i class='bx bxs-cog'></i>
+            <span>Cài đặt</span>
+        </a>
+    </nav>
+    
+    <!-- Footer -->
+    <div class="admin-sidebar__footer">
+        <a th:href="@{/}" target="_blank" class="btn btn-ghost btn-sm btn-block">
+            <i class='bx bx-store'></i>
+            <span>Xem Shop</span>
+        </a>
+    </div>
+</aside>
+
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/admin}"
+>
+  <head>
+    <title th:text="${isEdit} ? 'Sửa thương hiệu' : 'Thêm thương hiệu'">
+      Thương hiệu
+    </title>
+  </head>
+
+  <body>
+    <div layout:fragment="content">
+      <div class="admin-page-header">
+        <h1
+          class="admin-page-title"
+          th:text="${isEdit} ? 'Sửa thương hiệu' : 'Thêm thương hiệu mới'"
+        >
+          Thương hiệu
+        </h1>
+        <a th:href="@{/admin/brands}" class="btn btn-ghost"
+          ><i class="bx bx-arrow-back"></i> Quay lại</a
+        >
+      </div>
+
+      <div class="admin-form-card" style="max-width: 600px">
+        <form
+          th:action="${isEdit} ? @{/admin/brands/{id}/edit(id=${brand.id})} : @{/admin/brands/create}"
+          method="post"
+          th:object="${brandRequest}"
+          enctype="multipart/form-data"
+        >
+          <input
+            type="hidden"
+            th:name="${_csrf.parameterName}"
+            th:value="${_csrf.token}"
+          />
+
+          <div class="form-group">
+            <label class="form-label"
+              >Tên thương hiệu <span class="text-danger">*</span></label
+            >
+            <input
+              type="text"
+              th:field="*{name}"
+              class="form-control"
+              th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+              required
+            />
+            <div th:if="${#fields.hasErrors('name')}" class="form-error">
+              <i class="bx bx-error"></i> <span th:errors="*{name}"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Slug</label>
+            <input
+              type="text"
+              th:field="*{slug}"
+              class="form-control"
+              placeholder="Tự động tạo nếu bỏ trống"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Logo</label>
+            <div class="d-flex align-center gap-4">
+              <div
+                style="
+                  width: 100px;
+                  height: 100px;
+                  border-radius: 12px;
+                  background: var(--bg-void);
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  overflow: hidden;
+                "
+              >
+                <img
+                  th:if="${brand != null && brand.logo}"
+                  th:src="${brand.logo}"
+                  id="logoPreview"
+                  style="max-width: 100%; max-height: 100%; object-fit: contain"
+                />
+                <i
+                  th:unless="${brand != null && brand.logo}"
+                  class="bx bx-image"
+                  id="logoIcon"
+                  style="font-size: 36px; color: var(--text-muted)"
+                ></i>
+              </div>
+              <div>
+                <input
+                  type="file"
+                  name="logoFile"
+                  id="logoFile"
+                  accept="image/*"
+                  style="display: none"
+                  onchange="previewLogo(this)"
+                />
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm"
+                  onclick="document.getElementById('logoFile').click()"
+                >
+                  <i class="bx bx-upload"></i> Tải logo
+                </button>
+                <p class="text-muted mt-2" style="font-size: 12px">
+                  PNG, JPG tối đa 1MB
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Mô tả</label>
+            <textarea
+              th:field="*{description}"
+              class="form-control"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-check">
+              <input
+                type="checkbox"
+                th:field="*{isActive}"
+                class="form-check-input"
+              />
+              <span class="form-check-label">Hiển thị</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <i class="bx bx-save"></i>
+            <span th:text="${isEdit} ? 'Cập nhật' : 'Tạo thương hiệu'"
+              >Lưu</span
+            >
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+      <script>
+        function previewLogo(input) {
+          if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              let preview = document.getElementById("logoPreview");
+              const icon = document.getElementById("logoIcon");
+
+              if (!preview) {
+                preview = document.createElement("img");
+                preview.id = "logoPreview";
+                preview.style.cssText =
+                  "max-width:  100%; max-height: 100%; object-fit: contain;";
+                const container = icon.parentElement;
+                container.innerHTML = "";
+                container.appendChild(preview);
+              }
+
+              preview.src = e.target.result;
+              if (icon) icon.style.display = "none";
+            };
+            reader.readAsDataURL(input.files[0]);
+          }
+        }
+      </script>
+    </th:block>
+  </body>
+</html>

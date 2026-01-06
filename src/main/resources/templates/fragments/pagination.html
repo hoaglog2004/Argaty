@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <nav
+    th:fragment="pagination(page, baseUrl)"
+    class="pagination"
+    th:if="${page. totalPages > 1}"
+  >
+    <!-- Previous -->
+    <a
+      th:href="@{${baseUrl}(page=${page.page - 1})}"
+      th:classappend="${page.first} ? 'disabled' : ''"
+      class="pagination__item"
+      th:unless="${page.first}"
+    >
+      <i class="bx bx-chevron-left"></i>
+    </a>
+    <span class="pagination__item disabled" th:if="${page.first}">
+      <i class="bx bx-chevron-left"></i>
+    </span>
+
+    <!-- First Page -->
+    <a
+      th:href="@{${baseUrl}(page=0)}"
+      class="pagination__item"
+      th:classappend="${page.page == 0} ? 'active' : ''"
+      th:if="${page.totalPages > 0}"
+    >
+      1
+    </a>
+
+    <!-- Dots before -->
+    <span class="pagination__item disabled" th:if="${page.page > 3}">... </span>
+
+    <!-- Pages around current -->
+    <th:block
+      th:each="i :  ${#numbers.sequence(
+        T(Math).max(1, page.page - 1), 
+        T(Math).min(page.totalPages - 2, page.page + 1)
+    )}"
+    >
+      <a
+        th:href="@{${baseUrl}(page=${i})}"
+        class="pagination__item"
+        th:classappend="${page.page == i} ? 'active' : ''"
+        th:text="${i + 1}"
+      >
+      </a>
+    </th:block>
+
+    <!-- Dots after -->
+    <span
+      class="pagination__item disabled"
+      th:if="${page.page < page.totalPages - 4}"
+      >...</span
+    >
+
+    <!-- Last Page -->
+    <a
+      th:href="@{${baseUrl}(page=${page. totalPages - 1})}"
+      class="pagination__item"
+      th:classappend="${page.page == page.totalPages - 1} ? 'active' : ''"
+      th:if="${page.totalPages > 1}"
+    >
+      [[${page.totalPages}]]
+    </a>
+
+    <!-- Next -->
+    <a
+      th:href="@{${baseUrl}(page=${page.page + 1})}"
+      th:classappend="${page.last} ? 'disabled' : ''"
+      class="pagination__item"
+      th:unless="${page.last}"
+    >
+      <i class="bx bx-chevron-right"></i>
+    </a>
+    <span class="pagination__item disabled" th:if="${page.last}">
+      <i class="bx bx-chevron-right"></i>
+    </span>
+  </nav>
+</html>

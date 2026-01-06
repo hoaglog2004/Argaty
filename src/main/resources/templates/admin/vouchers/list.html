@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/admin}"
+>
+  <head>
+    <title>Quản lý Voucher</title>
+  </head>
+
+  <body>
+    <div layout:fragment="content">
+      <div class="admin-page-header">
+        <h1 class="admin-page-title">Quản lý Voucher</h1>
+        <a th:href="@{/admin/vouchers/create}" class="btn btn-primary">
+          <i class="bx bx-plus"></i> Thêm voucher
+        </a>
+      </div>
+
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Mã voucher</th>
+              <th>Tên</th>
+              <th>Giảm giá</th>
+              <th>Đơn tối thiểu</th>
+              <th>Đã dùng</th>
+              <th>Thời hạn</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="voucher : ${vouchers.content}">
+              <td>
+                <code class="text-cyan" th:text="${voucher.code}">CODE</code>
+              </td>
+              <td th:text="${voucher.name}">Tên voucher</td>
+              <td>
+                <span
+                  th:if="${voucher.discountType.name() == 'PERCENTAGE'}"
+                  th:text="${voucher.discountValue} + '%'"
+                  >10%</span
+                >
+                <span
+                  th:if="${voucher.discountType.name() == 'FIXED_AMOUNT'}"
+                  th:text="${#numbers.formatDecimal(voucher.discountValue, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                  >10,000 ₫</span
+                >
+                <br />
+                <small th:if="${voucher.maxDiscount}" class="text-muted">
+                  Tối đa:
+                  <span
+                    th:text="${#numbers.formatDecimal(voucher.maxDiscount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                    >50,000 ₫</span
+                  >
+                </small>
+              </td>
+              <td
+                th:text="${voucher.minOrderAmount != null} ? ${#numbers.formatDecimal(voucher.minOrderAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫' : '-'"
+              >
+                0 ₫
+              </td>
+              <td>
+                <span th:text="${voucher.usedCount}">0</span>
+                <span th:if="${voucher.usageLimit}"
+                  >/ <span th:text="${voucher.usageLimit}">100</span></span
+                >
+              </td>
+              <td>
+                <span
+                  th:text="${#temporals.format(voucher.startDate, 'dd/MM/yyyy')}"
+                  >01/01</span
+                >
+                <br />
+                <span
+                  th:text="${#temporals.format(voucher.endDate, 'dd/MM/yyyy')}"
+                  >31/12</span
+                >
+              </td>
+              <td>
+                <span
+                  th:if="${voucher.isActive && voucher.isValid}"
+                  class="status-badge status-badge--completed"
+                  >Active</span
+                >
+                <span
+                  th:if="${!voucher.isActive}"
+                  class="status-badge status-badge--cancelled"
+                  >Inactive</span
+                >
+                <span
+                  th:if="${voucher.isActive && !voucher.isValid}"
+                  class="status-badge status-badge--pending"
+                  >Hết hạn</span
+                >
+              </td>
+              <td>
+                <div class="table-actions">
+                  <a
+                    th:href="@{/admin/vouchers/{id}/edit(id=${voucher.id})}"
+                    class="table-action-btn edit"
+                    title="Sửa"
+                  >
+                    <i class="bx bx-edit"></i>
+                  </a>
+                  <form
+                    th:action="@{/admin/vouchers/{id}/delete(id=${voucher.id})}"
+                    method="post"
+                    style="display: inline"
+                  >
+                    <input
+                      type="hidden"
+                      th:name="${_csrf.parameterName}"
+                      th:value="${_csrf.token}"
+                    />
+                    <button
+                      type="button"
+                      class="table-action-btn delete"
+                      title="Xóa"
+                      onclick="confirmDelete('Bạn có chắc muốn xóa voucher này? ', () => this.closest('form').submit())"
+                    >
+                      <i class="bx bx-trash"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <tr
+              th:if="${vouchers.content == null || vouchers.content.isEmpty()}"
+            >
+              <td colspan="8" class="text-center text-muted p-5">
+                Chưa có voucher nào
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <th:block
+        th:replace="~{fragments/pagination :: pagination(${vouchers}, '/admin/vouchers')}"
+      ></th:block>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/main}"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trang chủ</title>
+  </head>
+
+  <body>
+    <main layout:fragment="content">
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="container">
+          <div class="hero__content">
+            <div class="hero__badge">
+              <i class="bx bx-rocket"></i>
+              <span>Gaming Gear Premium</span>
+            </div>
+
+            <h1 class="hero__title">
+              <span class="hero__title-line">Nâng tầm</span>
+              <span class="hero__title-line">Trải nghiệm Gaming</span>
+            </h1>
+
+            <p class="hero__desc">
+              Khám phá bộ sưu tập Gaming Gear cao cấp từ các thương hiệu hàng
+              đầu thế giới. Chuột, bàn phím, tai nghe và ghế gaming - Tất cả
+              những gì bạn cần để chiến thắng.
+            </p>
+
+            <div class="hero__actions">
+              <a th:href="@{/products}" class="btn btn-primary btn-lg">
+                <i class="bx bx-shopping-bag"></i>
+                <span>Mua sắm ngay</span>
+              </a>
+              <a th:href="@{/products/sale}" class="btn btn-outline btn-lg">
+                <i class="bx bx-purchase-tag"></i>
+                <span>Khuyến mãi hot</span>
+              </a>
+            </div>
+
+            <div class="hero__stats">
+              <div class="hero__stat">
+                <div class="hero__stat-value">10K+</div>
+                <div class="hero__stat-label">Sản phẩm</div>
+              </div>
+              <div class="hero__stat">
+                <div class="hero__stat-value">50K+</div>
+                <div class="hero__stat-label">Khách hàng</div>
+              </div>
+              <div class="hero__stat">
+                <div class="hero__stat-value">99%</div>
+                <div class="hero__stat-label">Hài lòng</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Visual -->
+        <div class="hero__visual">
+          <div class="hero__planet"></div>
+          <div class="hero__ring"></div>
+        </div>
+      </section>
+
+      <!-- Slider/Banners -->
+      <section
+        class="section"
+        th:if="${sliderBanners != null && ! sliderBanners.isEmpty()}"
+      >
+        <div class="container">
+          <div class="slider" id="homeSlider">
+            <div class="slider__track">
+              <div th:each="banner : ${sliderBanners}" class="slider__slide">
+                <img
+                  th:src="${banner.imageUrl}"
+                  th:alt="${banner.title}"
+                  th:title="${banner.title}"
+                  class="slider__image"
+                />
+                <div class="slider__content" th:if="${banner.title}">
+                  <h2 th:text="${banner.title}">Banner Title</h2>
+                  <p th:text="${banner.subtitle}">Subtitle</p>
+                  <a
+                    th:href="${banner.link}"
+                    class="btn btn-primary"
+                    th:if="${banner.link}"
+                  >
+                    Xem ngay
+                  </a>
+                </div>
+              </div>
+            </div>
+            <button class="slider__nav slider__nav--prev">
+              <i class="bx bx-chevron-left"></i>
+            </button>
+            <button class="slider__nav slider__nav--next">
+              <i class="bx bx-chevron-right"></i>
+            </button>
+            <div class="slider__dots">
+              <button
+                th:each="banner, stat : ${sliderBanners}"
+                class="slider__dot"
+                th:classappend="${stat.first} ? 'active' : ''"
+              ></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Featured Categories -->
+      <section
+        class="section"
+        th:if="${featuredCategories != null && !featuredCategories.isEmpty()}"
+      >
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title text-gradient">Danh mục nổi bật</h2>
+            <p class="section-subtitle">
+              Khám phá các danh mục sản phẩm gaming gear phổ biến nhất
+            </p>
+          </div>
+
+          <div class="categories-grid">
+            <a
+              th:each="category : ${featuredCategories}"
+              th:href="@{/products(category=${category.slug})}"
+              class="category-card"
+            >
+              <div class="category-card__icon">
+                <i
+                  th:class="${category.icon != null} ? ${category.icon} : 'bx bx-category'"
+                ></i>
+              </div>
+              <h3 class="category-card__name" th:text="${category.name}">
+                Danh mục
+              </h3>
+              <span
+                class="category-card__count"
+                th:text="${category.productCount} + ' sản phẩm'"
+                >0 sản phẩm</span
+              >
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Featured Products -->
+      <section
+        class="section"
+        th:if="${featuredProducts != null && ! featuredProducts.isEmpty()}"
+      >
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title text-gradient">Sản phẩm nổi bật</h2>
+            <p class="section-subtitle">
+              Những sản phẩm được yêu thích nhất tại Argaty
+            </p>
+          </div>
+
+          <div class="products-grid">
+            <th:block th:each="product :  ${featuredProducts}">
+              <th:block
+                th:replace="~{fragments/product-card :: productCard(${product})}"
+              ></th:block>
+            </th:block>
+          </div>
+
+          <div class="text-center mt-5">
+            <a th:href="@{/products}" class="btn btn-outline btn-lg">
+              Xem tất cả sản phẩm
+              <i class="bx bx-right-arrow-alt"></i>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- New Products -->
+      <section
+        class="section"
+        th:if="${newProducts != null && !newProducts.isEmpty()}"
+      >
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title text-gradient-cosmic">Sản phẩm mới</h2>
+            <p class="section-subtitle">
+              Cập nhật những sản phẩm mới nhất vừa về kho
+            </p>
+          </div>
+
+          <div class="products-grid">
+            <th:block th:each="product :  ${newProducts}">
+              <th:block
+                th:replace="~{fragments/product-card ::  productCard(${product})}"
+              ></th:block>
+            </th:block>
+          </div>
+        </div>
+      </section>
+
+      <!-- Best Sellers -->
+      <section
+        class="section particles-bg"
+        th:if="${bestSellerProducts != null && !bestSellerProducts.isEmpty()}"
+      >
+        <div class="container" style="position: relative; z-index: 1">
+          <div class="section-header">
+            <h2 class="section-title text-gradient">Bán chạy nhất</h2>
+            <p class="section-subtitle">
+              Top sản phẩm được mua nhiều nhất trong tháng
+            </p>
+          </div>
+
+          <div class="products-grid">
+            <th:block th:each="product : ${bestSellerProducts}">
+              <th:block
+                th:replace="~{fragments/product-card :: productCard(${product})}"
+              ></th:block>
+            </th:block>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features -->
+      <section class="section">
+        <div class="container">
+          <div
+            class="features-grid"
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+              gap: 24px;
+            "
+          >
+            <div class="card text-center p-4">
+              <div class="category-card__icon" style="margin: 0 auto 16px">
+                <i class="bx bx-rocket"></i>
+              </div>
+              <h4 class="mb-2">Giao hàng nhanh</h4>
+              <p class="text-muted">
+                Giao hàng toàn quốc trong 24-48h. Miễn phí ship cho đơn từ 500K
+              </p>
+            </div>
+
+            <div class="card text-center p-4">
+              <div class="category-card__icon" style="margin: 0 auto 16px">
+                <i class="bx bx-shield-quarter"></i>
+              </div>
+              <h4 class="mb-2">Chính hãng 100%</h4>
+              <p class="text-muted">
+                Cam kết sản phẩm chính hãng. Hoàn tiền 200% nếu phát hiện hàng
+                giả
+              </p>
+            </div>
+
+            <div class="card text-center p-4">
+              <div class="category-card__icon" style="margin: 0 auto 16px">
+                <i class="bx bx-refresh"></i>
+              </div>
+              <h4 class="mb-2">Đổi trả dễ dàng</h4>
+              <p class="text-muted">
+                Đổi trả miễn phí trong 30 ngày nếu sản phẩm lỗi do nhà sản xuất
+              </p>
+            </div>
+
+            <div class="card text-center p-4">
+              <div class="category-card__icon" style="margin: 0 auto 16px">
+                <i class="bx bx-support"></i>
+              </div>
+              <h4 class="mb-2">Hỗ trợ 24/7</h4>
+              <p class="text-muted">
+                Đội ngũ CSKH sẵn sàng hỗ trợ bạn mọi lúc mọi nơi
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Brands -->
+      <section class="section" th:if="${brands != null && !brands.isEmpty()}">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Thương hiệu đối tác</h2>
+          </div>
+
+          <div
+            class="brands-slider"
+            style="
+              display: flex;
+              gap: 40px;
+              justify-content: center;
+              align-items: center;
+              flex-wrap: wrap;
+            "
+          >
+            <a
+              th:each="brand : ${brands}"
+              th:href="@{/products(brand=${brand.slug})}"
+              class="brand-item hover-scale"
+              style="opacity: 0.6; transition: opacity 0.3s"
+              onmouseover="this.style. opacity='1'"
+              onmouseout="this.style.opacity='0.6'"
+            >
+              <img
+                th:src="${brand.logo}"
+                th:alt="${brand.name}"
+                style="height: 50px; object-fit: contain"
+              />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Newsletter -->
+      <!-- Newsletter -->
+      <section class="section">
+        <div class="container">
+          <div
+            class="card glass p-5"
+            style="text-align: center; max-width: 700px; margin: 0 auto"
+          >
+            <div
+              class="category-card__icon"
+              style="margin: 0 auto 20px; background: var(--gradient-aurora)"
+            >
+              <i class="bx bx-envelope"></i>
+            </div>
+            <h3 class="text-gradient mb-3">Đăng ký nhận tin</h3>
+            <p class="text-muted mb-4">
+              Nhận thông tin khuyến mãi, sản phẩm mới và ưu đãi độc quyền từ
+              Argaty
+            </p>
+            <form class="input-group" style="max-width: 450px; margin: 0 auto">
+              <input
+                type="email"
+                class="form-control"
+                placeholder="Nhập email của bạn... "
+              />
+              <button type="submit" class="btn btn-primary">
+                <i class="bx bx-send"></i>
+                Đăng ký
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <th:block layout:fragment="scripts">
+      <script>
+        // Home Slider
+        document.addEventListener("DOMContentLoaded", function () {
+          const slider = document.getElementById("homeSlider");
+          if (!slider) return;
+
+          const track = slider.querySelector(".slider__track");
+          const slides = slider.querySelectorAll(".slider__slide");
+          const dots = slider.querySelectorAll(".slider__dot");
+          const prevBtn = slider.querySelector(".slider__nav--prev");
+          const nextBtn = slider.querySelector(".slider__nav--next");
+
+          let currentIndex = 0;
+          const totalSlides = slides.length;
+
+          function goToSlide(index) {
+            if (index < 0) index = totalSlides - 1;
+            if (index >= totalSlides) index = 0;
+
+            currentIndex = index;
+            track.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+            dots.forEach((dot, i) => {
+              dot.classList.toggle("active", i === currentIndex);
+            });
+          }
+
+          prevBtn?.addEventListener("click", () => goToSlide(currentIndex - 1));
+          nextBtn?.addEventListener("click", () => goToSlide(currentIndex + 1));
+
+          dots.forEach((dot, i) => {
+            dot.addEventListener("click", () => goToSlide(i));
+          });
+
+          // Auto slide
+          setInterval(() => goToSlide(currentIndex + 1), 5000);
+        });
+      </script>
+    </th:block>
+  </body>
+</html>

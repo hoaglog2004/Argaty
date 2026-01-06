@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/admin}"
+>
+  <head>
+    <title>Quản lý đơn hàng</title>
+  </head>
+
+  <body>
+    <div layout:fragment="content">
+      <div class="admin-page-header">
+        <h1 class="admin-page-title">Quản lý đơn hàng</h1>
+        <div class="admin-page-actions">
+          <button class="btn btn-outline" onclick="exportOrders()">
+            <i class="bx bx-export"></i> Xuất Excel
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="admin-filters">
+        <div class="admin-search">
+          <i class="bx bx-search"></i>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Tìm mã đơn, tên KH, SĐT..."
+            th:value="${searchKeyword}"
+          />
+        </div>
+        <select
+          class="form-control form-select admin-filter-select"
+          name="status"
+          data-param="status"
+        >
+          <option value="">Tất cả trạng thái</option>
+          <option value="PENDING" th:selected="${currentStatus == 'PENDING'}">
+            Chờ xác nhận
+          </option>
+          <option
+            value="CONFIRMED"
+            th:selected="${currentStatus == 'CONFIRMED'}"
+          >
+            Đã xác nhận
+          </option>
+          <option value="SHIPPING" th:selected="${currentStatus == 'SHIPPING'}">
+            Đang giao
+          </option>
+          <option
+            value="DELIVERED"
+            th:selected="${currentStatus == 'DELIVERED'}"
+          >
+            Đã giao
+          </option>
+          <option
+            value="COMPLETED"
+            th:selected="${currentStatus == 'COMPLETED'}"
+          >
+            Hoàn thành
+          </option>
+          <option
+            value="CANCELLED"
+            th:selected="${currentStatus == 'CANCELLED'}"
+          >
+            Đã hủy
+          </option>
+        </select>
+        <input
+          type="date"
+          class="form-control"
+          name="fromDate"
+          th:value="${fromDate}"
+          style="width: auto"
+        />
+        <input
+          type="date"
+          class="form-control"
+          name="toDate"
+          th:value="${toDate}"
+          style="width: auto"
+        />
+      </div>
+
+      <!-- Orders Table -->
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Mã đơn</th>
+              <th>Khách hàng</th>
+              <th>Sản phẩm</th>
+              <th>Tổng tiền</th>
+              <th>Thanh toán</th>
+              <th>Trạng thái</th>
+              <th>Ngày đặt</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="order : ${orders. content}">
+              <td>
+                <a
+                  th:href="@{/admin/orders/{code}(code=${order.orderCode})}"
+                  class="text-cyan"
+                  th:text="${order.orderCode}"
+                  >ARG123</a
+                >
+              </td>
+              <td>
+                <div>
+                  <p class="mb-0" th:text="${order.receiverName}">Tên KH</p>
+                  <small class="text-muted" th:text="${order.receiverPhone}"
+                    >SĐT</small
+                  >
+                </div>
+              </td>
+              <td><span th:text="${order.totalItems}">0</span> sản phẩm</td>
+              <td>
+                <strong
+                  class="text-cyan"
+                  th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                  >0 ₫</strong
+                >
+              </td>
+              <td>
+                <span th:if="${order.isPaid}" class="text-success"
+                  ><i class="bx bx-check"></i> Đã TT</span
+                >
+                <span th:unless="${order.isPaid}" class="text-warning"
+                  ><i class="bx bx-time"></i> Chưa TT</span
+                >
+                <br />
+                <small
+                  class="text-muted"
+                  th:text="${order.paymentMethodDisplayName}"
+                  >COD</small
+                >
+              </td>
+              <td>
+                <span
+                  class="status-badge"
+                  th:classappend="'status-badge--' + ${order.status.name().toLowerCase()}"
+                  th:text="${order.statusDisplayName}"
+                  >Trạng thái</span
+                >
+              </td>
+              <td>
+                <span
+                  th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy')}"
+                  >01/01/2024</span
+                >
+                <br />
+                <small
+                  class="text-muted"
+                  th:text="${#temporals.format(order.createdAt, 'HH:mm')}"
+                  >12:00</small
+                >
+              </td>
+              <td>
+                <div class="table-actions">
+                  <a
+                    th:href="@{/admin/orders/{code}(code=${order.orderCode})}"
+                    class="table-action-btn"
+                    title="Chi tiết"
+                  >
+                    <i class="bx bx-show"></i>
+                  </a>
+                  <button
+                    class="table-action-btn"
+                    title="In đơn"
+                    onclick="printOrder('[[${order.orderCode}]]')"
+                  >
+                    <i class="bx bx-printer"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr th:if="${orders. content == null || orders.content.isEmpty()}">
+              <td colspan="8" class="text-center text-muted p-5">
+                <i
+                  class="bx bx-package"
+                  style="font-size: 48px; display: block; margin-bottom: 16px"
+                ></i>
+                Không có đơn hàng nào
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="d-flex justify-between align-center mt-4">
+        <p class="text-muted mb-0">
+          Hiển thị <span th:text="${orders.content.size()}">0</span> /
+          <span th:text="${orders. totalElements}">0</span> đơn hàng
+        </p>
+        <th:block
+          th:replace="~{fragments/pagination :: pagination(${orders}, '/admin/orders')}"
+        ></th:block>
+      </div>
+    </div>
+  </body>
+</html>

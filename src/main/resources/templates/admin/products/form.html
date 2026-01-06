@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/admin}"
+>
+  <head>
+    <title th:text="${isEdit} ? 'Sửa sản phẩm' : 'Thêm sản phẩm'">
+      Sản phẩm
+    </title>
+  </head>
+
+  <body>
+    <div layout:fragment="content">
+      <div class="admin-page-header">
+        <h1
+          class="admin-page-title"
+          th:text="${isEdit} ?  'Sửa sản phẩm' : 'Thêm sản phẩm mới'"
+        >
+          Sản phẩm
+        </h1>
+        <div class="admin-page-actions">
+          <a th:href="@{/admin/products}" class="btn btn-ghost">
+            <i class="bx bx-arrow-back"></i> Quay lại
+          </a>
+        </div>
+      </div>
+
+      <form
+        th:action="${isEdit} ? @{/admin/products/{id}/edit(id=${product.id})} : @{/admin/products/create}"
+        method="post"
+        th:object="${productRequest}"
+        enctype="multipart/form-data"
+      >
+        <input
+          type="hidden"
+          th:name="${_csrf.parameterName}"
+          th:value="${_csrf.token}"
+        />
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px">
+          <!-- Left Column -->
+          <div>
+            <!-- Basic Info -->
+            <div class="admin-form-card mb-4">
+              <div class="admin-form-card__header">
+                <h4 class="admin-form-card__title">
+                  <i class="bx bx-info-circle text-primary"></i> Thông tin cơ
+                  bản
+                </h4>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label"
+                  >Tên sản phẩm <span class="text-danger">*</span></label
+                >
+                <input
+                  type="text"
+                  th:field="*{name}"
+                  class="form-control"
+                  th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                  placeholder="Nhập tên sản phẩm"
+                  required
+                />
+                <div th:if="${#fields.hasErrors('name')}" class="form-error">
+                  <i class="bx bx-error"></i> <span th:errors="*{name}"></span>
+                </div>
+              </div>
+
+              <div class="admin-form-grid">
+                <div class="form-group">
+                  <label class="form-label">SKU</label>
+                  <input
+                    type="text"
+                    th:field="*{sku}"
+                    class="form-control"
+                    placeholder="Mã sản phẩm (tự động nếu bỏ trống)"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Slug</label>
+                  <input
+                    type="text"
+                    th:field="*{slug}"
+                    class="form-control"
+                    placeholder="URL thân thiện (tự động)"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Mô tả ngắn</label>
+                <textarea
+                  th:field="*{shortDescription}"
+                  class="form-control"
+                  rows="2"
+                  placeholder="Mô tả ngắn gọn về sản phẩm"
+                ></textarea>
+              </div>
+
+              <div class="form-group mb-0">
+                <label class="form-label">Mô tả chi tiết</label>
+                <textarea
+                  th:field="*{description}"
+                  class="form-control"
+                  rows="6"
+                  id="description"
+                  placeholder="Mô tả chi tiết sản phẩm"
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- Images -->
+            <div class="admin-form-card mb-4">
+              <div class="admin-form-card__header">
+                <h4 class="admin-form-card__title">
+                  <i class="bx bx-image text-primary"></i> Hình ảnh
+                </h4>
+              </div>
+
+              <div
+                class="image-upload"
+                onclick="document.getElementById('imageInput').click()"
+              >
+                <input
+                  type="file"
+                  id="imageInput"
+                  name="images"
+                  multiple
+                  accept="image/*"
+                  style="display: none"
+                />
+                <i class="bx bx-cloud-upload image-upload__icon"></i>
+                <p class="image-upload__text">
+                  Kéo thả hoặc click để tải ảnh lên
+                </p>
+                <p class="image-upload__hint">
+                  JPG, PNG tối đa 5MB. Có thể chọn nhiều ảnh.
+                </p>
+              </div>
+
+              <div class="image-preview-grid" id="imagePreview">
+                <div
+                  th:if="${product != null}"
+                  th:each="img : ${product.images}"
+                  class="image-preview-item"
+                >
+                  <img th:src="${img. imageUrl}" />
+                  <button
+                    type="button"
+                    class="image-preview-item__remove"
+                    th:onclick="'removeExistingImage(' + ${img.id} + ', this)'"
+                  >
+                    <i class="bx bx-x"></i>
+                  </button>
+                  <input
+                    type="hidden"
+                    name="existingImageIds"
+                    th:value="${img.id}"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Variants -->
+            <div class="admin-form-card">
+              <div
+                class="admin-form-card__header d-flex justify-between align-center"
+              >
+                <h4 class="admin-form-card__title mb-0">
+                  <i class="bx bx-layer text-primary"></i> Biến thể sản phẩm
+                </h4>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm"
+                  onclick="addVariant()"
+                >
+                  <i class="bx bx-plus"></i> Thêm biến thể
+                </button>
+              </div>
+
+              <div id="variantsContainer">
+                <div
+                  th:if="${product != null && product.variants != null}"
+                  th:each="variant, stat : ${product.variants}"
+                  class="variant-item card p-3 mb-3"
+                >
+                  <div class="d-flex justify-between align-center mb-3">
+                    <strong
+                      >Biến thể #<span
+                        class="variant-index"
+                        th:text="${stat.index + 1}"
+                        >1</span
+                      ></strong
+                    >
+                    <button
+                      type="button"
+                      class="btn btn-ghost btn-sm text-danger"
+                      onclick="removeVariant(this)"
+                    >
+                      <i class="bx bx-trash"></i>
+                    </button>
+                  </div>
+                  <div
+                    style="
+                      display: grid;
+                      grid-template-columns: repeat(4, 1fr);
+                      gap: 12px;
+                    "
+                  >
+                    <input
+                      type="hidden"
+                      th:name="'variants[' + ${stat.index} + '].id'"
+                      th:value="${variant.id}"
+                    />
+                    <div class="form-group mb-0">
+                      <label class="form-label">Tên biến thể</label>
+                      <input
+                        type="text"
+                        th:name="'variants[' + ${stat.index} + '].name'"
+                        th:value="${variant.name}"
+                        class="form-control"
+                        placeholder="VD: Đen, 128GB"
+                      />
+                    </div>
+                    <div class="form-group mb-0">
+                      <label class="form-label">Màu sắc</label>
+                      <input
+                        type="text"
+                        th:name="'variants[' + ${stat.index} + '].color'"
+                        th:value="${variant.color}"
+                        class="form-control"
+                        placeholder="VD:  Đen"
+                      />
+                    </div>
+                    <div class="form-group mb-0">
+                      <label class="form-label">Giá</label>
+                      <input
+                        type="number"
+                        th:name="'variants[' + ${stat.index} + '].price'"
+                        th:value="${variant.price}"
+                        class="form-control"
+                        min="0"
+                      />
+                    </div>
+                    <div class="form-group mb-0">
+                      <label class="form-label">Số lượng</label>
+                      <input
+                        type="number"
+                        th:name="'variants[' + ${stat.index} + '].quantity'"
+                        th:value="${variant.quantity}"
+                        class="form-control"
+                        min="0"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <p
+                th:if="${product == null || product.variants == null || product.variants.isEmpty()}"
+                id="noVariantsText"
+                class="text-muted text-center p-4"
+              >
+                Chưa có biến thể. Thêm biến thể nếu sản phẩm có nhiều tùy chọn
+                (màu sắc, size.. .).
+              </p>
+            </div>
+          </div>
+
+          <!-- Right Column -->
+          <div>
+            <!-- Status & Category -->
+            <div class="admin-form-card mb-4">
+              <div class="admin-form-card__header">
+                <h4 class="admin-form-card__title">
+                  <i class="bx bx-cog text-primary"></i> Phân loại
+                </h4>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label"
+                  >Danh mục <span class="text-danger">*</span></label
+                >
+                <select
+                  th:field="*{categoryId}"
+                  class="form-control form-select"
+                  required
+                >
+                  <option value="">Chọn danh mục</option>
+                  <option
+                    th:each="cat : ${categories}"
+                    th:value="${cat.id}"
+                    th:text="${cat.name}"
+                  ></option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Thương hiệu</label>
+                <select th:field="*{brandId}" class="form-control form-select">
+                  <option value="">Chọn thương hiệu</option>
+                  <option
+                    th:each="brand : ${brands}"
+                    th:value="${brand.id}"
+                    th:text="${brand.name}"
+                  ></option>
+                </select>
+              </div>
+
+              <div class="form-group mb-0">
+                <label class="form-check">
+                  <input
+                    type="checkbox"
+                    th:field="*{isActive}"
+                    class="form-check-input"
+                  />
+                  <span class="form-check-label">Hiển thị sản phẩm</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Pricing -->
+            <div class="admin-form-card mb-4">
+              <div class="admin-form-card__header">
+                <h4 class="admin-form-card__title">
+                  <i class="bx bx-dollar text-primary"></i> Giá & Kho
+                </h4>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label"
+                  >Giá gốc <span class="text-danger">*</span></label
+                >
+                <input
+                  type="number"
+                  th:field="*{price}"
+                  class="form-control"
+                  min="0"
+                  step="1000"
+                  required
+                  placeholder="VNĐ"
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Giá khuyến mãi</label>
+                <input
+                  type="number"
+                  th:field="*{salePrice}"
+                  class="form-control"
+                  min="0"
+                  step="1000"
+                  placeholder="Để trống nếu không giảm giá"
+                />
+              </div>
+
+              <div class="form-group mb-0">
+                <label class="form-label">Số lượng trong kho</label>
+                <input
+                  type="number"
+                  th:field="*{quantity}"
+                  class="form-control"
+                  min="0"
+                  value="0"
+                />
+              </div>
+            </div>
+
+            <!-- Flags -->
+            <div class="admin-form-card mb-4">
+              <div class="admin-form-card__header">
+                <h4 class="admin-form-card__title">
+                  <i class="bx bx-star text-primary"></i> Đánh dấu
+                </h4>
+              </div>
+
+              <div class="form-group mb-2">
+                <label class="form-check">
+                  <input
+                    type="checkbox"
+                    th:field="*{isFeatured}"
+                    class="form-check-input"
+                  />
+                  <span class="form-check-label">Sản phẩm nổi bật</span>
+                </label>
+              </div>
+              <div class="form-group mb-2">
+                <label class="form-check">
+                  <input
+                    type="checkbox"
+                    th:field="*{isBestSeller}"
+                    class="form-check-input"
+                  />
+                  <span class="form-check-label">Bán chạy</span>
+                </label>
+              </div>
+              <div class="form-group mb-0">
+                <label class="form-check">
+                  <input
+                    type="checkbox"
+                    th:field="*{isNew}"
+                    class="form-check-input"
+                  />
+                  <span class="form-check-label">Sản phẩm mới</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex gap-3">
+              <button type="submit" class="btn btn-primary btn-block">
+                <i class="bx bx-save"></i>
+                <span th:text="${isEdit} ? 'Cập nhật' : 'Tạo sản phẩm'"
+                  >Lưu</span
+                >
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <th:block layout:fragment="scripts">
+      <script>
+        let variantIndex = "[[${product?. variants?.size() ?: 0}]]";
+
+        function addVariant() {
+          document.getElementById("noVariantsText")?.remove();
+
+          const container = document.getElementById("variantsContainer");
+          const html = `
+        <div class="variant-item card p-3 mb-3">
+            <div class="d-flex justify-between align-center mb-3">
+                <strong>Biến thể #<span class="variant-index">${
+                  variantIndex + 1
+                }</span></strong>
+                <button type="button" class="btn btn-ghost btn-sm text-danger" onclick="removeVariant(this)">
+                    <i class='bx bx-trash'></i>
+                </button>
+            </div>
+            <div style="display:  grid; grid-template-columns:  repeat(4, 1fr); gap: 12px;">
+                <div class="form-group mb-0">
+                    <label class="form-label">Tên biến thể</label>
+                    <input type="text" name="variants[${variantIndex}].name" class="form-control" placeholder="VD: Đen, 128GB">
+                </div>
+                <div class="form-group mb-0">
+                    <label class="form-label">Màu sắc</label>
+                    <input type="text" name="variants[${variantIndex}].color" class="form-control" placeholder="VD: Đen">
+                </div>
+                <div class="form-group mb-0">
+                    <label class="form-label">Giá</label>
+                    <input type="number" name="variants[${variantIndex}].price" class="form-control" min="0">
+                </div>
+                <div class="form-group mb-0">
+                    <label class="form-label">Số lượng</label>
+                    <input type="number" name="variants[${variantIndex}]. quantity" class="form-control" min="0" value="0">
+                </div>
+            </div>
+        </div>
+    `;
+          container.insertAdjacentHTML("beforeend", html);
+          variantIndex++;
+        }
+
+        function removeVariant(btn) {
+          btn.closest(".variant-item").remove();
+          updateVariantIndices();
+        }
+
+        function updateVariantIndices() {
+          document.querySelectorAll(".variant-index").forEach((el, i) => {
+            el.textContent = i + 1;
+          });
+        }
+
+        // Image preview
+        document
+          .getElementById("imageInput")
+          ?.addEventListener("change", function () {
+            const preview = document.getElementById("imagePreview");
+
+            Array.from(this.files).forEach((file) => {
+              if (!file.type.startsWith("image/")) return;
+
+              const reader = new FileReader();
+              reader.onload = function (e) {
+                const div = document.createElement("div");
+                div.className = "image-preview-item";
+                div.innerHTML = `
+                <img src="${e.target.result}">
+                <button type="button" class="image-preview-item__remove" onclick="this.parentElement.remove()">
+                    <i class='bx bx-x'></i>
+                </button>
+            `;
+                preview.appendChild(div);
+              };
+              reader.readAsDataURL(file);
+            });
+          });
+
+        function removeExistingImage(id, btn) {
+          btn.closest(".image-preview-item").remove();
+        }
+      </script>
+    </th:block>
+  </body>
+</html>

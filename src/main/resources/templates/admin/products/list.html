@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/admin}"
+>
+  <head>
+    <title>Quản lý sản phẩm</title>
+  </head>
+
+  <body>
+    <div layout:fragment="content">
+      <div class="admin-page-header">
+        <h1 class="admin-page-title">Quản lý sản phẩm</h1>
+        <div class="admin-page-actions">
+          <a th:href="@{/admin/products/create}" class="btn btn-primary">
+            <i class="bx bx-plus"></i> Thêm sản phẩm
+          </a>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="admin-filters">
+        <div class="admin-search">
+          <i class="bx bx-search"></i>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Tìm kiếm sản phẩm..."
+            th:value="${searchKeyword}"
+          />
+        </div>
+        <select
+          class="form-control form-select admin-filter-select"
+          name="category"
+          data-param="category"
+        >
+          <option value="">Tất cả danh mục</option>
+          <option
+            th:each="cat : ${categories}"
+            th:value="${cat.id}"
+            th:text="${cat.name}"
+            th:selected="${selectedCategoryId == cat.id}"
+          ></option>
+        </select>
+        <select
+          class="form-control form-select admin-filter-select"
+          name="brand"
+          data-param="brand"
+        >
+          <option value="">Tất cả thương hiệu</option>
+          <option
+            th:each="brand :  ${brands}"
+            th:value="${brand.id}"
+            th:text="${brand.name}"
+            th:selected="${selectedBrandId == brand.id}"
+          ></option>
+        </select>
+      </div>
+
+      <!-- Products Table -->
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width: 40px">
+                <input type="checkbox" onchange="toggleSelectAllRows(this)" />
+              </th>
+              <th>Sản phẩm</th>
+              <th>SKU</th>
+              <th>Danh mục</th>
+              <th>Giá</th>
+              <th>Kho</th>
+              <th>Trạng thái</th>
+              <th style="width: 120px">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="product : ${products. content}">
+              <td><input type="checkbox" th:value="${product.id}" /></td>
+              <td>
+                <div class="d-flex align-center gap-3">
+                  <div
+                    style="
+                      width: 50px;
+                      height: 50px;
+                      border-radius: 8px;
+                      overflow: hidden;
+                      background: var(--bg-void);
+                    "
+                  >
+                    <img
+                      th:src="${product.mainImage}"
+                      th:alt="${product.name}"
+                      style="width: 100%; height: 100%; object-fit: cover"
+                    />
+                  </div>
+                  <div>
+                    <p class="mb-0" th:text="${product.name}">Tên sản phẩm</p>
+                    <small class="text-muted" th:text="${product.brandName}"
+                      >Thương hiệu</small
+                    >
+                  </div>
+                </div>
+              </td>
+              <td><code th:text="${product.sku}">SKU</code></td>
+              <td th:text="${product.categoryName}">Danh mục</td>
+              <td>
+                <span
+                  class="text-cyan"
+                  th:text="${#numbers. formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                  >0 ₫</span
+                >
+                <br th:if="${product.salePrice}" />
+                <small
+                  th:if="${product.salePrice}"
+                  class="text-success"
+                  th:text="'Sale:  ' + ${#numbers.formatDecimal(product. salePrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                ></small>
+              </td>
+              <td>
+                <span
+                  th:if="${product.quantity > 10}"
+                  class="text-success"
+                  th:text="${product.quantity}"
+                  >0</span
+                >
+                <span
+                  th:if="${product.quantity > 0 && product.quantity <= 10}"
+                  class="text-warning"
+                  th:text="${product.quantity}"
+                  >0</span
+                >
+                <span th:if="${product.quantity <= 0}" class="text-danger"
+                  >Hết hàng</span
+                >
+              </td>
+              <td>
+                <span
+                  th:if="${product.isActive}"
+                  class="status-badge status-badge--completed"
+                  >Active</span
+                >
+                <span
+                  th:unless="${product.isActive}"
+                  class="status-badge status-badge--cancelled"
+                  >Inactive</span
+                >
+              </td>
+              <td>
+                <div class="table-actions">
+                  <a
+                    th:href="@{/admin/products/{id}/edit(id=${product. id})}"
+                    class="table-action-btn edit"
+                    title="Sửa"
+                  >
+                    <i class="bx bx-edit"></i>
+                  </a>
+                  <button
+                    class="table-action-btn"
+                    title="Xem"
+                    th:onclick="'window.open(\'/products/' + ${product.slug} + '\', \'_blank\')'"
+                  >
+                    <i class="bx bx-show"></i>
+                  </button>
+                  <form
+                    th:action="@{/admin/products/{id}/delete(id=${product.id})}"
+                    method="post"
+                    style="display: inline"
+                  >
+                    <input
+                      type="hidden"
+                      th:name="${_csrf.parameterName}"
+                      th:value="${_csrf.token}"
+                    />
+                    <button
+                      type="button"
+                      class="table-action-btn delete"
+                      title="Xóa"
+                      onclick="confirmDelete('Bạn có chắc muốn xóa sản phẩm này? ', () => this.closest('form').submit())"
+                    >
+                      <i class="bx bx-trash"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <tr
+              th:if="${products. content == null || products.content.isEmpty()}"
+            >
+              <td colspan="8" class="text-center text-muted p-5">
+                <i
+                  class="bx bx-box"
+                  style="font-size: 48px; display: block; margin-bottom: 16px"
+                ></i>
+                Chưa có sản phẩm nào
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="d-flex justify-between align-center mt-4">
+        <p class="text-muted mb-0">
+          Hiển thị <span th:text="${products.content.size()}">0</span> /
+          <span th:text="${products. totalElements}">0</span> sản phẩm
+        </p>
+        <th:block
+          th:replace="~{fragments/pagination :: pagination(${products}, '/admin/products')}"
+        ></th:block>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/main}"
+>
+  <head>
+    <title>Tài khoản của tôi</title>
+  </head>
+
+  <body>
+    <main layout:fragment="content">
+      <div class="profile-page">
+        <div class="container">
+          <!-- Breadcrumb -->
+          <nav class="breadcrumb">
+            <div class="breadcrumb__item">
+              <a th:href="@{/}"><i class="bx bx-home"></i> Trang chủ</a>
+            </div>
+            <span class="breadcrumb__separator"
+              ><i class="bx bx-chevron-right"></i
+            ></span>
+            <div class="breadcrumb__item">Tài khoản</div>
+          </nav>
+
+          <div class="profile-layout">
+            <!-- Sidebar -->
+            <aside class="profile-sidebar">
+              <div class="profile-user">
+                <div class="profile-user__avatar">
+                  <img
+                    th:if="${user.avatar}"
+                    th:src="${user.avatar}"
+                    alt="Avatar"
+                  />
+                  <span
+                    th:unless="${user.avatar}"
+                    th:text="${#strings.substring(user.fullName, 0, 1)}"
+                    >U</span
+                  >
+                  <div class="profile-user__avatar-edit">
+                    <i class="bx bx-camera"></i> Đổi ảnh
+                  </div>
+                </div>
+                <h3 class="profile-user__name" th:text="${user.fullName}">
+                  Tên người dùng
+                </h3>
+                <p class="profile-user__email" th:text="${user.email}">
+                  email@example.com
+                </p>
+              </div>
+
+              <nav class="profile-nav">
+                <a
+                  th:href="@{/profile}"
+                  class="profile-nav__item"
+                  th:classappend="${profileTab == 'overview'} ? 'active' : ''"
+                >
+                  <i class="bx bx-user"></i>
+                  <span>Tổng quan</span>
+                </a>
+                <a
+                  th:href="@{/profile/edit}"
+                  class="profile-nav__item"
+                  th:classappend="${profileTab == 'edit'} ?  'active' : ''"
+                >
+                  <i class="bx bx-edit"></i>
+                  <span>Chỉnh sửa hồ sơ</span>
+                </a>
+                <a
+                  th:href="@{/profile/orders}"
+                  class="profile-nav__item"
+                  th:classappend="${profileTab == 'orders'} ? 'active' : ''"
+                >
+                  <i class="bx bx-package"></i>
+                  <span>Đơn hàng</span>
+                </a>
+                <a
+                  th:href="@{/profile/addresses}"
+                  class="profile-nav__item"
+                  th:classappend="${profileTab == 'addresses'} ?  'active' : ''"
+                >
+                  <i class="bx bx-map"></i>
+                  <span>Địa chỉ</span>
+                </a>
+                <a
+                  th:href="@{/profile/wishlist}"
+                  class="profile-nav__item"
+                  th:classappend="${profileTab == 'wishlist'} ? 'active' : ''"
+                >
+                  <i class="bx bx-heart"></i>
+                  <span>Yêu thích</span>
+                </a>
+                <a
+                  th:href="@{/profile/reviews}"
+                  class="profile-nav__item"
+                  th:classappend="${profileTab == 'reviews'} ?  'active' : ''"
+                >
+                  <i class="bx bx-star"></i>
+                  <span>Đánh giá</span>
+                </a>
+                <a
+                  th:href="@{/profile/notifications}"
+                  class="profile-nav__item"
+                  th:classappend="${profileTab == 'notifications'} ?  'active' : ''"
+                >
+                  <i class="bx bx-bell"></i>
+                  <span>Thông báo</span>
+                </a>
+
+                <div class="profile-nav__divider"></div>
+
+                <a
+                  th:href="@{/profile/change-password}"
+                  class="profile-nav__item"
+                  th:classappend="${profileTab == 'password'} ? 'active' :  ''"
+                >
+                  <i class="bx bx-lock"></i>
+                  <span>Đổi mật khẩu</span>
+                </a>
+                <a th:href="@{/auth/logout}" class="profile-nav__item">
+                  <i class="bx bx-log-out"></i>
+                  <span>Đăng xuất</span>
+                </a>
+              </nav>
+            </aside>
+
+            <!-- Content -->
+            <div class="profile-content">
+              <div class="profile-content__header">
+                <h2 class="profile-content__title">Tổng quan tài khoản</h2>
+              </div>
+
+              <!-- Stats Grid -->
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div
+                    class="stat-card__icon"
+                    style="
+                      background: rgba(139, 92, 246, 0.15);
+                      color: var(--primary);
+                    "
+                  >
+                    <i class="bx bx-package"></i>
+                  </div>
+                  <div>
+                    <div class="stat-card__value" th:text="${totalOrders}">
+                      0
+                    </div>
+                    <div class="stat-card__label">Đơn hàng</div>
+                  </div>
+                </div>
+
+                <div class="stat-card">
+                  <div
+                    class="stat-card__icon"
+                    style="
+                      background: rgba(34, 211, 238, 0.15);
+                      color: var(--accent-cyan);
+                    "
+                  >
+                    <i class="bx bx-wallet"></i>
+                  </div>
+                  <div>
+                    <div
+                      class="stat-card__value"
+                      th:text="${#numbers.formatDecimal(totalSpent, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                    >
+                      0 ₫
+                    </div>
+                    <div class="stat-card__label">Tổng chi tiêu</div>
+                  </div>
+                </div>
+
+                <div class="stat-card">
+                  <div
+                    class="stat-card__icon"
+                    style="
+                      background: rgba(245, 158, 11, 0.15);
+                      color: var(--warning);
+                    "
+                  >
+                    <i class="bx bx-time"></i>
+                  </div>
+                  <div>
+                    <div class="stat-card__value" th:text="${pendingOrders}">
+                      0
+                    </div>
+                    <div class="stat-card__label">Đang xử lý</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recent Orders -->
+              <div class="card mt-4">
+                <div class="card-header d-flex justify-between align-center">
+                  <h4 class="mb-0">Đơn hàng gần đây</h4>
+                  <a th:href="@{/profile/orders}" class="btn btn-ghost btn-sm">
+                    Xem tất cả <i class="bx bx-right-arrow-alt"></i>
+                  </a>
+                </div>
+                <div class="card-body p-0">
+                  <div
+                    th:if="${recentOrders != null && !recentOrders. isEmpty()}"
+                  >
+                    <table class="orders-table">
+                      <thead>
+                        <tr>
+                          <th>Mã đơn</th>
+                          <th>Ngày đặt</th>
+                          <th>Tổng tiền</th>
+                          <th>Trạng thái</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr th:each="order : ${recentOrders}">
+                          <td>
+                            <span
+                              class="order-code"
+                              th:text="${order.orderCode}"
+                              >ARG123456</span
+                            >
+                          </td>
+                          <td>
+                            <span
+                              class="order-date"
+                              th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy')}"
+                              >01/01/2024</span
+                            >
+                          </td>
+                          <td>
+                            <span
+                              class="order-total"
+                              th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                              >0 ₫</span
+                            >
+                          </td>
+                          <td>
+                            <span
+                              class="status-badge"
+                              th:classappend="'status-badge--' + ${order.status.name().toLowerCase()}"
+                              th:text="${order.statusDisplayName}"
+                              >Trạng thái</span
+                            >
+                          </td>
+                          <td>
+                            <a
+                              th:href="@{/profile/orders/{code}(code=${order.orderCode})}"
+                              class="btn btn-ghost btn-sm"
+                            >
+                              Chi tiết
+                            </a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div
+                    th:if="${recentOrders == null || recentOrders.isEmpty()}"
+                    class="empty-state"
+                  >
+                    <div
+                      class="empty-state__icon"
+                      style="width: 80px; height: 80px"
+                    >
+                      <i class="bx bx-package"></i>
+                    </div>
+                    <h4 class="empty-state__title">Chưa có đơn hàng</h4>
+                    <p class="empty-state__desc">
+                      Bạn chưa có đơn hàng nào. Hãy bắt đầu mua sắm!
+                    </p>
+                    <a th:href="@{/products}" class="btn btn-primary">
+                      Mua sắm ngay
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Account Info -->
+              <div class="card mt-4">
+                <div class="card-header d-flex justify-between align-center">
+                  <h4 class="mb-0">Thông tin tài khoản</h4>
+                  <a th:href="@{/profile/edit}" class="btn btn-ghost btn-sm">
+                    <i class="bx bx-edit"></i> Chỉnh sửa
+                  </a>
+                </div>
+                <div class="card-body">
+                  <div
+                    class="info-grid"
+                    style="
+                      display: grid;
+                      grid-template-columns: repeat(2, 1fr);
+                      gap: 20px;
+                    "
+                  >
+                    <div class="info-item">
+                      <label class="text-muted" style="font-size: 13px"
+                        >Họ và tên</label
+                      >
+                      <p class="mb-0" th:text="${user.fullName}">Tên</p>
+                    </div>
+                    <div class="info-item">
+                      <label class="text-muted" style="font-size: 13px"
+                        >Email</label
+                      >
+                      <p class="mb-0" th:text="${user. email}">
+                        email@example.com
+                      </p>
+                    </div>
+                    <div class="info-item">
+                      <label class="text-muted" style="font-size: 13px"
+                        >Số điện thoại</label
+                      >
+                      <p
+                        class="mb-0"
+                        th:text="${user.phone != null} ? ${user.phone} : 'Chưa cập nhật'"
+                      >
+                        SĐT
+                      </p>
+                    </div>
+                    <div class="info-item">
+                      <label class="text-muted" style="font-size: 13px"
+                        >Ngày tham gia</label
+                      >
+                      <p
+                        class="mb-0"
+                        th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy')}"
+                      >
+                        01/01/2024
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

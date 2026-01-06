@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/main}"
+>
+  <head>
+    <title>Sản phẩm yêu thích</title>
+  </head>
+
+  <body>
+    <main layout:fragment="content">
+      <div class="wishlist-page" style="padding: 120px 0 80px">
+        <div class="container">
+          <nav class="breadcrumb">
+            <div class="breadcrumb__item">
+              <a th:href="@{/}"><i class="bx bx-home"></i> Trang chủ</a>
+            </div>
+            <span class="breadcrumb__separator"
+              ><i class="bx bx-chevron-right"></i
+            ></span>
+            <div class="breadcrumb__item">Yêu thích</div>
+          </nav>
+
+          <div
+            class="section-header"
+            style="text-align: left; margin-bottom: 30px"
+          >
+            <h1 class="section-title" style="font-size: 2rem">
+              <i class="bx bx-heart text-pink"></i> Sản phẩm yêu thích
+            </h1>
+            <p class="text-muted" th:if="${wishlists != null}">
+              <span th:text="${wishlists.size()}">0</span> sản phẩm
+            </p>
+          </div>
+
+          <!-- Wishlist Grid -->
+          <div
+            th:if="${wishlists != null && !wishlists.isEmpty()}"
+            class="products-grid"
+          >
+            <div th:each="item : ${wishlists}" class="product-card">
+              <div class="product-card__image">
+                <a th:href="@{/products/{slug}(slug=${item.productSlug})}">
+                  <img
+                    th:src="${item.productImage}"
+                    th:alt="${item.productName}"
+                  />
+                </a>
+
+                <div class="product-card__badges">
+                  <span th:if="${item.isOnSale}" class="badge badge-sale">
+                    -[[${item.discountPercent}]]%
+                  </span>
+                  <span
+                    th:unless="${item.isInStock}"
+                    class="badge badge-soldout"
+                    >Hết hàng</span
+                  >
+                </div>
+
+                <div class="product-card__actions">
+                  <button
+                    class="product-card__action-btn active wishlist-btn"
+                    th:data-product-id="${item.productId}"
+                    title="Xóa khỏi yêu thích"
+                  >
+                    <i class="bx bxs-heart"></i>
+                  </button>
+                </div>
+
+                <button
+                  th:if="${item.isInStock}"
+                  class="product-card__cart-btn add-to-cart-btn"
+                  th:data-product-id="${item.productId}"
+                >
+                  <i class="bx bx-cart-add"></i>
+                  <span>Thêm vào giỏ</span>
+                </button>
+              </div>
+
+              <div class="product-card__info">
+                <h3 class="product-card__name">
+                  <a
+                    th:href="@{/products/{slug}(slug=${item.productSlug})}"
+                    th:text="${item.productName}"
+                    >Sản phẩm</a
+                  >
+                </h3>
+
+                <div class="product-card__price">
+                  <span
+                    class="price-current"
+                    th:text="${#numbers.formatDecimal(item.isOnSale ? item.salePrice : item.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                    >0 ₫</span
+                  >
+                  <span
+                    th:if="${item.isOnSale}"
+                    class="price-original"
+                    th:text="${#numbers. formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                    >0 ₫</span
+                  >
+                </div>
+
+                <p class="text-muted" style="font-size: 12px; margin-top: 8px">
+                  Đã thêm
+                  <span
+                    th:text="${#temporals.format(item.createdAt, 'dd/MM/yyyy')}"
+                    >01/01/2024</span
+                  >
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div
+            th:if="${wishlists == null || wishlists.isEmpty()}"
+            class="empty-state"
+          >
+            <div class="empty-state__icon">
+              <i class="bx bx-heart"></i>
+            </div>
+            <h3 class="empty-state__title">Chưa có sản phẩm yêu thích</h3>
+            <p class="empty-state__desc">
+              Hãy thêm sản phẩm vào danh sách yêu thích để theo dõi và mua sắm
+              sau!
+            </p>
+            <a th:href="@{/products}" class="btn btn-primary">
+              <i class="bx bx-shopping-bag"></i> Khám phá sản phẩm
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

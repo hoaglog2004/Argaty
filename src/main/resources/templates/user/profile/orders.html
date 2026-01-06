@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/main}"
+>
+  <head>
+    <title>Đơn hàng của tôi</title>
+  </head>
+
+  <body>
+    <main layout:fragment="content">
+      <div class="profile-page">
+        <div class="container">
+          <nav class="breadcrumb">
+            <div class="breadcrumb__item">
+              <a th:href="@{/}"><i class="bx bx-home"></i> Trang chủ</a>
+            </div>
+            <span class="breadcrumb__separator"
+              ><i class="bx bx-chevron-right"></i
+            ></span>
+            <div class="breadcrumb__item">
+              <a th:href="@{/profile}">Tài khoản</a>
+            </div>
+            <span class="breadcrumb__separator"
+              ><i class="bx bx-chevron-right"></i
+            ></span>
+            <div class="breadcrumb__item">Đơn hàng</div>
+          </nav>
+
+          <div class="profile-layout">
+            <!-- Sidebar (same as overview) -->
+            <aside class="profile-sidebar">
+              <th:block
+                th:replace="~{user/profile/overview :: . profile-sidebar > *}"
+              ></th:block>
+            </aside>
+
+            <!-- Content -->
+            <div class="profile-content">
+              <div class="profile-content__header">
+                <h2 class="profile-content__title">Đơn hàng của tôi</h2>
+              </div>
+
+              <!-- Order Status Tabs -->
+              <div class="tabs mb-4">
+                <a
+                  th:href="@{/profile/orders}"
+                  class="tab"
+                  th:classappend="${currentStatus == null} ? 'active' : ''"
+                >
+                  Tất cả
+                </a>
+                <a
+                  th:href="@{/profile/orders(status='PENDING')}"
+                  class="tab"
+                  th:classappend="${currentStatus == 'PENDING'} ?  'active' : ''"
+                >
+                  Chờ xác nhận
+                </a>
+                <a
+                  th:href="@{/profile/orders(status='CONFIRMED')}"
+                  class="tab"
+                  th:classappend="${currentStatus == 'CONFIRMED'} ? 'active' : ''"
+                >
+                  Đã xác nhận
+                </a>
+                <a
+                  th:href="@{/profile/orders(status='SHIPPING')}"
+                  class="tab"
+                  th:classappend="${currentStatus == 'SHIPPING'} ? 'active' : ''"
+                >
+                  Đang giao
+                </a>
+                <a
+                  th:href="@{/profile/orders(status='COMPLETED')}"
+                  class="tab"
+                  th:classappend="${currentStatus == 'COMPLETED'} ? 'active' : ''"
+                >
+                  Hoàn thành
+                </a>
+                <a
+                  th:href="@{/profile/orders(status='CANCELLED')}"
+                  class="tab"
+                  th:classappend="${currentStatus == 'CANCELLED'} ? 'active' : ''"
+                >
+                  Đã hủy
+                </a>
+              </div>
+
+              <!-- Orders List -->
+              <div
+                th:if="${orders. content != null && !orders.content.isEmpty()}"
+                class="orders-list"
+              >
+                <div
+                  th:each="order : ${orders. content}"
+                  class="order-card card mb-4"
+                >
+                  <div
+                    class="card-header d-flex justify-between align-center flex-wrap gap-3"
+                  >
+                    <div>
+                      <span class="text-muted" style="font-size: 13px"
+                        >Mã đơn hàng:
+                      </span>
+                      <span class="order-code" th:text="${order.orderCode}"
+                        >ARG123456</span
+                      >
+                      <span class="text-muted mx-2">|</span>
+                      <span
+                        class="text-muted"
+                        style="font-size: 13px"
+                        th:text="${#temporals. format(order.createdAt, 'dd/MM/yyyy HH:mm')}"
+                        >01/01/2024</span
+                      >
+                    </div>
+                    <span
+                      class="status-badge"
+                      th:classappend="'status-badge--' + ${order. status.name().toLowerCase()}"
+                      th:text="${order.statusDisplayName}"
+                      >Trạng thái</span
+                    >
+                  </div>
+
+                  <div class="card-body">
+                    <!-- First Product Preview -->
+                    <div class="order-preview d-flex align-center gap-4">
+                      <div
+                        style="
+                          width: 80px;
+                          height: 80px;
+                          border-radius: 8px;
+                          overflow: hidden;
+                          flex-shrink: 0;
+                          background: var(--bg-void);
+                        "
+                      >
+                        <img
+                          th:src="${order.firstProductImage}"
+                          th:alt="${order.firstProductName}"
+                          style="width: 100%; height: 100%; object-fit: cover"
+                        />
+                      </div>
+                      <div style="flex: 1">
+                        <p class="mb-1" th:text="${order.firstProductName}">
+                          Sản phẩm
+                        </p>
+                        <p class="text-muted" style="font-size: 13px">
+                          <span th:if="${order.totalItems > 1}"
+                            >và
+                            <span th:text="${order.totalItems - 1}">0</span> sản
+                            phẩm khác</span
+                          >
+                          <span th:if="${order. totalItems == 1}">x1</span>
+                        </p>
+                      </div>
+                      <div class="text-right">
+                        <p class="text-muted mb-1" style="font-size: 13px">
+                          Tổng tiền:
+                        </p>
+                        <p
+                          class="text-cyan mb-0"
+                          style="
+                            font-family: var(--font-heading);
+                            font-weight: 700;
+                            font-size: 18px;
+                          "
+                          th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                        >
+                          0 ₫
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    class="card-footer d-flex justify-between align-center flex-wrap gap-3"
+                  >
+                    <div>
+                      <span class="text-muted" style="font-size: 13px">
+                        <i class="bx bx-credit-card"></i>
+                        <span th:text="${order.paymentMethodDisplayName}"
+                          >COD</span
+                        >
+                        <span th:if="${order.isPaid}" class="text-success"
+                          >• Đã thanh toán</span
+                        >
+                        <span th:unless="${order.isPaid}" class="text-warning"
+                          >• Chưa thanh toán</span
+                        >
+                      </span>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <a
+                        th:href="@{/profile/orders/{code}(code=${order.orderCode})}"
+                        class="btn btn-outline btn-sm"
+                      >
+                        Xem chi tiết
+                      </a>
+                      <button
+                        th:if="${order.status.name() == 'COMPLETED' && ! order.items[0].isReviewed}"
+                        class="btn btn-primary btn-sm"
+                        th:onclick="'openReviewModal(\'' + ${order.orderCode} + '\')'"
+                      >
+                        <i class="bx bx-star"></i> Đánh giá
+                      </button>
+                      <a
+                        th:if="${order.status.name() == 'COMPLETED'}"
+                        th:href="@{/checkout(reorder=${order.orderCode})}"
+                        class="btn btn-cyan btn-sm"
+                      >
+                        <i class="bx bx-refresh"></i> Mua lại
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Empty State -->
+              <div
+                th:if="${orders.content == null || orders.content.isEmpty()}"
+                class="empty-state"
+              >
+                <div class="empty-state__icon">
+                  <i class="bx bx-package"></i>
+                </div>
+                <h3 class="empty-state__title">Không có đơn hàng</h3>
+                <p class="empty-state__desc">
+                  Bạn chưa có đơn hàng nào trong danh mục này.
+                </p>
+                <a th:href="@{/products}" class="btn btn-primary">
+                  Mua sắm ngay
+                </a>
+              </div>
+
+              <!-- Pagination -->
+              <th:block
+                th:replace="~{fragments/pagination :: pagination(${orders}, '/profile/orders')}"
+              ></th:block>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

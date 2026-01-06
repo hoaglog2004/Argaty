@@ -1,0 +1,129 @@
+<! DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    /></head
+  ><!-- Product Card Component --><head
+  ></head>
+  <body>
+    <div th:fragment="productCard(product)" class="product-card">
+      <!-- Image -->
+      <div class="product-card__image">
+        <a th:href="@{/products/{slug}(slug=${product.slug})}">
+          <img
+            th:src="@{${product.mainImage != null ? product.mainImage : '/images/no-image.png'}}"
+            th:alt="${product.name}"
+          />
+        </a>
+
+        <!-- Badges -->
+        <div class="product-card__badges">
+          <span th:if="${product.isOnSale}" class="badge badge-sale">
+            -[[${product.discountPercent}]]%
+          </span>
+          <span th:if="${product.isNew}" class="badge badge-new"> Mới </span>
+          <span th:if="${product. isBestSeller}" class="badge badge-hot">
+            Hot
+          </span>
+          <span th:if="${! product.isInStock}" class="badge badge-soldout">
+            Hết hàng
+          </span>
+        </div>
+
+        <!-- Actions -->
+        <div class="product-card__actions">
+          <button
+            class="product-card__action-btn wishlist-btn"
+            th:data-product-id="${product.id}"
+            th:classappend="${wishlistIds != null &amp;&amp; wishlistIds.contains(product.id)} ? 'active' : ''"
+            title="Yêu thích"
+          >
+            <i class="bx bx-heart"></i>
+          </button>
+          <button
+            class="product-card__action-btn quick-view-btn"
+            th:data-product-id="${product.id}"
+            title="Xem nhanh"
+          >
+            <i class="bx bx-show"></i>
+          </button>
+        </div>
+
+        <!-- Quick Add to Cart -->
+        <button
+          th:if="${product.isInStock}"
+          class="product-card__cart-btn add-to-cart-btn"
+          th:data-product-id="${product.id}"
+        >
+          <i class="bx bx-cart-add"></i>
+          <span>Thêm vào giỏ</span>
+        </button>
+      </div>
+
+      <!-- Info -->
+      <div class="product-card__info">
+        <a
+          th:href="@{/products? category={slug}(slug=${product.categorySlug})}"
+          class="product-card__category"
+          th:text="${product.categoryName}"
+        >
+          Danh mục
+        </a>
+
+        <h3 class="product-card__name">
+          <a
+            th:href="@{/products/{slug}(slug=${product.slug})}"
+            th:text="${product. name}"
+          >
+            Tên sản phẩm
+          </a>
+        </h3>
+
+        <!-- Rating -->
+        <div class="product-card__rating" th:if="${product.reviewCount > 0}">
+          <div class="rating-stars">
+            <th:block th:each="i :  ${#numbers.sequence(1, 5)}">
+              <i
+                th:class="${i <= product.rating} ?  'bx bxs-star' : (i - 0.5 <= product.rating) ? 'bx bxs-star-half' : 'bx bx-star empty'"
+              ></i>
+            </th:block>
+          </div>
+          <span class="rating-count">([[${product.reviewCount}]])</span>
+        </div>
+
+        <!-- Price -->
+        <div class="product-card__price">
+          <span
+            class="price-current"
+            th:text="${#numbers.formatDecimal(product.isOnSale ? product.salePrice : product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+          >
+            0 ₫
+          </span>
+          <span
+            th:if="${product.isOnSale}"
+            class="price-original"
+            th:text="${#numbers. formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+          >
+            0 ₫
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Card Skeleton (Loading) -->
+    <div th:fragment="productCardSkeleton" class="product-card">
+      <div class="product-card__image">
+        <div class="skeleton skeleton-image"></div>
+      </div>
+      <div class="product-card__info">
+        <div class="skeleton skeleton-text" style="width: 40%"></div>
+        <div class="skeleton skeleton-title"></div>
+        <div class="skeleton skeleton-text" style="width: 60%"></div>
+        <div class="skeleton skeleton-text" style="width: 50%"></div>
+      </div>
+    </div>
+  </body>
+</html>

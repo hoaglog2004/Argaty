@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}">
+
+<head>
+    <meta charset="utf-8">
+    <title th:text="${product.name}">Chi tiết sản phẩm</title>
+    <meta name="description" th:content="${product.shortDescription}">
+</head>
+
+<body>
+<main layout:fragment="content">
+    <div class="product-detail">
+        <div class="container">
+            
+            <!-- Breadcrumb -->
+            <nav class="breadcrumb">
+                <div class="breadcrumb__item">
+                    <a th:href="@{/}"><i class='bx bx-home'></i> Trang chủ</a>
+                </div>
+                <span class="breadcrumb__separator"><i class='bx bx-chevron-right'></i></span>
+                <div class="breadcrumb__item">
+                    <a th:href="@{/products}">Sản phẩm</a>
+                </div>
+                <th:block th:if="${product.category}">
+                    <span class="breadcrumb__separator"><i class='bx bx-chevron-right'></i></span>
+                    <div class="breadcrumb__item">
+                        <a th:href="@{/products(category=${product.category.slug})}" th:text="${product.category. name}">Danh mục</a>
+                    </div>
+                </th:block>
+                <span class="breadcrumb__separator"><i class='bx bx-chevron-right'></i></span>
+                <div class="breadcrumb__item" th:text="${product.name}">Sản phẩm</div>
+            </nav>
+            
+            <!-- Product Main -->
+            <div class="product-detail__grid">
+                <!-- Gallery -->
+                <div class="product-gallery">
+                    <div class="product-gallery__main" id="mainImage">
+                            <img th:src="@{${(product.images != null && !product.images.isEmpty()) ? product.images[0].imageUrl : '/images/no-image.png'}}" 
+                             th:alt="${product.name}" id="mainProductImage">
+                        <button class="product-gallery__zoom" title="Phóng to">
+                            <i class='bx bx-zoom-in'></i>
+                        </button>
+                        
+                        <!-- Badges -->
+                        <div class="product-card__badges" style="position: absolute; top: 16px; left: 16px;">
+                            <span th:if="${product.isOnSale}" class="badge badge-sale">
+                                -[[${product.discountPercent}]]%
+                            </span>
+                            <span th:if="${product.isNew}" class="badge badge-new">Mới</span>
+                            <span th:if="${! product.isInStock}" class="badge badge-soldout">Hết hàng</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Thumbnails -->
+                    <div class="product-gallery__thumbs" th:if="${product.images != null && product.images.size() > 1}">
+                        <div th:each="image, stat : ${product.images}" 
+                             class="product-gallery__thumb"
+                             th:classappend="${stat.first} ? 'active' : ''"
+                             th:data-image="${image.imageUrl}"
+                             onclick="changeMainImage(this)">
+                            <img th:src="@{${image.imageUrl}}" th:alt="${product.name}">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product Info -->
+                <div class="product-info">
+                    <!-- Badges -->
+                    <div class="product-info__badges">
+                        <span th:if="${product.isBestSeller}" class="badge badge-hot">Bán chạy</span>
+                        <span th:if="${product.isFeatured}" class="badge badge-new">Nổi bật</span>
+                    </div>
+                    
+                    <!-- Category -->
+                    <a th:if="${product.category}" 
+                       th:href="@{/products(category=${product. category.slug})}" 
+                       class="product-info__category" 
+                       th:text="${product.category.name}">
+                        Danh mục
+                    </a>
+                    
+                    <!-- Name -->
+                    <h1 class="product-info__name" th:text="${product.name}">Tên sản phẩm</h1>
+                    
+                    <!-- Rating -->
+                    <div class="product-info__rating">
+                        <div class="product-info__rating-stars">
+                            <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                                <i th:class="${i <= product.rating} ? 'bx bxs-star' : (i - 0.5 <= product.rating) ? 'bx bxs-star-half' : 'bx bx-star'" 
+                                   style="color: var(--star-gold);"></i>
+                            </th:block>
+                        </div>
+                        <span class="product-info__rating-score" th:text="${product.rating != null} ? ${#numbers.formatDecimal(product. rating, 1, 1)} : '0'">4.5</span>
+                        <span class="product-info__rating-count">
+                            (<span th:text="${product.reviewCount}">0</span> đánh giá)
+                        </span>
+                        <span class="text-muted">|</span>
+                        <span class="text-muted">Đã bán: <span th:text="${product.soldCount}">0</span></span>
+                    </div>
+                    
+                    <!-- Price -->
+                    <div class="product-info__price">
+                        <span class="product-info__price-current" 
+                              th:text="${#numbers.formatDecimal(product. isOnSale ? product.salePrice : product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                            0 ₫
+                        </span>
+                        <span th:if="${product.isOnSale}" class="product-info__price-original" 
+                              th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                            0 ₫
+                        </span>
+                        <span th:if="${product.isOnSale}" class="product-info__price-discount">
+                            -[[${product.discountPercent}]]%
+                        </span>
+                    </div>
+                    
+                    <!-- Short Description -->
+                    <p class="product-info__short-desc" th:text="${product.shortDescription}">
+                        Mô tả ngắn sản phẩm... 
+                    </p>
+                    
+                    <!-- Variants -->
+                    <div class="product-variants" th:if="${product.variants != null && ! product.variants.isEmpty()}">
+                        <!-- Color Options -->
+                        <div class="variant-group" th:if="${#lists.size(product.variants. ? [color != null]) > 0}">
+                            <div class="variant-label">Màu sắc:  <span id="selectedColor" class="text-cyan"></span></div>
+                            <div class="color-options">
+                                <th:block th:each="variant : ${product.variants}">
+                                    <div th:if="${variant.color != null}" 
+                                         class="color-option"
+                                         th:style="'background-color: ' + ${variant.colorCode}"
+                                         th:title="${variant.color}"
+                                         th:data-variant-id="${variant.id}"
+                                         th:data-name="${variant.name}"
+                                         th:data-color="${variant.color}"
+                                         th:data-price="${variant.finalPrice}"
+                                         th:data-stock="${variant.quantity}"
+                                         th:classappend="${! variant.isInStock} ? 'disabled' : ''"
+                                         onclick="selectVariant(this)">
+                                    </div>
+                                </th:block>
+                            </div>
+                        </div>
+                        
+                        <!-- Size/Type Options -->
+                        <div class="variant-group" th:if="${#lists.size(product. variants.?[size != null]) > 0}">
+                            <div class="variant-label">Phiên bản: </div>
+                            <div class="variant-options">
+                                <th:block th:each="variant :  ${product.variants}">
+                                    <div th:if="${variant.size != null || variant.name != null}" 
+                                         class="variant-option"
+                                         th:text="${variant.size != null} ? ${variant.size} :  ${variant.name}"
+                                         th:data-variant-id="${variant.id}"
+                                         th:data-name="${variant.name}"
+                                         th:data-price="${variant.finalPrice}"
+                                         th:data-stock="${variant.quantity}"
+                                         th:classappend="${!variant.isInStock} ? 'disabled' : ''"
+                                         onclick="selectVariant(this)">
+                                        Variant
+                                    </div>
+                                </th:block>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Stock Status -->
+                    <div class="product-info__stock">
+                        <span th:if="${product.isInStock && ! product.isLowStock}" class="stock-indicator in-stock"></span>
+                        <span th:if="${product.isInStock && product.isLowStock}" class="stock-indicator low-stock"></span>
+                        <span th:unless="${product.isInStock}" class="stock-indicator out-of-stock"></span>
+                        
+                        <span th:if="${product.isInStock && ! product.isLowStock}" class="stock-text in-stock">
+                            Còn hàng (<span th:text="${product.quantity}">0</span> sản phẩm)
+                        </span>
+                        <span th:if="${product.isInStock && product.isLowStock}" class="stock-text low-stock">
+                            Sắp hết hàng (Còn <span th:text="${product.quantity}">0</span> sản phẩm)
+                        </span>
+                        <span th:unless="${product. isInStock}" class="stock-text out-of-stock">
+                            Hết hàng
+                        </span>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="product-info__actions">
+                        <!-- Quantity -->
+                        <div class="product-info__quantity">
+                            <div class="quantity-selector">
+                                <button class="quantity-btn" onclick="changeQuantity(-1)">
+                                    <i class='bx bx-minus'></i>
+                                </button>
+                                <input type="number" class="quantity-input" id="quantity" value="1" min="1" th:max="${product.quantity}">
+                                <button class="quantity-btn" onclick="changeQuantity(1)">
+                                    <i class='bx bx-plus'></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Add to Cart -->
+                        <div class="product-info__add-cart">
+                            <button class="btn btn-primary btn-lg btn-block" 
+                                    id="addToCartBtn"
+                                    th:disabled="${! product.isInStock}"
+                                    th:data-product-id="${product.id}">
+                                <i class='bx bx-cart-add'></i>
+                                <span th:text="${product.isInStock} ? 'Thêm vào giỏ hàng' : 'Hết hàng'">Thêm vào giỏ hàng</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Wishlist -->
+                        <div class="product-info__wishlist">
+                            <button class="btn btn-outline btn-lg btn-icon wishlist-btn" 
+                                    th:data-product-id="${product.id}"
+                                    th:classappend="${isInWishlist} ? 'active' : ''"
+                                    title="Yêu thích">
+                                <i th:class="${isInWishlist} ? 'bx bxs-heart' : 'bx bx-heart'"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Buy Now -->
+                    <button class="btn btn-cyan btn-lg btn-block mb-4" 
+                            th:if="${product.isInStock}"
+                            id="buyNowBtn">
+                        <i class='bx bx-bolt'></i>
+                        <span>Mua ngay</span>
+                    </button>
+                    
+                    <!-- Features -->
+                    <div class="product-features">
+                        <div class="product-feature">
+                            <div class="product-feature__icon">
+                                <i class='bx bx-check-shield'></i>
+                            </div>
+                            <div class="product-feature__text">Chính hãng 100%</div>
+                        </div>
+                        <div class="product-feature">
+                            <div class="product-feature__icon">
+                                <i class='bx bx-revision'></i>
+                            </div>
+                            <div class="product-feature__text">Đổi trả 30 ngày</div>
+                        </div>
+                        <div class="product-feature">
+                            <div class="product-feature__icon">
+                                <i class='bx bx-package'></i>
+                            </div>
+                            <div class="product-feature__text">Freeship từ 500K</div>
+                        </div>
+                    </div>
+                    
+                    <!-- SKU & Brand -->
+                    <div class="product-meta mt-4" style="font-size: 14px; color: var(--text-muted);">
+                        <p th:if="${product. sku}">SKU: <span class="text-cyan" th:text="${product. sku}">SKU</span></p>
+                        <p th:if="${product.brand}">
+                            Thương hiệu: 
+                            <a th:href="@{/products(brand=${product.brand.slug})}" class="text-cyan" th:text="${product.brand.name}">Brand</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product Tabs -->
+            <div class="product-tabs">
+                <div class="tabs">
+                    <button class="tab active" data-tab="description">Mô tả sản phẩm</button>
+                    <button class="tab" data-tab="specifications">Thông số kỹ thuật</button>
+                    <button class="tab" data-tab="reviews">
+                        Đánh giá (<span th:text="${reviewStats.totalReviews}">0</span>)
+                    </button>
+                </div>
+                
+                <!-- Description Tab -->
+                <div class="product-tabs__content tab-content active" id="description">
+                    <div class="product-description" th:utext="${product.description}">
+                        Mô tả chi tiết sản phẩm...
+                    </div>
+                </div>
+                
+                <!-- Specifications Tab -->
+                <div class="product-tabs__content tab-content" id="specifications">
+                    <table class="specifications-table" th:if="${product.specifications}">
+                        <!-- Parse specifications JSON if needed -->
+                        <tr>
+                            <th>Thương hiệu</th>
+                            <td th:text="${product.brand?. name}">-</td>
+                        </tr>
+                        <tr>
+                            <th>Model</th>
+                            <td th:text="${product. sku}">-</td>
+                        </tr>
+                        <!-- Add more specifications based on your data -->
+                    </table>
+                    <div th:unless="${product.specifications}" class="text-center text-muted p-4">
+                        Chưa có thông số kỹ thuật
+                    </div>
+                </div>
+                
+                <!-- Reviews Tab -->
+                <div class="product-tabs__content tab-content" id="reviews">
+                    <div class="reviews-section">
+                        <!-- Reviews Summary -->
+                        <div class="reviews-summary">
+                            <div class="reviews-summary__score" th:text="${reviewStats.averageRating}">0</div>
+                            <div class="reviews-summary__stars">
+                                <th:block th:each="i :  ${#numbers.sequence(1, 5)}">
+                                    <i th:class="${i <= reviewStats. averageRating} ? 'bx bxs-star' : 'bx bx-star'"></i>
+                                </th:block>
+                            </div>
+                            <div class="reviews-summary__count">
+                                <span th:text="${reviewStats.totalReviews}">0</span> đánh giá
+                            </div>
+                            
+                            <!-- Rating Bars -->
+                            <div class="rating-bars mt-4">
+                                <th:block th:each="i :  ${#numbers.sequence(5, 1, -1)}">
+                                    <div class="rating-bar">
+                                        <div class="rating-bar__label">
+                                            <span th:text="${i}">5</span>
+                                            <i class='bx bxs-star'></i>
+                                        </div>
+                                        <div class="rating-bar__track">
+                                            <div class="rating-bar__fill" 
+                                                 th:style="'width: ' + ${reviewStats.ratingPercentage. get(i) != null ? reviewStats.ratingPercentage.get(i) : 0} + '%'"></div>
+                                        </div>
+                                        <div class="rating-bar__count" 
+                                             th:text="${reviewStats.ratingDistribution.get(i) != null ? reviewStats.ratingDistribution.get(i) : 0}">0</div>
+                                    </div>
+                                </th:block>
+                            </div>
+                            
+                            <!-- Write Review Button -->
+                            <button th:if="${canReview}" class="btn btn-primary btn-block mt-4" id="writeReviewBtn">
+                                <i class='bx bx-edit'></i> Viết đánh giá
+                            </button>
+                            <p th:if="${hasReviewed}" class="text-muted mt-4">
+                                <i class='bx bx-check'></i> Bạn đã đánh giá sản phẩm này
+                            </p>
+                        </div>
+                        
+                        <!-- Reviews List -->
+                        <div class="reviews-list">
+                            <th:block th:if="${reviews.content != null && ! reviews.content.isEmpty()}">
+                                <div th:each="review : ${reviews. content}" class="review-card">
+                                    <div class="review-card__header">
+                                        <div class="review-card__user">
+                                            <div class="review-card__avatar">
+                                                <img th:if="${review.userAvatar}" th:src="${review.userAvatar}" alt="">
+                                                <span th:unless="${review.userAvatar}" th:text="${#strings.substring(review.userName, 0, 1)}">U</span>
+                                            </div>
+                                            <div>
+                                                <div class="review-card__user-name" th:text="${review.userName}">User</div>
+                                                <div class="review-card__date" th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy')}">01/01/2024</div>
+                                                <div th:if="${review.isVerified}" class="review-card__verified">
+                                                    <i class='bx bx-check-circle'></i> Đã mua hàng
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="review-card__rating">
+                                            <th:block th:each="i :  ${#numbers.sequence(1, 5)}">
+                                                <i th:class="${i <= review.rating} ? 'bx bxs-star' :  'bx bx-star'"></i>
+                                            </th:block>
+                                        </div>
+                                    </div>
+                                    
+                                    <h4 th:if="${review.title}" class="review-card__title" th:text="${review.title}">Title</h4>
+                                    <p class="review-card__content" th:text="${review.comment}">Content... </p>
+                                    
+                                    <!-- Review Images -->
+                                    <div th:if="${review.images != null && !review.images.isEmpty()}" class="review-card__images">
+                                        <div th:each="img : ${review.images}" class="review-card__image">
+                                            <img th:src="${img}" alt="Review image">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Shop Reply -->
+                                    <div th:if="${review.reply}" class="review-reply">
+                                        <div class="review-reply__header">
+                                            <span class="review-reply__name">Argaty</span>
+                                            <span class="review-reply__badge">Shop</span>
+                                        </div>
+                                        <p class="review-reply__content" th:text="${review.reply}">Reply...</p>
+                                    </div>
+                                </div>
+                            </th:block>
+                            
+                            <!-- Empty Reviews -->
+                            <div th:if="${reviews.content == null || reviews.content.isEmpty()}" class="empty-state">
+                                <div class="empty-state__icon">
+                                    <i class='bx bx-comment-dots'></i>
+                                </div>
+                                <h3 class="empty-state__title">Chưa có đánh giá</h3>
+                                <p class="empty-state__desc">Hãy là người đầu tiên đánh giá sản phẩm này</p>
+                            </div>
+                            
+                            <!-- Load More Reviews -->
+                            <div th:if="${reviews.hasNext}" class="text-center mt-4">
+                                <button class="btn btn-outline" id="loadMoreReviews" th:data-page="${reviews.page + 1}">
+                                    Xem thêm đánh giá
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Related Products -->
+            <section class="related-products mt-5" th:if="${relatedProducts != null && !relatedProducts.isEmpty()}">
+                <div class="section-header" style="text-align: left;">
+                    <h2 class="section-title">Sản phẩm liên quan</h2>
+                </div>
+                <div class="products-grid">
+                    <th:block th:each="product :  ${relatedProducts}">
+                        <th:block th:replace="~{fragments/product-card :: productCard(${product})}"></th:block>
+                    </th:block>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+
+<th:block layout:fragment="scripts">
+<script th:inline="javascript">
+const productId = /*[[${product.id}]]*/ 0;
+let selectedVariantId = null; 
+let currentPrice = /*[[${product.effectivePrice != null ? product.effectivePrice : product.price}]]*/ 0;
+
+// Change main image
+function changeMainImage(thumb) {
+    const imageUrl = thumb.dataset.image;
+    document.getElementById('mainProductImage').src = imageUrl;
+    
+    document.querySelectorAll('.product-gallery__thumb').forEach(t => t.classList.remove('active'));
+    thumb.classList.add('active');
+}
+
+// Change quantity
+function changeQuantity(delta) {
+    const input = document.getElementById('quantity');
+    let value = parseInt(input.value) || 1;
+    value = Math.max(1, Math.min(value + delta, parseInt(input.max) || 999));
+    input.value = value;
+}
+
+// Select variant
+function selectVariant(el) {
+    if (el.classList.contains('disabled')) return;
+    
+    // Update selection UI
+    const parent = el.closest('.variant-options, .color-options');
+    parent.querySelectorAll('.variant-option, .color-option').forEach(opt => opt.classList.remove('selected'));
+    el.classList.add('selected');
+    
+    // Update data
+    selectedVariantId = el. dataset.variantId;
+    const variantPrice = parseFloat(el.dataset. price);
+    const variantStock = parseInt(el.dataset.stock);
+    
+    // Update price display if needed
+    if (variantPrice) {
+        document.querySelector('.product-info__price-current').textContent = 
+            new Intl.NumberFormat('vi-VN').format(variantPrice) + ' ₫';
+    }
+    
+    // Update color name
+    if (el.dataset.color) {
+        document.getElementById('selectedColor').textContent = el.dataset.color;
+    }
+    
+    // Update max quantity
+    document.getElementById('quantity').max = variantStock;
+}
+
+// Add to cart
+document.getElementById('addToCartBtn')?.addEventListener('click', function() {
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    
+    addToCart(productId, selectedVariantId, quantity);
+});
+
+// Buy now
+document.getElementById('buyNowBtn')?.addEventListener('click', function() {
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    
+    addToCart(productId, selectedVariantId, quantity, true);
+});
+
+async function addToCart(productId, variantId, quantity, redirect = false) {
+    try {
+        const response = await fetch('/api/cart/items', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                productId: productId,
+                variantId: variantId,
+                quantity: quantity
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('success', 'Thành công', data.message || 'Đã thêm vào giỏ hàng');
+            updateCartCount();
+            
+            if (redirect) {
+                window. location.href = '/checkout';
+            }
+        } else {
+            showToast('error', 'Lỗi', data.message || 'Không thể thêm vào giỏ hàng');
+        }
+    } catch (error) {
+        showToast('error', 'Lỗi', 'Đã có lỗi xảy ra');
+    }
+}
+
+// Tabs
+document.querySelectorAll('. tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        const tabId = this.dataset.tab;
+        
+        document.querySelectorAll('.tab').forEach(t => t.classList. remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        this.classList.add('active');
+        document.getElementById(tabId)?.classList.add('active');
+    });
+});
+</script>
+</th:block>
+</body>
+</html>

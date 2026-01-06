@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <footer th:fragment="footer" class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div class="footer__grid">
+          <!DOCTYPE html>
+          <html xmlns:th="http://www.thymeleaf.org">
+            <header th:fragment="header" class="header">
+              <div class="container header__inner">
+                <div class="header__brand">
+                  <a th:href="@{/}" class="header__logo">
+                    <i class="bx bx-planet"></i>
+                    <span>ARGATY</span>
+                  </a>
+                </div>
+
+                <nav class="header__nav">
+                  <a th:href="@{/}" class="header__link">Trang chủ</a>
+                  <a th:href="@{/products}" class="header__link">Sản phẩm</a>
+                  <a th:href="@{/products/sale}" class="header__link">Khuyến mãi</a>
+                  <a th:href="@{/about}" class="header__link">Về chúng tôi</a>
+                  <a th:href="@{/contact}" class="header__link">Liên hệ</a>
+                </nav>
+
+                <div class="header__actions">
+                  <a th:href="@{/cart}" class="header__icon" title="Giỏ hàng">
+                    <i class="bx bx-cart"></i>
+                  </a>
+                  <a th:href="@{/wishlist}" class="header__icon" title="Yêu thích">
+                    <i class="bx bx-heart"></i>
+                  </a>
+                  <a th:href="@{/auth/login}" class="header__btn">Đăng nhập</a>
+                  <a th:href="@{/auth/register}" class="header__btn header__btn--outline">
+                    Đăng ký
+                  </a>
+                </div>
+              </div>
+            </header>
+          </html>
+                </div>
+                <div>
+                  <span>8:00 - 22:00 (T2 - CN)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom -->
+      <div class="footer__bottom">
+        <p class="footer__copyright">
+          ©
+          <span th:text="${#dates.year(#dates.createNow())}">2024</span> Argaty.
+          All rights reserved.
+        </p>
+        <div class="footer__payments">
+          <img
+            th:src="@{/images/payments/visa.svg}"
+            alt="Visa"
+            class="footer__payment-icon"
+          />
+          <img
+            th:src="@{/images/payments/mastercard.svg}"
+            alt="Mastercard"
+            class="footer__payment-icon"
+          />
+          <img
+            th:src="@{/images/payments/momo.svg}"
+            alt="Momo"
+            class="footer__payment-icon"
+          />
+          <img
+            th:src="@{/images/payments/zalopay.svg}"
+            alt="ZaloPay"
+            class="footer__payment-icon"
+          />
+          <img
+            th:src="@{/images/payments/vnpay.svg}"
+            alt="VNPay"
+            class="footer__payment-icon"
+          />
+          <img
+            th:src="@{/images/payments/cod.svg}"
+            alt="COD"
+            class="footer__payment-icon"
+          />
+        </div>
+      </div>
+    </div>
+  </footer>
+</html>
