@@ -513,6 +513,92 @@
               </div>
             </div>
 
+            <!-- Sale Period -->
+            <div class="admin-form-card mb-4">
+              <div class="admin-form-card__header">
+                <h4 class="admin-form-card__title">
+                  <i class="bx bx-time text-primary"></i> Thời gian khuyến mãi
+                </h4>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Ngày bắt đầu</label>
+                <input
+                  type="datetime-local"
+                  th:field="*{saleStartDate}"
+                  class="form-control"
+                  placeholder="Để trống nếu không giới hạn"
+                />
+                <small class="form-text text-muted">Để trống để áp dụng ngay lập tức</small>
+              </div>
+
+              <div class="form-group mb-0">
+                <label class="form-label">Ngày kết thúc</label>
+                <input
+                  type="datetime-local"
+                  th:field="*{saleEndDate}"
+                  class="form-control"
+                  placeholder="Để trống nếu không giới hạn"
+                />
+                <small class="form-text text-muted">Để trống để không giới hạn thời gian</small>
+              </div>
+            </div>
+
+            <!-- SEO -->
+            <div class="admin-form-card mb-4">
+              <div class="admin-form-card__header">
+                <h4 class="admin-form-card__title">
+                  <i class="bx bx-search text-primary"></i> SEO
+                </h4>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Meta Title</label>
+                <input
+                  type="text"
+                  th:field="*{metaTitle}"
+                  class="form-control"
+                  placeholder="Tiêu đề SEO (để trống sẽ dùng tên sản phẩm)"
+                  maxlength="200"
+                />
+                <small class="form-text text-muted">Tối đa 200 ký tự</small>
+              </div>
+
+              <div class="form-group mb-0">
+                <label class="form-label">Meta Description</label>
+                <textarea
+                  th:field="*{metaDescription}"
+                  class="form-control"
+                  rows="2"
+                  placeholder="Mô tả SEO (để trống sẽ dùng mô tả ngắn)"
+                  maxlength="500"
+                ></textarea>
+                <small class="form-text text-muted">Tối đa 500 ký tự</small>
+              </div>
+            </div>
+
+            <!-- Specifications -->
+            <div class="admin-form-card mb-4">
+              <div class="admin-form-card__header">
+                <h4 class="admin-form-card__title">
+                  <i class="bx bx-list-ul text-primary"></i> Thông số kỹ thuật
+                </h4>
+              </div>
+
+              <div class="form-group mb-0">
+                <label class="form-label">Specifications</label>
+                <textarea
+                  th:field="*{specifications}"
+                  class="form-control"
+                  rows="4"
+                  placeholder="Nhập thông số kỹ thuật (có thể dùng JSON hoặc text)"
+                ></textarea>
+                <small class="form-text text-muted">
+                  Ví dụ: CPU: Intel Core i7, RAM: 16GB, Storage: 512GB SSD
+                </small>
+              </div>
+            </div>
+
             <!-- Actions -->
             <div class="d-flex gap-3">
               <button type="submit" class="btn btn-primary btn-block">

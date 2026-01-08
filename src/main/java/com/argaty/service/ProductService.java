@@ -68,17 +68,33 @@ public interface ProductService {
                    BigDecimal price, BigDecimal salePrice, Integer discountPercent,
                    Integer quantity, Long categoryId, Long brandId,
                    Boolean isFeatured, Boolean isNew);
+    
+    Product createWithExtras(String name, String shortDescription, String description,
+                            BigDecimal price, BigDecimal salePrice, Integer discountPercent,
+                            Integer quantity, Long categoryId, Long brandId,
+                            Boolean isFeatured, Boolean isNew, Boolean isBestSeller,
+                            String specifications, String metaTitle, String metaDescription,
+                            java.time.LocalDateTime saleStartDate, java.time.LocalDateTime saleEndDate);
 
     Product update(Long id, String name, String shortDescription, String description,
                    BigDecimal price, BigDecimal salePrice, Integer discountPercent,
                    Integer quantity, Long categoryId, Long brandId,
                    Boolean isFeatured, Boolean isNew);
+    
+    Product updateWithExtras(Long id, String name, String shortDescription, String description,
+                            BigDecimal price, BigDecimal salePrice, Integer discountPercent,
+                            Integer quantity, Long categoryId, Long brandId,
+                            Boolean isFeatured, Boolean isNew, Boolean isBestSeller,
+                            String specifications, String metaTitle, String metaDescription,
+                            java.time.LocalDateTime saleStartDate, java.time.LocalDateTime saleEndDate);
 
     void toggleActive(Long id);
 
     void toggleFeatured(Long id);
 
     void toggleNew(Long id);
+    
+    void toggleBestSeller(Long id);
 
     // ========== IMAGES ==========
 

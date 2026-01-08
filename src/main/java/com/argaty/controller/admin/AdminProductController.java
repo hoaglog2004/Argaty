@@ -99,7 +99,7 @@ public class AdminProductController {
         }
 
         try {
-            Product product = productService.create(
+            Product product = productService.createWithExtras(
                     request.getName(),
                     request.getShortDescription(),
                     request.getDescription(),
@@ -110,7 +110,13 @@ public class AdminProductController {
                     request.getCategoryId(),
                     request.getBrandId(),
                     request.getIsFeatured(),
-                    request.getIsNew()
+                    request.getIsNew(),
+                    request.getIsBestSeller(),
+                    request.getSpecifications(),
+                    request.getMetaTitle(),
+                    request.getMetaDescription(),
+                    request.getSaleStartDate(),
+                    request.getSaleEndDate()
             );
 
             // Thêm ảnh
@@ -185,7 +191,7 @@ public class AdminProductController {
         }
 
         try {
-            productService.update(
+            productService.updateWithExtras(
                     id,
                     request.getName(),
                     request.getShortDescription(),
@@ -197,7 +203,13 @@ public class AdminProductController {
                     request.getCategoryId(),
                     request.getBrandId(),
                     request.getIsFeatured(),
-                    request.getIsNew()
+                    request.getIsNew(),
+                    request.getIsBestSeller(),
+                    request.getSpecifications(),
+                    request.getMetaTitle(),
+                    request.getMetaDescription(),
+                    request.getSaleStartDate(),
+                    request.getSaleEndDate()
             );
 
             redirectAttributes.addFlashAttribute("success", "Cập nhật sản phẩm thành công");
@@ -236,6 +248,16 @@ public class AdminProductController {
     public String toggleNew(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         productService.toggleNew(id);
         redirectAttributes.addFlashAttribute("success", "Đã cập nhật trạng thái sản phẩm mới");
+        return "redirect:/admin/products";
+    }
+    
+    /**
+     * Toggle is_best_seller status
+     */
+    @PostMapping("/{id}/toggle-bestseller")
+    public String toggleBestSeller(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        productService.toggleBestSeller(id);
+        redirectAttributes.addFlashAttribute("success", "Đã cập nhật trạng thái bán chạy");
         return "redirect:/admin/products";
     }
 

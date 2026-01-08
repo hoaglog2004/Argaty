@@ -52,6 +52,8 @@ public class ProductRequest {
     private Boolean isFeatured;
 
     private Boolean isNew;
+    
+    private Boolean isBestSeller;
 
     private Boolean isActive;
 
