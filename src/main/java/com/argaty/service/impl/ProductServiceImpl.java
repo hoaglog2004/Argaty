@@ -259,8 +259,12 @@ public class ProductServiceImpl implements ProductService {
         if (metaDescription != null && !metaDescription.trim().isEmpty()) {
             product.setMetaDescription(metaDescription);
         }
-        product.setSaleStartDate(saleStartDate);
-        product.setSaleEndDate(saleEndDate);
+        if (saleStartDate != null) {
+            product.setSaleStartDate(saleStartDate);
+        }
+        if (saleEndDate != null) {
+            product.setSaleEndDate(saleEndDate);
+        }
         
         return productRepository.save(product);
     }
@@ -351,8 +355,12 @@ public class ProductServiceImpl implements ProductService {
         if (metaDescription != null && !metaDescription.trim().isEmpty()) {
             product.setMetaDescription(metaDescription);
         }
-        product.setSaleStartDate(saleStartDate);
-        product.setSaleEndDate(saleEndDate);
+        if (saleStartDate != null) {
+            product.setSaleStartDate(saleStartDate);
+        }
+        if (saleEndDate != null) {
+            product.setSaleEndDate(saleEndDate);
+        }
         
         return productRepository.save(product);
     }
