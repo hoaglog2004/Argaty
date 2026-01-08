@@ -229,6 +229,35 @@ public class ProductServiceImpl implements ProductService {
 
         return savedProduct;
     }
+    
+    /**
+     * Create product with additional fields (specifications, SEO, sale dates)
+     */
+    public Product createWithExtras(String name, String shortDescription, String description,
+                                    BigDecimal price, BigDecimal salePrice, Integer discountPercent,
+                                    Integer quantity, Long categoryId, Long brandId,
+                                    Boolean isFeatured, Boolean isNew,
+                                    String specifications, String metaTitle, String metaDescription,
+                                    java.time.LocalDateTime saleStartDate, java.time.LocalDateTime saleEndDate) {
+        
+        Product product = create(name, shortDescription, description, price, salePrice, 
+                                 discountPercent, quantity, categoryId, brandId, isFeatured, isNew);
+        
+        // Set additional fields
+        if (specifications != null && !specifications.trim().isEmpty()) {
+            product.setSpecifications(specifications);
+        }
+        if (metaTitle != null && !metaTitle.trim().isEmpty()) {
+            product.setMetaTitle(metaTitle);
+        }
+        if (metaDescription != null && !metaDescription.trim().isEmpty()) {
+            product.setMetaDescription(metaDescription);
+        }
+        product.setSaleStartDate(saleStartDate);
+        product.setSaleEndDate(saleEndDate);
+        
+        return productRepository.save(product);
+    }
 
     @Override
     public Product update(Long id, String name, String shortDescription, String description,
@@ -284,6 +313,29 @@ public class ProductServiceImpl implements ProductService {
         }
 
         log.info("Updated product: {}", id);
+        return productRepository.save(product);
+    }
+    
+    /**
+     * Update product with additional fields (specifications, SEO, sale dates)
+     */
+    public Product updateWithExtras(Long id, String name, String shortDescription, String description,
+                                    BigDecimal price, BigDecimal salePrice, Integer discountPercent,
+                                    Integer quantity, Long categoryId, Long brandId,
+                                    Boolean isFeatured, Boolean isNew,
+                                    String specifications, String metaTitle, String metaDescription,
+                                    java.time.LocalDateTime saleStartDate, java.time.LocalDateTime saleEndDate) {
+        
+        Product product = update(id, name, shortDescription, description, price, salePrice,
+                                 discountPercent, quantity, categoryId, brandId, isFeatured, isNew);
+        
+        // Update additional fields
+        product.setSpecifications(specifications);
+        product.setMetaTitle(metaTitle);
+        product.setMetaDescription(metaDescription);
+        product.setSaleStartDate(saleStartDate);
+        product.setSaleEndDate(saleEndDate);
+        
         return productRepository.save(product);
     }
 

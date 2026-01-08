@@ -99,7 +99,7 @@ public class AdminProductController {
         }
 
         try {
-            Product product = productService.create(
+            Product product = ((com.argaty.service.impl.ProductServiceImpl) productService).createWithExtras(
                     request.getName(),
                     request.getShortDescription(),
                     request.getDescription(),
@@ -110,7 +110,12 @@ public class AdminProductController {
                     request.getCategoryId(),
                     request.getBrandId(),
                     request.getIsFeatured(),
-                    request.getIsNew()
+                    request.getIsNew(),
+                    request.getSpecifications(),
+                    request.getMetaTitle(),
+                    request.getMetaDescription(),
+                    request.getSaleStartDate(),
+                    request.getSaleEndDate()
             );
 
             // Thêm ảnh
@@ -185,7 +190,7 @@ public class AdminProductController {
         }
 
         try {
-            productService.update(
+            ((com.argaty.service.impl.ProductServiceImpl) productService).updateWithExtras(
                     id,
                     request.getName(),
                     request.getShortDescription(),
@@ -197,7 +202,12 @@ public class AdminProductController {
                     request.getCategoryId(),
                     request.getBrandId(),
                     request.getIsFeatured(),
-                    request.getIsNew()
+                    request.getIsNew(),
+                    request.getSpecifications(),
+                    request.getMetaTitle(),
+                    request.getMetaDescription(),
+                    request.getSaleStartDate(),
+                    request.getSaleEndDate()
             );
 
             redirectAttributes.addFlashAttribute("success", "Cập nhật sản phẩm thành công");

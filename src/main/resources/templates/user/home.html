@@ -178,6 +178,27 @@
           </div>
         </div>
       </section>
+      
+      <!-- Empty State for Featured Products -->
+      <section 
+        class="section"
+        th:if="${featuredProducts == null || featuredProducts.isEmpty()}"
+      >
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title text-gradient">Sản phẩm nổi bật</h2>
+          </div>
+          <div class="empty-state" style="padding: 60px 20px; text-align: center;">
+            <div class="empty-state__icon" style="font-size: 64px; color: var(--text-muted); margin-bottom: 16px;">
+              <i class='bx bx-package'></i>
+            </div>
+            <h3 class="empty-state__title" style="margin-bottom: 8px;">Chưa có sản phẩm nổi bật</h3>
+            <p class="empty-state__desc" style="color: var(--text-muted);">
+              Các sản phẩm nổi bật sẽ được hiển thị ở đây
+            </p>
+          </div>
+        </div>
+      </section>
 
       <!-- New Products -->
       <section
@@ -201,6 +222,27 @@
           </div>
         </div>
       </section>
+      
+      <!-- Empty State for New Products -->
+      <section 
+        class="section"
+        th:if="${newProducts == null || newProducts.isEmpty()}"
+      >
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title text-gradient-cosmic">Sản phẩm mới</h2>
+          </div>
+          <div class="empty-state" style="padding: 60px 20px; text-align: center;">
+            <div class="empty-state__icon" style="font-size: 64px; color: var(--text-muted); margin-bottom: 16px;">
+              <i class='bx bx-shopping-bag'></i>
+            </div>
+            <h3 class="empty-state__title" style="margin-bottom: 8px;">Chưa có sản phẩm mới</h3>
+            <p class="empty-state__desc" style="color: var(--text-muted);">
+              Các sản phẩm mới sẽ được cập nhật sớm
+            </p>
+          </div>
+        </div>
+      </section>
 
       <!-- Best Sellers -->
       <section
@@ -221,6 +263,27 @@
                 th:replace="~{fragments/product-card :: productCard(${product})}"
               ></th:block>
             </th:block>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Empty State for Best Sellers -->
+      <section 
+        class="section particles-bg"
+        th:if="${bestSellerProducts == null || bestSellerProducts.isEmpty()}"
+      >
+        <div class="container" style="position: relative; z-index: 1">
+          <div class="section-header">
+            <h2 class="section-title text-gradient">Bán chạy nhất</h2>
+          </div>
+          <div class="empty-state" style="padding: 60px 20px; text-align: center;">
+            <div class="empty-state__icon" style="font-size: 64px; color: var(--text-muted); margin-bottom: 16px;">
+              <i class='bx bx-trending-up'></i>
+            </div>
+            <h3 class="empty-state__title" style="margin-bottom: 8px;">Chưa có sản phẩm bán chạy</h3>
+            <p class="empty-state__desc" style="color: var(--text-muted);">
+              Thống kê sản phẩm bán chạy sẽ được cập nhật sớm
+            </p>
           </div>
         </div>
       </section>
