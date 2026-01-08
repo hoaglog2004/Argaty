@@ -233,6 +233,7 @@ public class ProductServiceImpl implements ProductService {
     /**
      * Create product with additional fields (specifications, SEO, sale dates)
      */
+    @Override
     public Product createWithExtras(String name, String shortDescription, String description,
                                     BigDecimal price, BigDecimal salePrice, Integer discountPercent,
                                     Integer quantity, Long categoryId, Long brandId,
@@ -324,6 +325,7 @@ public class ProductServiceImpl implements ProductService {
     /**
      * Update product with additional fields (specifications, SEO, sale dates)
      */
+    @Override
     public Product updateWithExtras(Long id, String name, String shortDescription, String description,
                                     BigDecimal price, BigDecimal salePrice, Integer discountPercent,
                                     Integer quantity, Long categoryId, Long brandId,
@@ -339,10 +341,16 @@ public class ProductServiceImpl implements ProductService {
             product.setIsBestSeller(isBestSeller);
         }
         
-        // Update additional fields
-        product.setSpecifications(specifications);
-        product.setMetaTitle(metaTitle);
-        product.setMetaDescription(metaDescription);
+        // Update additional fields with null checks to preserve existing values
+        if (specifications != null && !specifications.trim().isEmpty()) {
+            product.setSpecifications(specifications);
+        }
+        if (metaTitle != null && !metaTitle.trim().isEmpty()) {
+            product.setMetaTitle(metaTitle);
+        }
+        if (metaDescription != null && !metaDescription.trim().isEmpty()) {
+            product.setMetaDescription(metaDescription);
+        }
         product.setSaleStartDate(saleStartDate);
         product.setSaleEndDate(saleEndDate);
         

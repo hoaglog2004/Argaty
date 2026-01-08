@@ -99,7 +99,7 @@ public class AdminProductController {
         }
 
         try {
-            Product product = ((com.argaty.service.impl.ProductServiceImpl) productService).createWithExtras(
+            Product product = productService.createWithExtras(
                     request.getName(),
                     request.getShortDescription(),
                     request.getDescription(),
@@ -191,7 +191,7 @@ public class AdminProductController {
         }
 
         try {
-            ((com.argaty.service.impl.ProductServiceImpl) productService).updateWithExtras(
+            productService.updateWithExtras(
                     id,
                     request.getName(),
                     request.getShortDescription(),
