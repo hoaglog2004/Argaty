@@ -1,10 +1,10 @@
-package com.argaty.controller. api;
+package com.argaty.controller.api;
 
 import com.argaty.dto.request.ApplyVoucherRequest;
 import com.argaty.dto.response.ApiResponse;
-import com. argaty.dto.response.VoucherResponse;
-import com. argaty.entity.User;
-import com.argaty. entity.Voucher;
+import com.argaty.dto.response.VoucherResponse;
+import com.argaty.entity.User;
+import com.argaty.entity.Voucher;
 import com.argaty.exception.BadRequestException;
 import com.argaty.service.CartService;
 import com.argaty.service.UserService;
@@ -51,7 +51,7 @@ public class VoucherApiController {
         }
 
         List<Voucher> vouchers = voucherService.findVouchersForUser(user.getId(), amount);
-        return ResponseEntity.ok(ApiResponse. success(DtoMapper.toVoucherResponseList(vouchers)));
+        return ResponseEntity.ok(ApiResponse.success(DtoMapper.toVoucherResponseList(vouchers)));
     }
 
     /**
@@ -67,7 +67,7 @@ public class VoucherApiController {
 
         try {
             // Kiểm tra voucher hợp lệ
-            if (! voucherService.canUserUseVoucher(request.getCode(), user.getId())) {
+            if (!voucherService.canUserUseVoucher(request.getCode(), user.getId())) {
                 return ResponseEntity.badRequest().body(
                         ApiResponse.error("Mã voucher không hợp lệ hoặc đã hết lượt sử dụng"));
             }
@@ -85,7 +85,7 @@ public class VoucherApiController {
             return ResponseEntity.ok(ApiResponse.success("Áp dụng voucher thành công", data));
 
         } catch (BadRequestException e) {
-            return ResponseEntity. badRequest().body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -97,7 +97,7 @@ public class VoucherApiController {
         Voucher voucher = voucherService.findByCode(code)
                 .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("Voucher", "code", code));
 
-        return ResponseEntity.ok(ApiResponse. success(VoucherResponse.fromEntity(voucher)));
+        return ResponseEntity.ok(ApiResponse.success(VoucherResponse.fromEntity(voucher)));
     }
 
     private User getCurrentUser(Principal principal) {
@@ -105,6 +105,6 @@ public class VoucherApiController {
             throw new com.argaty.exception.UnauthorizedException("Vui lòng đăng nhập");
         }
         return userService.findByEmail(principal.getName())
-                .orElseThrow(() -> new com.argaty.exception. ResourceNotFoundException("User", "email", principal.getName()));
+                .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("User", "email", principal.getName()));
     }
 }

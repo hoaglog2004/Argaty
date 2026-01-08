@@ -41,7 +41,7 @@ public class OrderResponse {
         String firstName = null;
         if (order.getItems() != null && !order.getItems().isEmpty()) {
             firstImage = order.getItems().get(0).getProductImage();
-            firstName = order. getItems().get(0).getProductName();
+            firstName = order.getItems().get(0).getProductName();
         }
 
         return OrderResponse.builder()
@@ -49,12 +49,12 @@ public class OrderResponse {
                 .orderCode(order.getOrderCode())
                 .status(order.getStatus())
                 .statusDisplayName(order.getStatus().getDisplayName())
-                .statusBadgeClass(order. getStatus().getBadgeClass())
+                .statusBadgeClass(order.getStatus().getBadgeClass())
                 .paymentMethod(order.getPaymentMethod())
                 .paymentMethodDisplayName(order.getPaymentMethod().getDisplayName())
                 .isPaid(order.getIsPaid())
                 .totalAmount(order.getTotalAmount())
-                .totalItems(order. getTotalItemCount())
+                .totalItems(order.getTotalItemCount())
                 .firstProductImage(firstImage)
                 .firstProductName(firstName)
                 .createdAt(order.getCreatedAt())

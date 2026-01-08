@@ -3,16 +3,16 @@ package com.argaty.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework. data.domain.Page;
-import org.springframework.data.domain. Pageable;
-import org. springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa. repository. Modifying;
-import org.springframework.data.jpa.repository. Query;
-import org.springframework. data.repository.query.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.argaty.entity.Notification;
-import com.argaty. enums.NotificationType;
+import com.argaty.enums.NotificationType;
 
 /**
  * Repository cho Notification Entity
@@ -39,10 +39,10 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     void markAllAsRead(@Param("userId") Long userId);
 
     @Modifying
-    @Query("DELETE FROM Notification n WHERE n.user. id = :userId AND n.createdAt < :before")
+    @Query("DELETE FROM Notification n WHERE n.user.id = :userId AND n.createdAt < :before")
     void deleteOldNotifications(@Param("userId") Long userId, @Param("before") LocalDateTime before);
 
     @Modifying
-    @Query("DELETE FROM Notification n WHERE n.user.id = :userId AND n. isRead = true")
+    @Query("DELETE FROM Notification n WHERE n.user.id = :userId AND n.isRead = true")
     void deleteReadNotifications(@Param("userId") Long userId);
 }

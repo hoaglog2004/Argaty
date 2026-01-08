@@ -39,7 +39,7 @@
                     </div>
                     <div class="d-flex justify-between mb-3">
                         <span class="text-muted">Phương thức thanh toán:</span>
-                        <span th: text="${order.paymentMethodDisplayName}">COD</span>
+                        <span th:text="${order.paymentMethodDisplayName}">COD</span>
                     </div>
                     <div class="d-flex justify-between">
                         <span class="text-muted">Tổng tiền:</span>
@@ -58,11 +58,11 @@
                 <!-- Order Items -->
                 <div class="order-items-preview card p-4 mb-4" style="background: var(--bg-void); text-align: left;">
                     <h4 class="mb-3"><i class='bx bx-package text-primary'></i> Sản phẩm đã đặt</h4>
-                    <div th:each="item : ${order. items}" class="order-item mb-3" style="display: flex; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
+                    <div th:each="item : ${order.items}" class="order-item mb-3" style="display: flex; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
                         <div style="width: 60px; height: 60px; border-radius: 8px; overflow: hidden; flex-shrink: 0;">
-                            <img th:src="${item.productImage}" th:alt="${item. productName}" style="width: 100%; height:  100%; object-fit: cover;">
+                            <img th:src="${item.productImage}" th:alt="${item.productName}" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
-                        <div style="flex:  1;">
+                        <div style="flex: 1;">
                             <p class="mb-1" th:text="${item.productName}">Sản phẩm</p>
                             <p class="text-muted" style="font-size: 13px;">
                                 <span th:if="${item.variantName}" th:text="${item.variantName} + ' | '"></span>

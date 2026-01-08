@@ -1,18 +1,18 @@
 package com.argaty.repository;
 
-import java. time.LocalDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
-import org. springframework.data.domain. Pageable;
-import org.springframework.data.jpa.repository. JpaRepository;
-import org.springframework. data.jpa.repository.Modifying;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework. stereotype.Repository;
+import org.springframework.stereotype.Repository;
 
-import com.argaty. entity.Voucher;
+import com.argaty.entity.Voucher;
 
 /**
  * Repository cho Voucher Entity
@@ -31,11 +31,11 @@ public interface VoucherRepository extends JpaRepository<Voucher, Long> {
     @Query("SELECT v FROM Voucher v WHERE v.isActive = true AND " +
            "(v.startDate IS NULL OR v.startDate <= : now) AND " +
            "(v.endDate IS NULL OR v.endDate >= :now) AND " +
-           "(v. usageLimit IS NULL OR v.usedCount < v.usageLimit)")
+           "(v.usageLimit IS NULL OR v.usedCount < v.usageLimit)")
     List<Voucher> findValidVouchers(@Param("now") LocalDateTime now);
 
     @Query("SELECT v FROM Voucher v WHERE v.isActive = true AND " +
-           "(v. startDate IS NULL OR v.startDate <= CURRENT_TIMESTAMP) AND " +
+           "(v.startDate IS NULL OR v.startDate <= CURRENT_TIMESTAMP) AND " +
            "(v.endDate IS NULL OR v.endDate >= CURRENT_TIMESTAMP) AND " +
            "(v.usageLimit IS NULL OR v.usedCount < v.usageLimit) AND " +
            "(v.minOrderAmount IS NULL OR v.minOrderAmount <= :orderAmount)")

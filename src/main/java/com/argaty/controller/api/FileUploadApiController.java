@@ -1,8 +1,8 @@
 package com.argaty.controller.api;
 
-import com.argaty. dto.response.ApiResponse;
-import com. argaty.dto.response.FileUploadResponse;
-import com. argaty.exception.BadRequestException;
+import com.argaty.dto.response.ApiResponse;
+import com.argaty.dto.response.FileUploadResponse;
+import com.argaty.exception.BadRequestException;
 import com.argaty.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +38,7 @@ public class FileUploadApiController {
 
         try {
             String url = fileStorageService.uploadFile(file, directory + "/");
-            return ResponseEntity.ok(ApiResponse. success("Upload thành công", 
+            return ResponseEntity.ok(ApiResponse.success("Upload thành công", 
                     FileUploadResponse.success(url)));
         } catch (BadRequestException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
@@ -58,7 +58,7 @@ public class FileUploadApiController {
             return ResponseEntity.status(401).body(ApiResponse.error("Vui lòng đăng nhập"));
         }
 
-        if (files. size() > 10) {
+        if (files.size() > 10) {
             return ResponseEntity.badRequest().body(ApiResponse.error("Chỉ được upload tối đa 10 files"));
         }
 

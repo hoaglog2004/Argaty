@@ -1,8 +1,8 @@
 package com.argaty.service;
 
-import com. argaty.entity.Wishlist;
+import com.argaty.entity.Wishlist;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain. Pageable;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 

@@ -1,19 +1,22 @@
 package com.argaty.controller.admin;
 
-import com.argaty. dto.response.DashboardStatsResponse;
-import com.argaty.enums.OrderStatus;
-import com.argaty.enums.Role;
-import com.argaty. service.*;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework. stereotype.Controller;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.argaty.dto.response.DashboardStatsResponse;
+import com.argaty.enums.OrderStatus;
+import com.argaty.enums.Role;
+import com.argaty.service.OrderService;
+import com.argaty.service.ProductService;
+import com.argaty.service.UserService;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * Controller cho Admin Dashboard
@@ -40,9 +43,9 @@ public class AdminDashboardController {
                 // Orders
                 .ordersToday(orderService.countOrdersToday())
                 .ordersThisMonth(orderService.countOrdersThisMonth())
-                . pendingOrders(orderService.countByStatus(OrderStatus.PENDING))
+                .pendingOrders(orderService.countByStatus(OrderStatus.PENDING))
                 .processingOrders(orderService.countByStatus(OrderStatus.PROCESSING))
-                .shippingOrders(orderService. countByStatus(OrderStatus. SHIPPING))
+                .shippingOrders(orderService.countByStatus(OrderStatus.SHIPPING))
                 .completedOrders(orderService.countByStatus(OrderStatus.COMPLETED))
                 .cancelledOrders(orderService.countByStatus(OrderStatus.CANCELLED))
                 
@@ -55,7 +58,7 @@ public class AdminDashboardController {
                 .newUsersToday(userService.countNewUsersToday())
                 .newUsersThisMonth(userService.countNewUsersThisMonth())
                 
-                . build();
+                .build();
 
         // Daily statistics (last 7 days)
         List<Object[]> dailyData = orderService.getDailyStatistics(7);
@@ -82,12 +85,12 @@ public class AdminDashboardController {
         // Top customers
         List<Object[]> topCustomersData = orderService.getTopCustomers(5);
         List<DashboardStatsResponse.TopCustomer> topCustomers = topCustomersData.stream()
-                .map(row -> DashboardStatsResponse.TopCustomer. builder()
+                .map(row -> DashboardStatsResponse.TopCustomer.builder()
                         .userId(((Number) row[0]).longValue())
                         .userName((String) row[1])
                         .userEmail((String) row[2])
                         .orderCount(((Number) row[3]).longValue())
-                        . totalSpent((BigDecimal) row[4])
+                        .totalSpent((BigDecimal) row[4])
                         .build())
                 .collect(Collectors.toList());
         stats.setTopCustomers(topCustomers);

@@ -110,11 +110,7 @@
             <h4 class="dashboard-chart-card__title">Doanh thu 7 ngày qua</h4>
           </div>
           <div class="chart-container" style="height: 300px">
-            <canvas
-              id="revenueChart"
-              th:data-labels="${stats.chartLabels}"
-              th:data-values="${stats.chartValues}"
-            ></canvas>
+            <canvas id="revenueChart"></canvas>
           </div>
         </div>
 
@@ -190,7 +186,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr th:each="order :  ${recentOrders}">
+              <tr th:each="order : ${recentOrders}">
                 <td>
                   <span class="text-cyan" th:text="${order.orderCode}"
                     >ARG123</span
@@ -198,7 +194,7 @@
                 </td>
                 <td th:text="${order.customerName}">Khách hàng</td>
                 <td
-                  th:text="${#numbers.formatDecimal(order. totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                  th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
                 >
                   0 ₫
                 </td>

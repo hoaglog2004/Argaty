@@ -1,19 +1,19 @@
-package com.argaty.controller. user;
+package com.argaty.controller.user;
 
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.HashMap;
-import java. util.List;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework. data.domain.Pageable;
-import org.springframework.data. domain.Sort;
-import org. springframework.stereotype.Controller;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web. bind.annotation.GetMapping;
-import org.springframework.web.bind. annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -76,25 +76,25 @@ public class ProductController {
 
         if (q != null && !q.trim().isEmpty()) {
             // Search
-            productPage = productService.search(q. trim(), pageable);
+            productPage = productService.search(q.trim(), pageable);
             model.addAttribute("searchKeyword", q);
-        } else if (category != null && !category. isEmpty()) {
+        } else if (category != null && !category.isEmpty()) {
             // Filter by category
             Category cat = categoryService.findBySlug(category).orElse(null);
             if (cat != null) {
-                productPage = productService.findByCategory(cat. getId(), pageable);
+                productPage = productService.findByCategory(cat.getId(), pageable);
                 model.addAttribute("currentCategory", DtoMapper.toCategoryResponse(cat));
             } else {
                 productPage = productService.findActiveProducts(pageable);
             }
-        } else if (brand != null && !brand. isEmpty()) {
+        } else if (brand != null && !brand.isEmpty()) {
             // Filter by brand
             Brand br = brandService.findBySlug(brand).orElse(null);
             if (br != null) {
                 productPage = productService.findByBrand(br.getId(), pageable);
                 model.addAttribute("currentBrand", DtoMapper.toBrandResponse(br));
             } else {
-                productPage = productService. findActiveProducts(pageable);
+                productPage = productService.findActiveProducts(pageable);
             }
         } else if (minPrice != null || maxPrice != null) {
             // Filter by price
@@ -139,7 +139,7 @@ public class ProductController {
             Principal principal,
             Model model) {
 
-        Pageable pageable = PageRequest. of(page, PRODUCTS_PER_PAGE);
+        Pageable pageable = PageRequest.of(page, PRODUCTS_PER_PAGE);
         Page<Product> productPage = productService.findOnSale(pageable);
 
         model.addAttribute("products", DtoMapper.toProductPageResponse(productPage));
@@ -165,11 +165,8 @@ public class ProductController {
             Principal principal,
             Model model) {
 
-        final Product product = productService. findBySlug(slug)
-                .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("Product", "slug", slug));
-
-        // Ensure details are loaded (images/variants/category/brand) to avoid LazyInitialization issues
-        Product productWithDetails = productService.findBySlugWithDetails(slug)
+        // Load product with all details to avoid LazyInitialization issues
+        final Product product = productService.findBySlugWithDetails(slug)
             .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("Product", "slug", slug));
 
         // Product detail
@@ -177,11 +174,11 @@ public class ProductController {
         model.addAttribute("product", productDetail);
 
         // Reviews
-        Page<Review> reviews = reviewService. findByProductId(product.getId(), PageRequest.of(0, 5));
+        Page<Review> reviews = reviewService.findByProductId(product.getId(), PageRequest.of(0, 5));
         model.addAttribute("reviews", DtoMapper.toReviewPageResponse(reviews));
 
         // Review stats
-        Double avgRating = reviewService.getAverageRating(product. getId());
+        Double avgRating = reviewService.getAverageRating(product.getId());
         long reviewCount = reviewService.getReviewCount(product.getId());
         List<Object[]> ratingDist = reviewService.getRatingDistribution(product.getId());
 
@@ -200,9 +197,9 @@ public class ProductController {
         // Check wishlist và can review
         if (principal != null) {
             userService.findByEmail(principal.getName()).ifPresent(user -> {
-                model.addAttribute("isInWishlist", wishlistService. isInWishlist(user.getId(), productWithDetails.getId()));
-                model. addAttribute("canReview", reviewService.canUserReviewProduct(user.getId(), productWithDetails.getId()));
-                model.addAttribute("hasReviewed", reviewService.hasUserReviewedProduct(user.getId(), productWithDetails.getId()));
+                model.addAttribute("isInWishlist", wishlistService.isInWishlist(user.getId(), product.getId()));
+                model.addAttribute("canReview", reviewService.canUserReviewProduct(user.getId(), product.getId()));
+                model.addAttribute("hasReviewed", reviewService.hasUserReviewedProduct(user.getId(), product.getId()));
             });
         }
 
@@ -215,7 +212,7 @@ public class ProductController {
      */
     @GetMapping("/search")
     public String search(@RequestParam String q) {
-        return "redirect:/products? q=" + q;
+        return "redirect:/products?q=" + q;
     }
 
     /**
@@ -226,10 +223,10 @@ public class ProductController {
             case "price-asc" -> Sort.by(Sort.Direction.ASC, "price");
             case "price-desc" -> Sort.by(Sort.Direction.DESC, "price");
             case "name-asc" -> Sort.by(Sort.Direction.ASC, "name");
-            case "name-desc" -> Sort.by(Sort. Direction.DESC, "name");
+            case "name-desc" -> Sort.by(Sort.Direction.DESC, "name");
             case "bestseller" -> Sort.by(Sort.Direction.DESC, "soldCount");
             case "rating" -> Sort.by(Sort.Direction.DESC, "rating");
-            default -> Sort.by(Sort. Direction.DESC, "createdAt"); // newest
+            default -> Sort.by(Sort.Direction.DESC, "createdAt"); // newest
         };
     }
 }

@@ -152,10 +152,10 @@ function openAddressModal(address = null) {
     document.getElementById('addressId').value = address?.id || '';
     
     if (address) {
-        document. getElementById('receiverName').value = address.receiverName;
+        document.getElementById('receiverName').value = address.receiverName;
         document.getElementById('receiverPhone').value = address.phone;
         document.getElementById('city').value = address.city;
-        document. getElementById('district').value = address.district;
+        document.getElementById('district').value = address.district;
         document.getElementById('ward').value = address.ward || '';
         document.getElementById('addressDetail').value = address.address;
         document.getElementById('isDefault').checked = address.isDefault;
@@ -170,12 +170,12 @@ async function submitAddress(e) {
     const id = document.getElementById('addressId').value;
     const data = {
         receiverName:  document.getElementById('receiverName').value,
-        phone: document. getElementById('receiverPhone').value,
+        phone: document.getElementById('receiverPhone').value,
         city: document.getElementById('city').value,
         district: document.getElementById('district').value,
         ward: document.getElementById('ward').value,
         address: document.getElementById('addressDetail').value,
-        isDefault: document. getElementById('isDefault').checked
+        isDefault: document.getElementById('isDefault').checked
     };
     
     try {

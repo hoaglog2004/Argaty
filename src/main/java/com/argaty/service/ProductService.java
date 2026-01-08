@@ -2,10 +2,10 @@ package com.argaty.service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java. util.Optional;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain. Pageable;
+import org.springframework.data.domain.Pageable;
 
 import com.argaty.entity.Product;
 import com.argaty.entity.ProductImage;
@@ -77,6 +77,8 @@ public interface ProductService {
     void toggleActive(Long id);
 
     void toggleFeatured(Long id);
+
+    void toggleNew(Long id);
 
     // ========== IMAGES ==========
 

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream. Collectors;
+import java.util.stream.Collectors;
 
 /**
  * DTO cho response giỏ hàng
@@ -31,7 +31,7 @@ public class CartResponse {
     public static CartResponse fromEntity(Cart cart) {
         List<CartItemResponse> items = cart.getItems() != null ?
                 cart.getItems().stream()
-                        . map(CartItemResponse::fromEntity)
+                        .map(CartItemResponse::fromEntity)
                         .collect(Collectors.toList()) : List.of();
 
         return CartResponse.builder()

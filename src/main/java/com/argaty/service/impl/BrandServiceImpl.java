@@ -7,7 +7,7 @@ import com.argaty.repository.BrandRepository;
 import com.argaty.service.BrandService;
 import com.argaty.util.SlugUtil;
 import lombok.RequiredArgsConstructor;
-import lombok. extern.slf4j.Slf4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -73,7 +73,7 @@ public class BrandServiceImpl implements BrandService {
         }
 
         brandRepository.deleteById(id);
-        log.info("Deleted brand:  {}", id);
+        log.info("Deleted brand: {}", id);
     }
 
     @Override
@@ -124,12 +124,12 @@ public class BrandServiceImpl implements BrandService {
                 .orElseThrow(() -> new ResourceNotFoundException("Brand", "id", id));
 
         // Kiểm tra tên trùng với brand khác
-        if (! brand.getName().equals(name) && brandRepository.existsByName(name)) {
+        if (!brand.getName().equals(name) && brandRepository.existsByName(name)) {
             throw new BadRequestException("Tên thương hiệu đã tồn tại");
         }
 
         // Cập nhật slug nếu tên thay đổi
-        if (! brand.getName().equals(name)) {
+        if (!brand.getName().equals(name)) {
             String slug = SlugUtil.toSlug(name);
             int count = 1;
             String originalSlug = slug;
@@ -147,16 +147,16 @@ public class BrandServiceImpl implements BrandService {
         brand.setWebsite(website);
 
         log.info("Updated brand: {}", id);
-        return brandRepository. save(brand);
+        return brandRepository.save(brand);
     }
 
     @Override
     public void toggleActive(Long id) {
-        Brand brand = brandRepository. findById(id)
+        Brand brand = brandRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Brand", "id", id));
 
         brand.setIsActive(!brand.getIsActive());
-        brandRepository. save(brand);
+        brandRepository.save(brand);
         log.info("Toggled brand active status: {} -> {}", id, brand.getIsActive());
     }
 

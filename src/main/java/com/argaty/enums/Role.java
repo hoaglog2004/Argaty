@@ -4,9 +4,9 @@ package com.argaty.enums;
  * Enum định nghĩa các vai trò người dùng
  */
 public enum Role {
-    USER("Khách hàng"),
-    STAFF("Nhân viên"),
-    ADMIN("Quản trị viên");
+    USER("User"),
+    STAFF("Staff"),
+    ADMIN("Admin");
 
     private final String displayName;
 

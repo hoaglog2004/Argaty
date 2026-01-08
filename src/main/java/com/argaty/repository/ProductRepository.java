@@ -1,14 +1,14 @@
-package com.argaty. repository;
+package com.argaty.repository;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
-import org.springframework. data.domain.Pageable;
-import org.springframework.data.jpa.repository. JpaRepository;
-import org.springframework.data.jpa.repository. JpaSpecificationExecutor;
-import org.springframework. data.jpa.repository.Modifying;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -57,7 +57,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     // ========== FIND FEATURED / NEW / BESTSELLER ==========
 
     @Query("SELECT p FROM Product p WHERE p.isFeatured = true AND p.isActive = true " +
-           "ORDER BY p. createdAt DESC")
+           "ORDER BY p.createdAt DESC")
     List<Product> findFeaturedProducts(Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE p.isNew = true AND p.isActive = true " +
@@ -68,16 +68,24 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
            "ORDER BY p.soldCount DESC")
     List<Product> findBestSellerProducts(Pageable pageable);
 
+    // ========== FIND ACTIVE PRODUCTS ==========
+    
+    Page<Product> findByIsActiveTrue(Pageable pageable);
+    
+    Page<Product> findByIsActiveTrueOrderByCreatedAtDesc(Pageable pageable);
+    
+    Page<Product> findByIsActiveTrueOrderBySoldCountDesc(Pageable pageable);
+
     // ========== FIND ON SALE ==========
 
     @Query("SELECT p FROM Product p WHERE p.salePrice IS NOT NULL AND p.salePrice < p.price " +
            "AND p.isActive = true AND " +
            "(p.saleStartDate IS NULL OR p.saleStartDate <= CURRENT_TIMESTAMP) AND " +
-           "(p.saleEndDate IS NULL OR p. saleEndDate >= CURRENT_TIMESTAMP) " +
+           "(p.saleEndDate IS NULL OR p.saleEndDate >= CURRENT_TIMESTAMP) " +
            "ORDER BY p.discountPercent DESC")
     Page<Product> findOnSaleProducts(Pageable pageable);
 
-    @Query("SELECT p FROM Product p WHERE p.salePrice IS NOT NULL AND p. salePrice < p.price " +
+    @Query("SELECT p FROM Product p WHERE p.salePrice IS NOT NULL AND p.salePrice < p.price " +
            "AND p.isActive = true ORDER BY p.discountPercent DESC")
     List<Product> findTopSaleProducts(Pageable pageable);
 
@@ -85,14 +93,14 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     @Query("SELECT p FROM Product p WHERE p.isActive = true AND " +
            "(LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-           "LOWER(p. shortDescription) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-           "LOWER(p. sku) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+           "LOWER(p.shortDescription) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(p.sku) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Product> searchProducts(@Param("keyword") String keyword, Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE p.isActive = true AND " +
-           "p.category. id = :categoryId AND " +
-           "(LOWER(p. name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-           "LOWER(p.shortDescription) LIKE LOWER(CONCAT('%', : keyword, '%')))")
+           "p.category.id = :categoryId AND " +
+           "(LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(p.shortDescription) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Product> searchProductsByCategory(@Param("keyword") String keyword,
                                            @Param("categoryId") Long categoryId,
                                            Pageable pageable);
@@ -132,7 +140,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     @Modifying
     @Query("UPDATE Product p SET p.quantity = p.quantity - :quantity, " +
-           "p.soldCount = p.soldCount + : quantity WHERE p.id = :productId AND p.quantity >= : quantity")
+           "p.soldCount = p.soldCount + :quantity WHERE p.id = :productId AND p.quantity >= :quantity")
     int decreaseQuantity(@Param("productId") Long productId, @Param("quantity") int quantity);
 
     @Modifying
@@ -140,7 +148,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     void increaseQuantity(@Param("productId") Long productId, @Param("quantity") int quantity);
 
     @Modifying
-    @Query("UPDATE Product p SET p.rating = : rating, p.reviewCount = : reviewCount WHERE p.id = : productId")
+    @Query("UPDATE Product p SET p.rating = :rating, p.reviewCount = :reviewCount WHERE p.id = :productId")
     void updateRating(@Param("productId") Long productId,
                       @Param("rating") BigDecimal rating,
                       @Param("reviewCount") int reviewCount);
@@ -150,7 +158,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Query("SELECT COUNT(p) FROM Product p WHERE p.isActive = true")
     long countActiveProducts();
 
-    @Query("SELECT COUNT(p) FROM Product p WHERE p. quantity = 0")
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.quantity = 0")
     long countOutOfStockProducts();
 
     @Query("SELECT COUNT(p) FROM Product p WHERE p.quantity <= p.lowStockThreshold AND p.quantity > 0")

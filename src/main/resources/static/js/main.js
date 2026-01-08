@@ -3,6 +3,36 @@
  * Cosmic Gaming Gear E-commerce
  */
 
+// ========== CSRF TOKEN ==========
+
+// Get CSRF token from cookie
+function getCsrfToken() {
+  const name = 'XSRF-TOKEN=';
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const ca = decodedCookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) === 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return '';
+}
+
+// Helper function for fetch with CSRF token
+async function fetchWithCsrf(url, options = {}) {
+  const defaultHeaders = {
+    'Content-Type': 'application/json',
+    'X-XSRF-TOKEN': getCsrfToken()
+  };
+  
+  options.headers = { ...defaultHeaders, ...options.headers };
+  return fetch(url, options);
+}
+
 // ========== GLOBAL UTILITIES ==========
 
 // Format currency VND
@@ -55,7 +85,7 @@ async function updateCartCount() {
 
     if (data.success) {
       const badges = document.querySelectorAll(
-        ". header__action-btn . badge-count"
+        ".header__action-btn .badge-count"
       );
       badges.forEach((badge) => {
         if (
@@ -124,7 +154,7 @@ function initMobileMenu() {
 // Toggle wishlist
 async function toggleWishlist(productId, button) {
   try {
-    const response = await fetch(`/api/wishlist/${productId}/toggle`, {
+    const response = await fetchWithCsrf(`/api/wishlist/${productId}/toggle`, {
       method: "POST",
     });
 
@@ -183,11 +213,8 @@ function initWishlistButtons() {
 // Quick add to cart
 async function quickAddToCart(productId, quantity = 1, variantId = null) {
   try {
-    const response = await fetch("/api/cart/items", {
+    const response = await fetchWithCsrf("/api/cart/items", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         productId: productId,
         variantId: variantId,

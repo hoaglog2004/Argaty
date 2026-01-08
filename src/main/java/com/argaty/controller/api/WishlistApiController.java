@@ -1,9 +1,9 @@
-package com.argaty.controller. api;
+package com.argaty.controller.api;
 
 import com.argaty.dto.response.ApiResponse;
-import com. argaty.dto.response.WishlistResponse;
-import com. argaty.entity.User;
-import com.argaty. entity.Wishlist;
+import com.argaty.dto.response.WishlistResponse;
+import com.argaty.entity.User;
+import com.argaty.entity.Wishlist;
 import com.argaty.service.UserService;
 import com.argaty.service.WishlistService;
 import com.argaty.util.DtoMapper;
@@ -32,7 +32,7 @@ public class WishlistApiController {
     public ResponseEntity<ApiResponse<List<WishlistResponse>>> getWishlist(Principal principal) {
         User user = getCurrentUser(principal);
         List<Wishlist> wishlists = wishlistService.findByUserIdWithProduct(user.getId());
-        return ResponseEntity.ok(ApiResponse. success(DtoMapper.toWishlistResponseList(wishlists)));
+        return ResponseEntity.ok(ApiResponse.success(DtoMapper.toWishlistResponseList(wishlists)));
     }
 
     /**
@@ -82,7 +82,7 @@ public class WishlistApiController {
 
         User user = getCurrentUser(principal);
         wishlistService.toggleWishlist(user.getId(), productId);
-        boolean isInWishlist = wishlistService. isInWishlist(user. getId(), productId);
+        boolean isInWishlist = wishlistService.isInWishlist(user.getId(), productId);
         
         String message = isInWishlist ?  "Đã thêm vào yêu thích" : "Đã xóa khỏi yêu thích";
         return ResponseEntity.ok(ApiResponse.success(message, isInWishlist));
@@ -107,7 +107,7 @@ public class WishlistApiController {
     @GetMapping("/count")
     public ResponseEntity<ApiResponse<Integer>> countWishlist(Principal principal) {
         User user = getCurrentUser(principal);
-        int count = wishlistService. countByUserId(user.getId());
+        int count = wishlistService.countByUserId(user.getId());
         return ResponseEntity.ok(ApiResponse.success(count));
     }
 

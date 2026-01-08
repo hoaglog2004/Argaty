@@ -1,4 +1,4 @@
-package com. argaty.entity;
+package com.argaty.entity;
 
 import java.time.LocalDateTime;
 

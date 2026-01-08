@@ -1,18 +1,18 @@
-package com.argaty.controller. api;
+package com.argaty.controller.api;
 
 import com.argaty.dto.response.ApiResponse;
-import com. argaty.dto.response.NotificationResponse;
+import com.argaty.dto.response.NotificationResponse;
 import com.argaty.entity.Notification;
-import com.argaty.entity. User;
+import com.argaty.entity.User;
 import com.argaty.service.NotificationService;
-import com.argaty.service. UserService;
+import com.argaty.service.UserService;
 import com.argaty.util.DtoMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind. annotation.*;
+import org.springframework.web.bind.annotation.*;
 
-import java.security. Principal;
-import java.util. HashMap;
+import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,8 +33,8 @@ public class NotificationApiController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<NotificationResponse>>> getNotifications(Principal principal) {
         User user = getCurrentUser(principal);
-        List<Notification> notifications = notificationService. findRecentByUserId(user.getId(), 10);
-        return ResponseEntity.ok(ApiResponse. success(DtoMapper.toNotificationResponseList(notifications)));
+        List<Notification> notifications = notificationService.findRecentByUserId(user.getId(), 10);
+        return ResponseEntity.ok(ApiResponse.success(DtoMapper.toNotificationResponseList(notifications)));
     }
 
     /**
@@ -53,7 +53,7 @@ public class NotificationApiController {
     @GetMapping("/unread/count")
     public ResponseEntity<ApiResponse<Integer>> getUnreadCount(Principal principal) {
         User user = getCurrentUser(principal);
-        int count = notificationService. countUnreadByUserId(user.getId());
+        int count = notificationService.countUnreadByUserId(user.getId());
         return ResponseEntity.ok(ApiResponse.success(count));
     }
 
@@ -65,7 +65,7 @@ public class NotificationApiController {
         User user = getCurrentUser(principal);
 
         List<Notification> notifications = notificationService.findRecentByUserId(user.getId(), 5);
-        int unreadCount = notificationService. countUnreadByUserId(user.getId());
+        int unreadCount = notificationService.countUnreadByUserId(user.getId());
 
         Map<String, Object> data = new HashMap<>();
         data.put("notifications", DtoMapper.toNotificationResponseList(notifications));
@@ -96,9 +96,9 @@ public class NotificationApiController {
 
     private User getCurrentUser(Principal principal) {
         if (principal == null) {
-            throw new com.argaty.exception. UnauthorizedException("Vui lòng đăng nhập");
+            throw new com.argaty.exception.UnauthorizedException("Vui lòng đăng nhập");
         }
-        return userService.findByEmail(principal. getName())
+        return userService.findByEmail(principal.getName())
                 .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("User", "email", principal.getName()));
     }
 }

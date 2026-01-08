@@ -1,4 +1,4 @@
-package com.argaty. service;
+package com.argaty.service;
 
 import java.util.List;
 import java.util.Optional;

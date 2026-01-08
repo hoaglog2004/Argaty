@@ -8,8 +8,8 @@ import java.util.List;
 import com.argaty.enums.OrderStatus;
 import com.argaty.enums.PaymentMethod;
 
-import jakarta.persistence. CascadeType;
-import jakarta.persistence. Column;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -136,7 +136,7 @@ public class Order extends BaseEntity {
 
     // ========== RELATIONSHIPS ==========
 
-    @ManyToOne(fetch = FetchType. LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -201,7 +201,7 @@ public class Order extends BaseEntity {
      * Kiểm tra đơn hàng đã hoàn thành
      */
     public boolean isCompleted() {
-        return status == OrderStatus. COMPLETED;
+        return status == OrderStatus.COMPLETED;
     }
 
     /**
@@ -231,7 +231,7 @@ public class Order extends BaseEntity {
             case CONFIRMED -> this.confirmedAt = now;
             case SHIPPING -> this.shippedAt = now;
             case DELIVERED -> this.deliveredAt = now;
-            case COMPLETED -> this. completedAt = now;
+            case COMPLETED -> this.completedAt = now;
             case CANCELLED -> this.cancelledAt = now;
         }
 

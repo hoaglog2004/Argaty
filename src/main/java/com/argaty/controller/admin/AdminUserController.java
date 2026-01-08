@@ -1,14 +1,14 @@
 package com.argaty.controller.admin;
 
 import com.argaty.dto.response.UserResponse;
-import com. argaty.entity.User;
+import com.argaty.entity.User;
 import com.argaty.enums.Role;
-import com.argaty. service.OrderService;
+import com.argaty.service.OrderService;
 import com.argaty.service.UserService;
 import com.argaty.util.DtoMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data. domain.Page;
-import org. springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,7 +43,7 @@ public class AdminUserController {
             try {
                 Role userRole = Role.valueOf(role.toUpperCase());
                 users = userService.findByRole(userRole, pageRequest);
-                model. addAttribute("selectedRole", role);
+                model.addAttribute("selectedRole", role);
             } catch (IllegalArgumentException e) {
                 users = userService.findAll(pageRequest);
             }
@@ -81,11 +81,11 @@ public class AdminUserController {
             RedirectAttributes redirectAttributes) {
 
         try {
-            Role newRole = Role.valueOf(role. toUpperCase());
+            Role newRole = Role.valueOf(role.toUpperCase());
             userService.updateRole(id, newRole);
             redirectAttributes.addFlashAttribute("success", "Đã cập nhật vai trò");
         } catch (Exception e) {
-            redirectAttributes. addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/admin/users/" + id;
     }

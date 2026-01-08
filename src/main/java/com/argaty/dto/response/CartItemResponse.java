@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude. Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CartItemResponse {
 
     private Long id;
@@ -41,14 +41,14 @@ public class CartItemResponse {
                 .id(item.getId())
                 .productId(item.getProduct().getId())
                 .productName(item.getProduct().getName())
-                .productSlug(item. getProduct().getSlug())
+                .productSlug(item.getProduct().getSlug())
                 .productImage(item.getImage())
                 .variantId(item.getVariant() != null ? item.getVariant().getId() : null)
                 .variantName(item.getVariant() != null ? item.getVariant().getName() : null)
                 .variantColor(item.getVariant() != null ? item.getVariant().getColor() : null)
                 .variantColorCode(item.getVariant() != null ? item.getVariant().getColorCode() : null)
                 .unitPrice(item.getUnitPrice())
-                .originalPrice(item. getProduct().getPrice())
+                .originalPrice(item.getProduct().getPrice())
                 .quantity(item.getQuantity())
                 .subtotal(item.getSubtotal())
                 .isSelected(item.getIsSelected())

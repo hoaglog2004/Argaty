@@ -1,6 +1,6 @@
-package com. argaty.dto.response;
+package com.argaty.dto.response;
 
-import com.argaty.entity. UserAddress;
+import com.argaty.entity.UserAddress;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

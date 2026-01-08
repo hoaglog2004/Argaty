@@ -1,19 +1,19 @@
 package com.argaty.service.impl;
 
-import com.argaty. config.AppProperties;
-import com.argaty. exception.BadRequestException;
+import com.argaty.config.AppProperties;
+import com.argaty.exception.BadRequestException;
 import com.argaty.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org. springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file. Paths;
-import java.nio. file.StandardCopyOption;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -100,14 +100,14 @@ public class FileStorageServiceImpl implements FileStorageService {
         try {
             // Chuyển đổi từ URL path sang file path
             String actualPath = filePath.replace("/uploads/", appProperties.getUpload().getDir());
-            Path path = Paths. get(actualPath);
+            Path path = Paths.get(actualPath);
 
             if (Files.exists(path)) {
                 Files.delete(path);
                 log.info("Deleted file: {}", filePath);
             }
         } catch (IOException e) {
-            log.error("Failed to delete file {}: {}", filePath, e. getMessage());
+            log.error("Failed to delete file {}: {}", filePath, e.getMessage());
         }
     }
 

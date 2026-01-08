@@ -70,7 +70,7 @@ public class Review extends BaseEntity {
      * Kiểm tra đã có phản hồi chưa
      */
     public boolean hasReply() {
-        return reply != null && !reply. isEmpty();
+        return reply != null && !reply.isEmpty();
     }
 
     /**

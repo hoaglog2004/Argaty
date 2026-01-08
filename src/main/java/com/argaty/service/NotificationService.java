@@ -1,8 +1,8 @@
-package com.argaty. service;
+package com.argaty.service;
 
 import com.argaty.entity.Notification;
 import com.argaty.entity.Order;
-import com.argaty. enums.NotificationType;
+import com.argaty.enums.NotificationType;
 import com.argaty.enums.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

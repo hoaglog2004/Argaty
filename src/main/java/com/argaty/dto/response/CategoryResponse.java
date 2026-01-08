@@ -1,6 +1,6 @@
-package com.argaty. dto.response;
+package com.argaty.dto.response;
 
-import com. argaty.entity.Category;
+import com.argaty.entity.Category;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.stream. Collectors;
+import java.util.stream.Collectors;
 
 /**
  * DTO cho response danh mục
@@ -17,7 +17,7 @@ import java.util.stream. Collectors;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude. Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CategoryResponse {
 
     private Long id;
@@ -41,11 +41,11 @@ public class CategoryResponse {
     public static CategoryResponse fromEntity(Category category) {
         CategoryResponse response = CategoryResponse.builder()
                 .id(category.getId())
-                .name(category. getName())
+                .name(category.getName())
                 .slug(category.getSlug())
                 .description(category.getDescription())
                 .image(category.getImage())
-                .icon(category. getIcon())
+                .icon(category.getIcon())
                 .displayOrder(category.getDisplayOrder())
                 .isActive(category.getIsActive())
                 .isFeatured(category.getIsFeatured())

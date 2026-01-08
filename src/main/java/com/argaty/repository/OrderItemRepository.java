@@ -1,12 +1,12 @@
 package com.argaty.repository;
 
-import java. util.List;
+import java.util.List;
 
-import org.springframework.data.domain. Pageable;
-import org.springframework.data.jpa.repository. JpaRepository;
-import org. springframework.data.jpa.repository. Modifying;
-import org.springframework.data.jpa.repository. Query;
-import org.springframework. data.repository.query.Param;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.argaty.entity.OrderItem;
@@ -24,29 +24,29 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
     // Tìm các sản phẩm đã mua chưa review
     @Query("SELECT oi FROM OrderItem oi WHERE oi.order.user.id = :userId " +
-           "AND oi. isReviewed = false AND oi.order.status = 'COMPLETED'")
+           "AND oi.isReviewed = false AND oi.order.status = 'COMPLETED'")
     List<OrderItem> findUnreviewedItemsByUserId(@Param("userId") Long userId);
 
     // Kiểm tra user đã mua sản phẩm chưa
-    @Query("SELECT COUNT(oi) > 0 FROM OrderItem oi WHERE oi.order.user. id = :userId " +
+    @Query("SELECT COUNT(oi) > 0 FROM OrderItem oi WHERE oi.order.user.id = :userId " +
            "AND oi.product.id = :productId AND oi.order.status = 'COMPLETED'")
     boolean hasUserPurchasedProduct(@Param("userId") Long userId, @Param("productId") Long productId);
 
     @Modifying
-    @Query("UPDATE OrderItem oi SET oi. isReviewed = true WHERE oi.id = :itemId")
+    @Query("UPDATE OrderItem oi SET oi.isReviewed = true WHERE oi.id = :itemId")
     void markAsReviewed(@Param("itemId") Long itemId);
 
     // ========== STATISTICS ==========
 
     @Query("SELECT oi.product.id, oi.productName, SUM(oi.quantity) as totalSold " +
            "FROM OrderItem oi WHERE oi.order.status = 'COMPLETED' " +
-           "GROUP BY oi.product. id, oi.productName " +
+           "GROUP BY oi.product.id, oi.productName " +
            "ORDER BY totalSold DESC")
     List<Object[]> getTopSellingProducts(Pageable pageable);
 
-    @Query("SELECT oi.product.category.id, oi.product. category.name, SUM(oi.quantity) as totalSold " +
+    @Query("SELECT oi.product.category.id, oi.product.category.name, SUM(oi.quantity) as totalSold " +
            "FROM OrderItem oi WHERE oi.order.status = 'COMPLETED' " +
-           "GROUP BY oi.product.category. id, oi.product.category.name " +
+           "GROUP BY oi.product.category.id, oi.product.category.name " +
            "ORDER BY totalSold DESC")
     List<Object[]> getSalesByCategory();
 }

@@ -37,7 +37,7 @@ import lombok.Setter;
 public class OrderItem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType. IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     // ========== SNAPSHOT THÔNG TIN TẠI THỜI ĐIỂM ĐẶT HÀNG ==========

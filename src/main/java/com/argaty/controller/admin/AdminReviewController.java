@@ -3,13 +3,13 @@ package com.argaty.controller.admin;
 import com.argaty.dto.request.ReviewReplyRequest;
 import com.argaty.entity.Review;
 import com.argaty.entity.User;
-import com.argaty. service.ReviewService;
-import com. argaty.service.UserService;
+import com.argaty.service.ReviewService;
+import com.argaty.service.UserService;
 import com.argaty.util.DtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data. domain.Page;
-import org. springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,7 +38,7 @@ public class AdminReviewController {
             @RequestParam(defaultValue = "0") int page,
             Model model) {
 
-        PageRequest pageRequest = PageRequest. of(page, 20, Sort.by(Sort.Direction.DESC, "createdAt"));
+        PageRequest pageRequest = PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<Review> reviews;
         if (productId != null) {
@@ -46,7 +46,7 @@ public class AdminReviewController {
             model.addAttribute("productId", productId);
         } else {
             // Lấy tất cả reviews - cần thêm method trong service
-            reviews = reviewService. findByProductId(null, pageRequest);
+            reviews = reviewService.findByProductId(null, pageRequest);
         }
 
         model.addAttribute("reviews", DtoMapper.toReviewPageResponse(reviews));
@@ -63,7 +63,7 @@ public class AdminReviewController {
         Review review = reviewService.findById(id)
                 .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("Review", "id", id));
 
-        model.addAttribute("review", DtoMapper. toReviewResponse(review));
+        model.addAttribute("review", DtoMapper.toReviewResponse(review));
         model.addAttribute("replyRequest", new ReviewReplyRequest());
         model.addAttribute("adminPage", "reviews");
 

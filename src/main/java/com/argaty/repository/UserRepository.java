@@ -6,9 +6,9 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data. jpa.repository. JpaRepository;
-import org.springframework.data.jpa.repository. Modifying;
-import org.springframework. data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -59,7 +59,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE u.role = :role AND " +
            "(LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-           "LOWER(u. email) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+           "LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<User> searchUsersByRole(@Param("keyword") String keyword, 
                                   @Param("role") Role role, 
                                   Pageable pageable);
@@ -73,7 +73,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     long countNewUsersBetween(@Param("startDate") LocalDateTime startDate,
                                @Param("endDate") LocalDateTime endDate);
 
-    @Query("SELECT u. role, COUNT(u) FROM User u GROUP BY u. role")
+    @Query("SELECT u.role, COUNT(u) FROM User u GROUP BY u.role")
     List<Object[]> countUsersByRole();
 
     // ========== UPDATE ==========

@@ -1,4 +1,4 @@
-package com. argaty.entity;
+package com.argaty.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -52,7 +52,7 @@ public class ProductVariant extends BaseEntity {
 
     // ========== RELATIONSHIPS ==========
 
-    @ManyToOne(fetch = FetchType. LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 

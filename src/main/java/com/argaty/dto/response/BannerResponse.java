@@ -1,6 +1,6 @@
-package com. argaty.dto.response;
+package com.argaty.dto.response;
 
-import com.argaty.entity. Banner;
+import com.argaty.entity.Banner;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,15 +36,15 @@ public class BannerResponse {
         return BannerResponse.builder()
                 .id(banner.getId())
                 .title(banner.getTitle())
-                .subtitle(banner. getSubtitle())
+                .subtitle(banner.getSubtitle())
                 .imageUrl(banner.getImageUrl())
-                .link(banner. getLink())
+                .link(banner.getLink())
                 .position(banner.getPosition())
                 .displayOrder(banner.getDisplayOrder())
                 .isActive(banner.getIsActive())
                 .isCurrentlyActive(banner.isCurrentlyActive())
                 .startDate(banner.getStartDate())
-                .endDate(banner. getEndDate())
+                .endDate(banner.getEndDate())
                 .createdAt(banner.getCreatedAt())
                 .build();
     }

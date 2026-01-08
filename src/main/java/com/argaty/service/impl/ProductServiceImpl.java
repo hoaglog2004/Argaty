@@ -1,4 +1,4 @@
-package com. argaty.service.impl;
+package com.argaty.service.impl;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.argaty.entity.Brand;
-import com. argaty.entity.Category;
+import com.argaty.entity.Category;
 import com.argaty.entity.Product;
 import com.argaty.entity.ProductImage;
 import com.argaty.entity.ProductVariant;
@@ -85,7 +85,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteById(Long id) {
-        Product product = productRepository. findById(id)
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
 
         productRepository.delete(product);
@@ -109,7 +109,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public Page<Product> findActiveProducts(Pageable pageable) {
-        return productRepository.findAll(pageable);
+        return productRepository.findByIsActiveTrue(pageable);
     }
 
     @Override
@@ -139,7 +139,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<Product> findNewProducts(int limit) {
-        return productRepository.findNewProducts(PageRequest. of(0, limit));
+        return productRepository.findNewProducts(PageRequest.of(0, limit));
     }
 
     @Override
@@ -190,7 +190,7 @@ public class ProductServiceImpl implements ProductService {
                           Boolean isFeatured, Boolean isNew) {
 
         // Tạo slug
-        String slug = SlugUtil. toSlug(name);
+        String slug = SlugUtil.toSlug(name);
         int count = 1;
         String originalSlug = slug;
         while (productRepository.existsBySlug(slug)) {
@@ -198,7 +198,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         // Lấy category
-        Category category = categoryRepository. findById(categoryId)
+        Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", categoryId));
 
         // Lấy brand nếu có
@@ -240,8 +240,8 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
 
         // Cập nhật slug nếu tên thay đổi
-        if (!product. getName().equals(name)) {
-            String slug = SlugUtil. toSlug(name);
+        if (!product.getName().equals(name)) {
+            String slug = SlugUtil.toSlug(name);
             int count = 1;
             String originalSlug = slug;
             while (productRepository.existsBySlug(slug) && !slug.equals(product.getSlug())) {
@@ -261,9 +261,9 @@ public class ProductServiceImpl implements ProductService {
         }
 
         // Cập nhật category
-        if (categoryId != null && ! categoryId.equals(product.getCategory().getId())) {
+        if (categoryId != null && !categoryId.equals(product.getCategory().getId())) {
             Category category = categoryRepository.findById(categoryId)
-                    . orElseThrow(() -> new ResourceNotFoundException("Category", "id", categoryId));
+                    .orElseThrow(() -> new ResourceNotFoundException("Category", "id", categoryId));
             product.setCategory(category);
         }
 
@@ -289,7 +289,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void toggleActive(Long id) {
-        Product product = productRepository. findById(id)
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
 
         product.setIsActive(!product.getIsActive());
@@ -304,7 +304,17 @@ public class ProductServiceImpl implements ProductService {
 
         product.setIsFeatured(!product.getIsFeatured());
         productRepository.save(product);
-        log.info("Toggled product featured status:  {} -> {}", id, product. getIsFeatured());
+        log.info("Toggled product featured status: {} -> {}", id, product.getIsFeatured());
+    }
+
+    @Override
+    public void toggleNew(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
+
+        product.setIsNew(!product.getIsNew());
+        productRepository.save(product);
+        log.info("Toggled product isNew status: {} -> {}", id, product.getIsNew());
     }
 
     // ========== IMAGES ==========
@@ -324,7 +334,7 @@ public class ProductServiceImpl implements ProductService {
             isMain = true;
         }
 
-        ProductImage image = ProductImage. builder()
+        ProductImage image = ProductImage.builder()
                 .product(product)
                 .imageUrl(imageUrl)
                 .isMain(isMain)
@@ -346,7 +356,7 @@ public class ProductServiceImpl implements ProductService {
 
         // Nếu xóa ảnh chính, set ảnh khác làm chính
         if (wasMain) {
-            List<ProductImage> remainingImages = productImageRepository. findByProductIdOrderByDisplayOrderAsc(productId);
+            List<ProductImage> remainingImages = productImageRepository.findByProductIdOrderByDisplayOrderAsc(productId);
             if (!remainingImages.isEmpty()) {
                 productImageRepository.setMainImage(remainingImages.get(0).getId());
             }
@@ -370,7 +380,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
 
-        ProductVariant variant = ProductVariant. builder()
+        ProductVariant variant = ProductVariant.builder()
                 .product(product)
                 .name(name)
                 .color(color)
@@ -411,7 +421,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void removeVariant(Long variantId) {
-        if (! productVariantRepository.existsById(variantId)) {
+        if (!productVariantRepository.existsById(variantId)) {
             throw new ResourceNotFoundException("ProductVariant", "id", variantId);
         }
         productVariantRepository.deleteById(variantId);
@@ -490,6 +500,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public Long getTotalStock() {
-        return productRepository. getTotalStock();
+        return productRepository.getTotalStock();
     }
 }

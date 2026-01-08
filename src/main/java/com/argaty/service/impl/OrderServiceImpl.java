@@ -1,4 +1,4 @@
-package com. argaty.service.impl;
+package com.argaty.service.impl;
 
 import com.argaty.entity.*;
 import com.argaty.enums.OrderStatus;
@@ -9,18 +9,18 @@ import com.argaty.repository.*;
 import com.argaty.service.*;
 import com.argaty.util.OrderCodeGenerator;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j. Slf4j;
-import org. springframework.data.domain.Page;
-import org.springframework.data. domain.PageRequest;
-import org.springframework. data.domain.Pageable;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math. BigDecimal;
-import java. time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util. List;
-import java.util. Optional;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementation của OrderService
@@ -76,7 +76,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public Page<Order> findByUserId(Long userId, Pageable pageable) {
-        return orderRepository. findByUserIdOrderByCreatedAtDesc(userId, pageable);
+        return orderRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
     }
 
     @Override
@@ -146,7 +146,7 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal subtotal = BigDecimal.ZERO;
         for (CartItem item : cartItems) {
             // Kiểm tra sản phẩm còn hàng
-            if (! item.isInStock()) {
+            if (!item.isInStock()) {
                 throw new BadRequestException("Sản phẩm '" + item.getProduct().getName() +
                         "' không đủ số lượng tồn kho");
             }
@@ -160,10 +160,10 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal discountAmount = BigDecimal.ZERO;
         Voucher voucher = null;
         if (voucherCode != null && !voucherCode.isEmpty()) {
-            if (! voucherService.canUserUseVoucher(voucherCode, user.getId())) {
+            if (!voucherService.canUserUseVoucher(voucherCode, user.getId())) {
                 throw new BadRequestException("Mã voucher không hợp lệ hoặc đã hết lượt sử dụng");
             }
-            discountAmount = voucherService. calculateDiscount(voucherCode, subtotal);
+            discountAmount = voucherService.calculateDiscount(voucherCode, subtotal);
             voucher = voucherService.findByCode(voucherCode).orElse(null);
         }
 
@@ -199,14 +199,14 @@ public class OrderServiceImpl implements OrderService {
 
         // Tạo order items
         for (CartItem cartItem : cartItems) {
-            OrderItem orderItem = OrderItem. builder()
+            OrderItem orderItem = OrderItem.builder()
                     .order(savedOrder)
                     .product(cartItem.getProduct())
                     .variant(cartItem.getVariant())
                     .productName(cartItem.getProduct().getName())
                     .productImage(cartItem.getImage())
                     .variantName(cartItem.getVariant() != null ? cartItem.getVariant().getName() : null)
-                    . sku(cartItem.getVariant() != null ? cartItem. getVariant().getSku() : cartItem.getProduct().getSku())
+                    .sku(cartItem.getVariant() != null ? cartItem.getVariant().getSku() : cartItem.getProduct().getSku())
                     .unitPrice(cartItem.getUnitPrice())
                     .quantity(cartItem.getQuantity())
                     .subtotal(cartItem.getSubtotal())
@@ -217,7 +217,7 @@ public class OrderServiceImpl implements OrderService {
             // Giảm tồn kho
             productService.decreaseStock(
                     cartItem.getProduct().getId(),
-                    cartItem. getVariant() != null ? cartItem.getVariant().getId() : null,
+                    cartItem.getVariant() != null ? cartItem.getVariant().getId() : null,
                     cartItem.getQuantity()
             );
         }
@@ -236,14 +236,14 @@ public class OrderServiceImpl implements OrderService {
         // Gửi thông báo
         notificationService.sendOrderCreatedNotification(savedOrder);
 
-        log.info("Created order:  {} for user: {}", savedOrder. getOrderCode(), user.getId());
+        log.info("Created order: {} for user: {}", savedOrder.getOrderCode(), user.getId());
         return savedOrder;
     }
 
     private BigDecimal calculateShippingFee(BigDecimal subtotal, String city) {
         // Miễn phí ship cho đơn từ 500k
         if (subtotal.compareTo(BigDecimal.valueOf(500000)) >= 0) {
-            return BigDecimal. ZERO;
+            return BigDecimal.ZERO;
         }
 
         // Phí ship cơ bản
@@ -264,7 +264,7 @@ public class OrderServiceImpl implements OrderService {
         // Gửi thông báo
         notificationService.sendOrderStatusNotification(savedOrder, oldStatus, newStatus);
 
-        log.info("Updated order {} status:  {} -> {}", order.getOrderCode(), oldStatus, newStatus);
+        log.info("Updated order {} status: {} -> {}", order.getOrderCode(), oldStatus, newStatus);
         return savedOrder;
     }
 
@@ -277,7 +277,7 @@ public class OrderServiceImpl implements OrderService {
             throw new BadRequestException("Chỉ có thể xác nhận đơn hàng đang chờ xử lý");
         }
 
-        return updateStatus(orderId, OrderStatus. CONFIRMED, changedBy, "Đơn hàng đã được xác nhận");
+        return updateStatus(orderId, OrderStatus.CONFIRMED, changedBy, "Đơn hàng đã được xác nhận");
     }
 
     @Override
@@ -289,7 +289,7 @@ public class OrderServiceImpl implements OrderService {
             throw new BadRequestException("Đơn hàng chưa được xác nhận");
         }
 
-        return updateStatus(orderId, OrderStatus. SHIPPING, changedBy, note != null ? note : "Đơn hàng đang được giao");
+        return updateStatus(orderId, OrderStatus.SHIPPING, changedBy, note != null ? note : "Đơn hàng đang được giao");
     }
 
     @Override
@@ -314,8 +314,8 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // Đánh dấu đã thanh toán nếu là COD
-        if (order.getPaymentMethod() == PaymentMethod.COD && ! order.getIsPaid()) {
-            order. setIsPaid(true);
+        if (order.getPaymentMethod() == PaymentMethod.COD && !order.getIsPaid()) {
+            order.setIsPaid(true);
             order.setPaidAt(LocalDateTime.now());
         }
 
@@ -327,23 +327,23 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
 
-        if (! order.canCancel()) {
+        if (!order.canCancel()) {
             throw new BadRequestException("Không thể hủy đơn hàng ở trạng thái này");
         }
 
-        order. setCancelReason(reason);
+        order.setCancelReason(reason);
 
         // Hoàn lại tồn kho
         List<OrderItem> items = orderItemRepository.findByOrderId(orderId);
         for (OrderItem item : items) {
             productService.increaseStock(
                     item.getProduct().getId(),
-                    item. getVariant() != null ? item.getVariant().getId() : null,
+                    item.getVariant() != null ? item.getVariant().getId() : null,
                     item.getQuantity()
             );
         }
 
-        return updateStatus(orderId, OrderStatus.CANCELLED, changedBy, "Đơn hàng đã bị hủy:  " + reason);
+        return updateStatus(orderId, OrderStatus.CANCELLED, changedBy, "Đơn hàng đã bị hủy: " + reason);
     }
 
     @Override
@@ -356,12 +356,12 @@ public class OrderServiceImpl implements OrderService {
             throw new BadRequestException("Bạn không có quyền thao tác đơn hàng này");
         }
 
-        if (! order.canRequestReturn()) {
+        if (!order.canRequestReturn()) {
             throw new BadRequestException("Không thể yêu cầu đổi trả ở trạng thái này");
         }
 
         order.setReturnReason(reason);
-        return updateStatus(orderId, OrderStatus.RETURN_REQUESTED, user, "Yêu cầu đổi trả:  " + reason);
+        return updateStatus(orderId, OrderStatus.RETURN_REQUESTED, user, "Yêu cầu đổi trả: " + reason);
     }
 
     @Override
@@ -379,7 +379,7 @@ public class OrderServiceImpl implements OrderService {
             productService.increaseStock(
                     item.getProduct().getId(),
                     item.getVariant() != null ? item.getVariant().getId() : null,
-                    item. getQuantity()
+                    item.getQuantity()
             );
         }
 
@@ -395,7 +395,7 @@ public class OrderServiceImpl implements OrderService {
 
         order.setIsPaid(isPaid);
         if (isPaid) {
-            order.setPaidAt(LocalDateTime. now());
+            order.setPaidAt(LocalDateTime.now());
             order.setPaymentTransactionId(transactionId);
         }
 
@@ -463,7 +463,7 @@ public class OrderServiceImpl implements OrderService {
     public BigDecimal getRevenueToday() {
         LocalDateTime startOfDay = LocalDateTime.now().with(LocalTime.MIN);
         BigDecimal revenue = orderRepository.getRevenueFromDate(startOfDay);
-        return revenue != null ? revenue : BigDecimal. ZERO;
+        return revenue != null ? revenue : BigDecimal.ZERO;
     }
 
     @Override
@@ -471,7 +471,7 @@ public class OrderServiceImpl implements OrderService {
     public BigDecimal getRevenueThisMonth() {
         LocalDateTime startOfMonth = LocalDateTime.now().withDayOfMonth(1).with(LocalTime.MIN);
         BigDecimal revenue = orderRepository.getRevenueFromDate(startOfMonth);
-        return revenue != null ?  revenue : BigDecimal.ZERO;
+        return revenue != null ? revenue : BigDecimal.ZERO;
     }
 
     @Override

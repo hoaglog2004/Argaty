@@ -1,14 +1,14 @@
 package com.argaty.controller.api;
 
 import com.argaty.dto.request.AddressRequest;
-import com.argaty.dto. response.ApiResponse;
-import com.argaty.dto.response. UserAddressResponse;
-import com. argaty.entity.User;
-import com.argaty. entity.UserAddress;
-import com. argaty.exception.BadRequestException;
-import com.argaty. service.UserAddressService;
+import com.argaty.dto.response.ApiResponse;
+import com.argaty.dto.response.UserAddressResponse;
+import com.argaty.entity.User;
+import com.argaty.entity.UserAddress;
+import com.argaty.exception.BadRequestException;
+import com.argaty.service.UserAddressService;
 import com.argaty.service.UserService;
-import com.argaty.util. DtoMapper;
+import com.argaty.util.DtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +49,7 @@ public class AddressApiController {
         if (address == null) {
             return ResponseEntity.ok(ApiResponse.success(null));
         }
-        return ResponseEntity.ok(ApiResponse. success(DtoMapper.toUserAddressResponse(address)));
+        return ResponseEntity.ok(ApiResponse.success(DtoMapper.toUserAddressResponse(address)));
     }
 
     /**
@@ -61,7 +61,7 @@ public class AddressApiController {
             Principal principal) {
 
         User user = getCurrentUser(principal);
-        UserAddress address = userAddressService. findByIdAndUserId(id, user. getId())
+        UserAddress address = userAddressService.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("Address", "id", id));
 
         return ResponseEntity.ok(ApiResponse.success(DtoMapper.toUserAddressResponse(address)));
@@ -81,17 +81,17 @@ public class AddressApiController {
             UserAddress address = userAddressService.create(
                     user.getId(),
                     request.getReceiverName(),
-                    request. getPhone(),
+                    request.getPhone(),
                     request.getAddress(),
                     request.getCity(),
                     request.getDistrict(),
-                    request. getWard(),
+                    request.getWard(),
                     request.getIsDefault() != null && request.getIsDefault()
             );
             return ResponseEntity.ok(ApiResponse.success("Thêm địa chỉ thành công", 
                     DtoMapper.toUserAddressResponse(address)));
         } catch (BadRequestException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e. getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -116,12 +116,12 @@ public class AddressApiController {
                     request.getCity(),
                     request.getDistrict(),
                     request.getWard(),
-                    request.getIsDefault() != null && request. getIsDefault()
+                    request.getIsDefault() != null && request.getIsDefault()
             );
             return ResponseEntity.ok(ApiResponse.success("Cập nhật địa chỉ thành công", 
                     DtoMapper.toUserAddressResponse(address)));
         } catch (BadRequestException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e. getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -153,7 +153,7 @@ public class AddressApiController {
 
         User user = getCurrentUser(principal);
         userAddressService.setDefaultAddress(user.getId(), id);
-        return ResponseEntity.ok(ApiResponse. success("Đã đặt làm địa chỉ mặc định"));
+        return ResponseEntity.ok(ApiResponse.success("Đã đặt làm địa chỉ mặc định"));
     }
 
     private User getCurrentUser(Principal principal) {
@@ -161,6 +161,6 @@ public class AddressApiController {
             throw new com.argaty.exception.UnauthorizedException("Vui lòng đăng nhập");
         }
         return userService.findByEmail(principal.getName())
-                .orElseThrow(() -> new com.argaty.exception. ResourceNotFoundException("User", "email", principal.getName()));
+                .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("User", "email", principal.getName()));
     }
 }

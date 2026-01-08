@@ -70,7 +70,7 @@
       <!-- Slider/Banners -->
       <section
         class="section"
-        th:if="${sliderBanners != null && ! sliderBanners.isEmpty()}"
+        th:if="${sliderBanners != null && !sliderBanners.isEmpty()}"
       >
         <div class="container">
           <div class="slider" id="homeSlider">
@@ -152,7 +152,7 @@
       <!-- Featured Products -->
       <section
         class="section"
-        th:if="${featuredProducts != null && ! featuredProducts.isEmpty()}"
+        th:if="${featuredProducts != null && !featuredProducts.isEmpty()}"
       >
         <div class="container">
           <div class="section-header">
@@ -163,7 +163,7 @@
           </div>
 
           <div class="products-grid">
-            <th:block th:each="product :  ${featuredProducts}">
+            <th:block th:each="product : ${featuredProducts}">
               <th:block
                 th:replace="~{fragments/product-card :: productCard(${product})}"
               ></th:block>
@@ -193,9 +193,9 @@
           </div>
 
           <div class="products-grid">
-            <th:block th:each="product :  ${newProducts}">
+            <th:block th:each="product : ${newProducts}">
               <th:block
-                th:replace="~{fragments/product-card ::  productCard(${product})}"
+                th:replace="~{fragments/product-card :: productCard(${product})}"
               ></th:block>
             </th:block>
           </div>

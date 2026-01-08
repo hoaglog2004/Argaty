@@ -145,7 +145,7 @@
                   th:each="img : ${product.images}"
                   class="image-preview-item"
                 >
-                  <img th:src="${img. imageUrl}" />
+                  <img th:src="${img.imageUrl}" />
                   <button
                     type="button"
                     class="image-preview-item__remove"
@@ -186,73 +186,174 @@
                   class="variant-item card p-3 mb-3"
                 >
                   <div class="d-flex justify-between align-center mb-3">
-                    <strong
-                      >Biến thể #<span
+                    <strong class="text-primary">
+                      <i class="bx bx-cube"></i> Biến thể #<span
                         class="variant-index"
                         th:text="${stat.index + 1}"
                         >1</span
-                      ></strong
-                    >
+                      >
+                    </strong>
                     <button
                       type="button"
                       class="btn btn-ghost btn-sm text-danger"
                       onclick="removeVariant(this)"
                     >
-                      <i class="bx bx-trash"></i>
+                      <i class="bx bx-trash"></i> Xóa
                     </button>
                   </div>
+                  <input
+                    type="hidden"
+                    th:name="'variants[' + ${stat.index} + '].id'"
+                    th:value="${variant.id}"
+                  />
                   <div
-                    style="
-                      display: grid;
-                      grid-template-columns: repeat(4, 1fr);
-                      gap: 12px;
-                    "
+                    class="admin-form-grid"
+                    style="grid-template-columns: repeat(3, 1fr)"
                   >
-                    <input
-                      type="hidden"
-                      th:name="'variants[' + ${stat.index} + '].id'"
-                      th:value="${variant.id}"
-                    />
-                    <div class="form-group mb-0">
-                      <label class="form-label">Tên biến thể</label>
+                    <div class="form-group mb-3">
+                      <label class="form-label"
+                        >Tên biến thể <span class="text-danger">*</span></label
+                      >
                       <input
                         type="text"
                         th:name="'variants[' + ${stat.index} + '].name'"
                         th:value="${variant.name}"
                         class="form-control"
-                        placeholder="VD: Đen, 128GB"
+                        placeholder="VD: Đen 128GB, Size L"
+                        required
                       />
                     </div>
-                    <div class="form-group mb-0">
+                    <div class="form-group mb-3">
+                      <label class="form-label">SKU biến thể</label>
+                      <input
+                        type="text"
+                        th:name="'variants[' + ${stat.index} + '].sku'"
+                        th:value="${variant.sku}"
+                        class="form-control"
+                        placeholder="Mã SKU riêng"
+                      />
+                    </div>
+                    <div class="form-group mb-3">
                       <label class="form-label">Màu sắc</label>
                       <input
                         type="text"
                         th:name="'variants[' + ${stat.index} + '].color'"
                         th:value="${variant.color}"
                         class="form-control"
-                        placeholder="VD:  Đen"
+                        placeholder="VD: Đen, Trắng, Xanh"
                       />
                     </div>
-                    <div class="form-group mb-0">
-                      <label class="form-label">Giá</label>
+                    <div class="form-group mb-3">
+                      <label class="form-label">Mã màu</label>
+                      <div class="d-flex gap-2">
+                        <input
+                          type="color"
+                          th:name="'variants[' + ${stat.index} + '].colorCode'"
+                          th:value="${variant.colorCode ?: '#000000'}"
+                          class="form-control"
+                          style="width: 50px; padding: 4px"
+                        />
+                        <input
+                          type="text"
+                          th:value="${variant.colorCode}"
+                          class="form-control"
+                          placeholder="#000000"
+                          readonly
+                        />
+                      </div>
+                    </div>
+                    <div class="form-group mb-3">
+                      <label class="form-label">Size</label>
+                      <input
+                        type="text"
+                        th:name="'variants[' + ${stat.index} + '].size'"
+                        th:value="${variant.size}"
+                        class="form-control"
+                        placeholder="VD: S, M, L, XL, 128GB"
+                      />
+                    </div>
+                    <div class="form-group mb-3">
+                      <label class="form-label">Giá thêm (+)</label>
                       <input
                         type="number"
-                        th:name="'variants[' + ${stat.index} + '].price'"
-                        th:value="${variant.price}"
+                        th:name="'variants[' + ${stat.index} + '].additionalPrice'"
+                        th:value="${variant.additionalPrice}"
                         class="form-control"
                         min="0"
+                        step="1000"
+                        placeholder="0"
                       />
                     </div>
                     <div class="form-group mb-0">
-                      <label class="form-label">Số lượng</label>
+                      <label class="form-label"
+                        >Số lượng <span class="text-danger">*</span></label
+                      >
                       <input
                         type="number"
                         th:name="'variants[' + ${stat.index} + '].quantity'"
                         th:value="${variant.quantity}"
                         class="form-control"
                         min="0"
+                        required
                       />
                     </div>
+                  </div>
+                  <!-- Variant Images -->
+                  <div
+                    class="mt-3 p-3"
+                    style="background: var(--bg-void); border-radius: 8px"
+                  >
+                    <label class="form-label d-flex align-center gap-2">
+                      <i class="bx bx-image"></i> Ảnh biến thể
+                    </label>
+                    <div
+                      class="variant-images-preview d-flex gap-2 flex-wrap"
+                      th:id="'variantImages-' + ${stat.index}"
+                    >
+                      <div
+                        th:if="${variant.images != null}"
+                        th:each="img : ${variant.images}"
+                        class="variant-image-item"
+                        style="position: relative"
+                      >
+                        <img
+                          th:src="${img}"
+                          style="
+                            width: 60px;
+                            height: 60px;
+                            object-fit: cover;
+                            border-radius: 6px;
+                          "
+                        />
+                        <button
+                          type="button"
+                          class="btn btn-sm"
+                          onclick="this.parentElement.remove()"
+                          style="
+                            position: absolute;
+                            top: -8px;
+                            right: -8px;
+                            background: var(--danger);
+                            color: white;
+                            border-radius: 50%;
+                            width: 20px;
+                            height: 20px;
+                            padding: 0;
+                          "
+                        >
+                          <i class="bx bx-x" style="font-size: 14px"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <input
+                      type="file"
+                      th:id="'variantImageInput-' + ${stat.index}"
+                      th:name="'variantImages[' + ${stat.index} + ']'"
+                      multiple
+                      accept="image/*"
+                      class="form-control mt-2"
+                      style="font-size: 13px"
+                    />
                   </div>
                 </div>
               </div>
@@ -261,9 +362,14 @@
                 th:if="${product == null || product.variants == null || product.variants.isEmpty()}"
                 id="noVariantsText"
                 class="text-muted text-center p-4"
+                style="background: var(--bg-void); border-radius: 8px"
               >
+                <i
+                  class="bx bx-layer"
+                  style="font-size: 32px; display: block; margin-bottom: 8px"
+                ></i>
                 Chưa có biến thể. Thêm biến thể nếu sản phẩm có nhiều tùy chọn
-                (màu sắc, size.. .).
+                (màu sắc, size, dung lượng...).
               </p>
             </div>
           </div>
@@ -423,42 +529,64 @@
 
     <th:block layout:fragment="scripts">
       <script>
-        let variantIndex = "[[${product?. variants?.size() ?: 0}]]";
+        let variantIndex = [[${product?.variants?.size() ?: 0}]];
 
         function addVariant() {
           document.getElementById("noVariantsText")?.remove();
 
           const container = document.getElementById("variantsContainer");
           const html = `
-        <div class="variant-item card p-3 mb-3">
-            <div class="d-flex justify-between align-center mb-3">
-                <strong>Biến thể #<span class="variant-index">${
-                  variantIndex + 1
-                }</span></strong>
+            <div class="variant-item card p-3 mb-3">
+              <div class="d-flex justify-between align-center mb-3">
+                <strong class="text-primary">
+                  <i class='bx bx-cube'></i> Biến thể #<span class="variant-index">${variantIndex + 1}</span>
+                </strong>
                 <button type="button" class="btn btn-ghost btn-sm text-danger" onclick="removeVariant(this)">
-                    <i class='bx bx-trash'></i>
+                  <i class='bx bx-trash'></i> Xóa
                 </button>
+              </div>
+              <div class="admin-form-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="form-group mb-3">
+                  <label class="form-label">Tên biến thể <span class="text-danger">*</span></label>
+                  <input type="text" name="variants[${variantIndex}].name" class="form-control" placeholder="VD: Đen 128GB, Size L" required>
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">SKU biến thể</label>
+                  <input type="text" name="variants[${variantIndex}].sku" class="form-control" placeholder="Mã SKU riêng">
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">Màu sắc</label>
+                  <input type="text" name="variants[${variantIndex}].color" class="form-control" placeholder="VD: Đen, Trắng, Xanh">
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">Mã màu</label>
+                  <div class="d-flex gap-2">
+                    <input type="color" name="variants[${variantIndex}].colorCode" value="#000000" class="form-control" style="width: 50px; padding: 4px;" onchange="this.nextElementSibling.value = this.value">
+                    <input type="text" class="form-control" placeholder="#000000" value="#000000" readonly>
+                  </div>
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">Size</label>
+                  <input type="text" name="variants[${variantIndex}].size" class="form-control" placeholder="VD: S, M, L, XL, 128GB">
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">Giá thêm (+)</label>
+                  <input type="number" name="variants[${variantIndex}].additionalPrice" class="form-control" min="0" step="1000" placeholder="0" value="0">
+                </div>
+                <div class="form-group mb-0">
+                  <label class="form-label">Số lượng <span class="text-danger">*</span></label>
+                  <input type="number" name="variants[${variantIndex}].quantity" class="form-control" min="0" value="0" required>
+                </div>
+              </div>
+              <div class="mt-3 p-3" style="background: var(--bg-void); border-radius: 8px;">
+                <label class="form-label d-flex align-center gap-2">
+                  <i class='bx bx-image'></i> Ảnh biến thể
+                </label>
+                <div class="variant-images-preview d-flex gap-2 flex-wrap" id="variantImages-${variantIndex}"></div>
+                <input type="file" id="variantImageInput-${variantIndex}" name="variantImages[${variantIndex}]" multiple accept="image/*" class="form-control mt-2" style="font-size: 13px;" onchange="previewVariantImages(this, ${variantIndex})">
+              </div>
             </div>
-            <div style="display:  grid; grid-template-columns:  repeat(4, 1fr); gap: 12px;">
-                <div class="form-group mb-0">
-                    <label class="form-label">Tên biến thể</label>
-                    <input type="text" name="variants[${variantIndex}].name" class="form-control" placeholder="VD: Đen, 128GB">
-                </div>
-                <div class="form-group mb-0">
-                    <label class="form-label">Màu sắc</label>
-                    <input type="text" name="variants[${variantIndex}].color" class="form-control" placeholder="VD: Đen">
-                </div>
-                <div class="form-group mb-0">
-                    <label class="form-label">Giá</label>
-                    <input type="number" name="variants[${variantIndex}].price" class="form-control" min="0">
-                </div>
-                <div class="form-group mb-0">
-                    <label class="form-label">Số lượng</label>
-                    <input type="number" name="variants[${variantIndex}]. quantity" class="form-control" min="0" value="0">
-                </div>
-            </div>
-        </div>
-    `;
+          `;
           container.insertAdjacentHTML("beforeend", html);
           variantIndex++;
         }
@@ -474,7 +602,31 @@
           });
         }
 
-        // Image preview
+        function previewVariantImages(input, index) {
+          const preview = document.getElementById('variantImages-' + index);
+          if (!preview) return;
+
+          Array.from(input.files).forEach((file) => {
+            if (!file.type.startsWith("image/")) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              const div = document.createElement("div");
+              div.className = "variant-image-item";
+              div.style.cssText = "position: relative;";
+              div.innerHTML = `
+                <img src="${e.target.result}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;">
+                <button type="button" class="btn btn-sm" onclick="this.parentElement.remove()" style="position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; border-radius: 50%; width: 20px; height: 20px; padding: 0;">
+                  <i class='bx bx-x' style="font-size: 14px;"></i>
+                </button>
+              `;
+              preview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+          });
+        }
+
+        // Image preview for main images
         document
           .getElementById("imageInput")
           ?.addEventListener("change", function () {
@@ -488,11 +640,11 @@
                 const div = document.createElement("div");
                 div.className = "image-preview-item";
                 div.innerHTML = `
-                <img src="${e.target.result}">
-                <button type="button" class="image-preview-item__remove" onclick="this.parentElement.remove()">
+                  <img src="${e.target.result}">
+                  <button type="button" class="image-preview-item__remove" onclick="this.parentElement.remove()">
                     <i class='bx bx-x'></i>
-                </button>
-            `;
+                  </button>
+                `;
                 preview.appendChild(div);
               };
               reader.readAsDataURL(file);

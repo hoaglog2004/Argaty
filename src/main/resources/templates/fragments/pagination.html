@@ -3,7 +3,7 @@
   <nav
     th:fragment="pagination(page, baseUrl)"
     class="pagination"
-    th:if="${page. totalPages > 1}"
+    th:if="${page.totalPages > 1}"
   >
     <!-- Previous -->
     <a
@@ -33,9 +33,9 @@
 
     <!-- Pages around current -->
     <th:block
-      th:each="i :  ${#numbers.sequence(
-        T(Math).max(1, page.page - 1), 
-        T(Math).min(page.totalPages - 2, page.page + 1)
+      th:each="i : ${#numbers.sequence(
+        T(java.lang.Math).max(1, page.page - 1), 
+        T(java.lang.Math).min(page.totalPages - 2, page.page + 1)
     )}"
     >
       <a
@@ -56,7 +56,7 @@
 
     <!-- Last Page -->
     <a
-      th:href="@{${baseUrl}(page=${page. totalPages - 1})}"
+      th:href="@{${baseUrl}(page=${page.totalPages - 1})}"
       class="pagination__item"
       th:classappend="${page.page == page.totalPages - 1} ? 'active' : ''"
       th:if="${page.totalPages > 1}"

@@ -1,22 +1,22 @@
 package com.argaty.controller.api;
 
-import com.argaty.dto.request. CartItemRequest;
+import com.argaty.dto.request.CartItemRequest;
 import com.argaty.dto.request.UpdateCartItemRequest;
 import com.argaty.dto.response.ApiResponse;
 import com.argaty.dto.response.CartItemResponse;
 import com.argaty.dto.response.CartResponse;
 import com.argaty.entity.Cart;
-import com.argaty. entity.CartItem;
+import com.argaty.entity.CartItem;
 import com.argaty.entity.User;
-import com.argaty. exception.BadRequestException;
+import com.argaty.exception.BadRequestException;
 import com.argaty.service.CartService;
-import com.argaty. service.UserService;
+import com.argaty.service.UserService;
 import com.argaty.util.DtoMapper;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework. web.bind.annotation.*;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.UUID;
@@ -38,7 +38,7 @@ public class CartApiController {
     @GetMapping
     public ResponseEntity<ApiResponse<CartResponse>> getCart(Principal principal, HttpSession session) {
         Cart cart = getOrCreateCart(principal, session);
-        return ResponseEntity.ok(ApiResponse. success(DtoMapper.toCartResponse(cart)));
+        return ResponseEntity.ok(ApiResponse.success(DtoMapper.toCartResponse(cart)));
     }
 
     /**
@@ -65,9 +65,9 @@ public class CartApiController {
                     cart.getId(),
                     request.getProductId(),
                     request.getVariantId(),
-                    request. getQuantity()
+                    request.getQuantity()
             );
-            return ResponseEntity.ok(ApiResponse. success("Đã thêm vào giỏ hàng", 
+            return ResponseEntity.ok(ApiResponse.success("Đã thêm vào giỏ hàng", 
                     DtoMapper.toCartItemResponse(item)));
         } catch (BadRequestException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
@@ -124,7 +124,7 @@ public class CartApiController {
 
         Cart cart = getOrCreateCart(principal, session);
         cartService.selectAllItems(cart.getId(), selected);
-        return ResponseEntity.ok(ApiResponse. success("Đã cập nhật"));
+        return ResponseEntity.ok(ApiResponse.success("Đã cập nhật"));
     }
 
     /**
@@ -143,7 +143,7 @@ public class CartApiController {
     private Cart getOrCreateCart(Principal principal, HttpSession session) {
         if (principal != null) {
             User user = userService.findByEmail(principal.getName())
-                    .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("User", "email", principal. getName()));
+                    .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("User", "email", principal.getName()));
             return cartService.getOrCreateCart(user.getId());
         } else {
             String sessionId = (String) session.getAttribute("CART_SESSION_ID");

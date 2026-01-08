@@ -128,7 +128,7 @@
                       class="text-muted"
                       style="font-size: 11px"
                       th:if="${order.createdAt}"
-                      th:text="${#temporals. format(order.createdAt, 'dd/MM HH:mm')}"
+                      th:text="${#temporals.format(order.createdAt, 'dd/MM HH:mm')}"
                     ></p>
                   </div>
 
@@ -206,7 +206,7 @@
                         justify-content: center;
                         margin: 0 auto 8px;
                       "
-                      th:style="${order. deliveredAt != null} ? 'background: var(--success);' : 'background: var(--bg-void); border: 2px solid var(--border-color);'"
+                      th:style="${order.deliveredAt != null} ? 'background: var(--success);' : 'background: var(--bg-void); border: 2px solid var(--border-color);'"
                     >
                       <i
                         class="bx bx-home"
@@ -270,7 +270,7 @@
                   </div>
                   <div class="card-body p-0">
                     <div
-                      th:each="item : ${order. items}"
+                      th:each="item : ${order.items}"
                       class="d-flex gap-4 p-4"
                       style="border-bottom: 1px solid var(--border-color)"
                     >
@@ -327,7 +327,7 @@
                       <div class="text-right">
                         <strong
                           class="text-cyan"
-                          th:text="${#numbers. formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                          th:text="${#numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
                           >0 ₫</strong
                         >
                       </div>
@@ -345,18 +345,18 @@
                       <div class="d-flex justify-between mb-2">
                         <span class="text-muted">Phí ship:</span>
                         <span
-                          th:text="${#numbers.formatDecimal(order. shippingFee, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                          th:text="${#numbers.formatDecimal(order.shippingFee, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
                           >0 ₫</span
                         >
                       </div>
                       <div
-                        th:if="${order.discountAmount != null && order.discountAmount. compareTo(T(java.math.BigDecimal).ZERO) > 0}"
+                        th:if="${order.discountAmount != null && order.discountAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}"
                         class="d-flex justify-between mb-2"
                       >
                         <span class="text-muted">Giảm giá:</span>
                         <span
                           class="text-success"
-                          th:text="'-' + ${#numbers.formatDecimal(order. discountAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                          th:text="'-' + ${#numbers.formatDecimal(order.discountAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
                           >0 ₫</span
                         >
                       </div>

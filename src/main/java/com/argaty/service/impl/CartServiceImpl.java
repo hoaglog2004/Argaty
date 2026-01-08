@@ -1,18 +1,18 @@
 package com.argaty.service.impl;
 
-import com.argaty. entity.*;
+import com.argaty.entity.*;
 import com.argaty.exception.ResourceNotFoundException;
-import com. argaty.exception.BadRequestException;
+import com.argaty.exception.BadRequestException;
 import com.argaty.repository.*;
-import com.argaty. service.CartService;
+import com.argaty.service.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util. List;
-import java.util. Optional;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementation của CartService
@@ -61,7 +61,7 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Cart> findByUserId(Long userId) {
-        return cartRepository. findByUserId(userId);
+        return cartRepository.findByUserId(userId);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class CartServiceImpl implements CartService {
         ProductVariant variant = null;
         if (variantId != null) {
             variant = productVariantRepository.findById(variantId)
-                    . orElseThrow(() -> new ResourceNotFoundException("ProductVariant", "id", variantId));
+                    .orElseThrow(() -> new ResourceNotFoundException("ProductVariant", "id", variantId));
 
             if (!variant.getIsActive()) {
                 throw new BadRequestException("Phân loại sản phẩm không còn khả dụng");
@@ -110,7 +110,7 @@ public class CartServiceImpl implements CartService {
         }
 
         // Kiểm tra tồn kho
-        int availableQty = variant != null ? variant. getQuantity() : product.getQuantity();
+        int availableQty = variant != null ? variant.getQuantity() : product.getQuantity();
         if (quantity > availableQty) {
             throw new BadRequestException("Số lượng yêu cầu vượt quá tồn kho");
         }
@@ -118,7 +118,7 @@ public class CartServiceImpl implements CartService {
         // Kiểm tra item đã có trong giỏ chưa
         Optional<CartItem> existingItem;
         if (variantId != null) {
-            existingItem = cartItemRepository. findByCartIdAndProductIdAndVariantId(cartId, productId, variantId);
+            existingItem = cartItemRepository.findByCartIdAndProductIdAndVariantId(cartId, productId, variantId);
         } else {
             existingItem = cartItemRepository.findByCartIdAndProductIdAndVariantIsNull(cartId, productId);
         }
@@ -146,7 +146,7 @@ public class CartServiceImpl implements CartService {
                     .isSelected(true)
                     .build();
 
-            cartItem = cartItemRepository. save(cartItem);
+            cartItem = cartItemRepository.save(cartItem);
             log.info("Added item to cart: product={}, variant={}, qty={}", productId, variantId, quantity);
         }
 
@@ -188,7 +188,7 @@ public class CartServiceImpl implements CartService {
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new ResourceNotFoundException("CartItem", "id", cartItemId));
 
-        cartItem.setIsSelected(!cartItem. getIsSelected());
+        cartItem.setIsSelected(!cartItem.getIsSelected());
         cartItemRepository.save(cartItem);
     }
 
@@ -239,7 +239,7 @@ public class CartServiceImpl implements CartService {
         List<CartItem> items = cartItemRepository.findByCartIdAndIsSelectedTrue(cartId);
         return items.stream()
                 .map(CartItem::getSubtotal)
-                .reduce(BigDecimal. ZERO, BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     // ========== MERGE CART ==========
@@ -259,7 +259,7 @@ public class CartServiceImpl implements CartService {
         // Merge từng item từ guest cart vào user cart
         for (CartItem guestItem : guestCart.getItems()) {
             try {
-                addItem(userCart. getId(),
+                addItem(userCart.getId(),
                         guestItem.getProduct().getId(),
                         guestItem.getVariant() != null ? guestItem.getVariant().getId() : null,
                         guestItem.getQuantity());
@@ -288,12 +288,12 @@ public class CartServiceImpl implements CartService {
             }
 
             // Kiểm tra variant còn active
-            if (item. getVariant() != null && !item.getVariant().getIsActive()) {
+            if (item.getVariant() != null && !item.getVariant().getIsActive()) {
                 return false;
             }
 
             // Kiểm tra tồn kho
-            if (! item.isInStock()) {
+            if (!item.isInStock()) {
                 return false;
             }
         }

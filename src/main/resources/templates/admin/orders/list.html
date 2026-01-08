@@ -99,7 +99,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr th:each="order : ${orders. content}">
+            <tr th:each="order : ${orders.content}">
               <td>
                 <a
                   th:href="@{/admin/orders/{code}(code=${order.orderCode})}"
@@ -177,7 +177,7 @@
                 </div>
               </td>
             </tr>
-            <tr th:if="${orders. content == null || orders.content.isEmpty()}">
+            <tr th:if="${orders.content == null || orders.content.isEmpty()}">
               <td colspan="8" class="text-center text-muted p-5">
                 <i
                   class="bx bx-package"
@@ -194,7 +194,7 @@
       <div class="d-flex justify-between align-center mt-4">
         <p class="text-muted mb-0">
           Hiển thị <span th:text="${orders.content.size()}">0</span> /
-          <span th:text="${orders. totalElements}">0</span> đơn hàng
+          <span th:text="${orders.totalElements}">0</span> đơn hàng
         </p>
         <th:block
           th:replace="~{fragments/pagination :: pagination(${orders}, '/admin/orders')}"

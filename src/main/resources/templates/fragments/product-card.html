@@ -1,14 +1,10 @@
-<! DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0"
-    /></head
-  ><!-- Product Card Component --><head
-  ></head>
-  <body>
+<head>
+    <meta charset="utf-8"/>
+</head>
+<body>
+    <!-- Product Card Component -->
     <div th:fragment="productCard(product)" class="product-card">
       <!-- Image -->
       <div class="product-card__image">
@@ -25,10 +21,10 @@
             -[[${product.discountPercent}]]%
           </span>
           <span th:if="${product.isNew}" class="badge badge-new"> Mới </span>
-          <span th:if="${product. isBestSeller}" class="badge badge-hot">
+          <span th:if="${product.isBestSeller}" class="badge badge-hot">
             Hot
           </span>
-          <span th:if="${! product.isInStock}" class="badge badge-soldout">
+          <span th:if="${!product.isInStock}" class="badge badge-soldout">
             Hết hàng
           </span>
         </div>
@@ -76,18 +72,21 @@
         <h3 class="product-card__name">
           <a
             th:href="@{/products/{slug}(slug=${product.slug})}"
-            th:text="${product. name}"
+            th:text="${product.name}"
           >
             Tên sản phẩm
           </a>
         </h3>
 
         <!-- Rating -->
-        <div class="product-card__rating" th:if="${product.reviewCount > 0}">
+        <div
+          class="product-card__rating"
+          th:if="${product.reviewCount != null and product.reviewCount > 0}"
+        >
           <div class="rating-stars">
-            <th:block th:each="i :  ${#numbers.sequence(1, 5)}">
+            <th:block th:each="i : ${#numbers.sequence(1, 5)}">
               <i
-                th:class="${i <= product.rating} ?  'bx bxs-star' : (i - 0.5 <= product.rating) ? 'bx bxs-star-half' : 'bx bx-star empty'"
+                th:classappend="${product.rating != null} ? (${i} le ${product.rating} ? 'bx bxs-star' : 'bx bx-star empty') : 'bx bx-star empty'"
               ></i>
             </th:block>
           </div>
@@ -105,7 +104,7 @@
           <span
             th:if="${product.isOnSale}"
             class="price-original"
-            th:text="${#numbers. formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+            th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
           >
             0 ₫
           </span>

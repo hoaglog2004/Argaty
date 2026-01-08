@@ -1,4 +1,4 @@
-package com. argaty.entity;
+package com.argaty.entity;
 
 import java.time.LocalDateTime;
 
@@ -36,7 +36,7 @@ import lombok.Setter;
 public class ProductImage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType. IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "image_url", nullable = false, length = 500)

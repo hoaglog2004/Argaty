@@ -3,7 +3,7 @@ package com.argaty.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok. NoArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -44,7 +44,7 @@ public class PageResponse<T> {
     public static <T, U> PageResponse<U> of(Page<T> page, List<U> content) {
         return PageResponse.<U>builder()
                 .content(content)
-                .page(page. getNumber())
+                .page(page.getNumber())
                 .size(page.getSize())
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())

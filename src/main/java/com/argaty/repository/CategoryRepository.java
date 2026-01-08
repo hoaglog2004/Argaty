@@ -1,11 +1,11 @@
-package com.argaty. repository;
+package com.argaty.repository;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data. jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -31,7 +31,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     // ========== FIND ROOT CATEGORIES ==========
 
     @Query("SELECT c FROM Category c WHERE c.parent IS NULL AND c.isActive = true " +
-           "ORDER BY c. displayOrder ASC")
+           "ORDER BY c.displayOrder ASC")
     List<Category> findRootCategories();
 
     @Query("SELECT c FROM Category c WHERE c.parent IS NULL ORDER BY c.displayOrder ASC")
@@ -43,13 +43,13 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     List<Category> findByParentIdOrderByDisplayOrderAsc(Long parentId);
 
-    @Query("SELECT c FROM Category c WHERE c.parent. id = :parentId")
+    @Query("SELECT c FROM Category c WHERE c.parent.id = :parentId")
     List<Category> findChildCategories(@Param("parentId") Long parentId);
 
     // ========== FIND FEATURED ==========
 
     @Query("SELECT c FROM Category c WHERE c.isFeatured = true AND c.isActive = true " +
-           "ORDER BY c. displayOrder ASC")
+           "ORDER BY c.displayOrder ASC")
     List<Category> findFeaturedCategories();
 
     // ========== FIND BY STATUS ==========
@@ -79,7 +79,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     // ========== HIERARCHY QUERIES ==========
 
     @Query("SELECT c FROM Category c LEFT JOIN FETCH c.children WHERE c.parent IS NULL AND c.isActive = true " +
-           "ORDER BY c. displayOrder ASC")
+           "ORDER BY c.displayOrder ASC")
     List<Category> findRootCategoriesWithChildren();
 
     // ========== STATISTICS ==========

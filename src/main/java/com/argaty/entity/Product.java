@@ -5,8 +5,10 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java. util.ArrayList;
-import java. util.List;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Entity Product - Sản phẩm
@@ -58,7 +60,7 @@ public class Product extends BaseEntity {
 
     @Column(name = "rating", precision = 2, scale = 1)
     @Builder.Default
-    private BigDecimal rating = BigDecimal. ZERO;
+    private BigDecimal rating = BigDecimal.ZERO;
 
     @Column(name = "review_count", nullable = false)
     @Builder.Default
@@ -108,12 +110,12 @@ public class Product extends BaseEntity {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     @OrderBy("displayOrder ASC")
-    private List<ProductImage> images = new ArrayList<>();
+    private Set<ProductImage> images = new HashSet<>();
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType. LAZY)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     @OrderBy("displayOrder ASC")
-    private List<ProductVariant> variants = new ArrayList<>();
+    private Set<ProductVariant> variants = new HashSet<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
@@ -140,7 +142,7 @@ public class Product extends BaseEntity {
             return false;
         }
 
-        LocalDateTime now = LocalDateTime. now();
+        LocalDateTime now = LocalDateTime.now();
 
         // Kiểm tra thời gian sale
         if (saleStartDate != null && now.isBefore(saleStartDate)) {
@@ -157,12 +159,12 @@ public class Product extends BaseEntity {
      * Tính phần trăm giảm giá
      */
     public int getCalculatedDiscountPercent() {
-        if (! isOnSale() || price. compareTo(BigDecimal. ZERO) == 0) {
+        if (!isOnSale() || price.compareTo(BigDecimal.ZERO) == 0) {
             return 0;
         }
         BigDecimal discount = price.subtract(salePrice);
         return discount.multiply(BigDecimal.valueOf(100))
-                .divide(price, 0, java.math.RoundingMode. HALF_UP)
+                .divide(price, 0, java.math.RoundingMode.HALF_UP)
                 .intValue();
     }
 
@@ -178,7 +180,7 @@ public class Product extends BaseEntity {
                 .filter(ProductImage::getIsMain)
                 .findFirst()
                 .map(ProductImage::getImageUrl)
-                .orElse(images.get(0).getImageUrl());
+                .orElseGet(() -> images.iterator().next().getImageUrl());
     }
 
     /**

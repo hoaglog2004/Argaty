@@ -1,18 +1,18 @@
 package com.argaty.controller.admin;
 
-import com.argaty. dto.request.VoucherRequest;
-import com.argaty. entity.Voucher;
+import com.argaty.dto.request.VoucherRequest;
+import com.argaty.entity.Voucher;
 import com.argaty.exception.BadRequestException;
 import com.argaty.service.VoucherService;
-import com.argaty. util.DtoMapper;
+import com.argaty.util.DtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework. data.domain.Sort;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui. Model;
-import org.springframework. validation.BindingResult;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -39,7 +39,7 @@ public class AdminVoucherController {
 
         Page<Voucher> vouchers;
         if (q != null && !q.trim().isEmpty()) {
-            vouchers = voucherService. search(q.trim(), pageRequest);
+            vouchers = voucherService.search(q.trim(), pageRequest);
             model.addAttribute("searchKeyword", q);
         } else {
             vouchers = voucherService.findAll(pageRequest);
@@ -79,20 +79,20 @@ public class AdminVoucherController {
         }
 
         try {
-            voucherService. create(
+            voucherService.create(
                     request.getCode(),
                     request.getName(),
                     request.getDescription(),
                     request.getDiscountType(),
                     request.getDiscountValue(),
-                    request. getMaxDiscount(),
+                    request.getMaxDiscount(),
                     request.getMinOrderAmount(),
                     request.getUsageLimit(),
-                    request. getUsageLimitPerUser(),
+                    request.getUsageLimitPerUser(),
                     request.getStartDate(),
                     request.getEndDate()
             );
-            redirectAttributes. addFlashAttribute("success", "Thêm voucher thành công");
+            redirectAttributes.addFlashAttribute("success", "Thêm voucher thành công");
             return "redirect:/admin/vouchers";
         } catch (BadRequestException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -130,7 +130,7 @@ public class AdminVoucherController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("adminPage", "vouchers");
-            model. addAttribute("isEdit", true);
+            model.addAttribute("isEdit", true);
             return "admin/vouchers/form";
         }
 
@@ -140,18 +140,18 @@ public class AdminVoucherController {
                     request.getName(),
                     request.getDescription(),
                     request.getDiscountType(),
-                    request. getDiscountValue(),
+                    request.getDiscountValue(),
                     request.getMaxDiscount(),
                     request.getMinOrderAmount(),
                     request.getUsageLimit(),
-                    request. getUsageLimitPerUser(),
+                    request.getUsageLimitPerUser(),
                     request.getStartDate(),
                     request.getEndDate()
             );
             redirectAttributes.addFlashAttribute("success", "Cập nhật voucher thành công");
             return "redirect:/admin/vouchers";
         } catch (BadRequestException e) {
-            redirectAttributes. addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/admin/vouchers/" + id + "/edit";
         }
     }
@@ -175,7 +175,7 @@ public class AdminVoucherController {
             voucherService.deleteById(id);
             redirectAttributes.addFlashAttribute("success", "Đã xóa voucher");
         } catch (Exception e) {
-            redirectAttributes. addFlashAttribute("error", "Không thể xóa voucher");
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa voucher");
         }
         return "redirect:/admin/vouchers";
     }

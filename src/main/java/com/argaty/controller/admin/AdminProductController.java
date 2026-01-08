@@ -1,23 +1,21 @@
 package com.argaty.controller.admin;
 
 import com.argaty.dto.request.ProductRequest;
-import com. argaty.dto.response.PageResponse;
-import com.argaty.dto.response.ProductResponse;
 import com.argaty.entity.Product;
 import com.argaty.exception.BadRequestException;
 import com.argaty.service.BrandService;
 import com.argaty.service.CategoryService;
-import com.argaty.service. ProductService;
+import com.argaty.service.ProductService;
 import com.argaty.util.DtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain. Page;
-import org.springframework. data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework. web.bind.annotation.*;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -47,7 +45,7 @@ public class AdminProductController {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<Product> products;
-        if (q != null && ! q.trim().isEmpty()) {
+        if (q != null && !q.trim().isEmpty()) {
             products = productService.search(q.trim(), pageRequest);
             model.addAttribute("searchKeyword", q);
         } else if (categoryId != null) {
@@ -57,7 +55,7 @@ public class AdminProductController {
             products = productService.findByBrand(brandId, pageRequest);
             model.addAttribute("selectedBrandId", brandId);
         } else {
-            products = productService. findAll(pageRequest);
+            products = productService.findAll(pageRequest);
         }
 
         model.addAttribute("products", DtoMapper.toProductPageResponse(products));
@@ -74,7 +72,7 @@ public class AdminProductController {
     @GetMapping("/create")
     public String createForm(Model model) {
         model.addAttribute("productRequest", new ProductRequest());
-        model.addAttribute("categories", DtoMapper. toCategoryWithChildrenResponseList(categoryService.findRootCategories()));
+        model.addAttribute("categories", DtoMapper.toCategoryWithChildrenResponseList(categoryService.findRootCategories()));
         model.addAttribute("brands", DtoMapper.toBrandResponseList(brandService.findAllActive()));
         model.addAttribute("adminPage", "products");
         model.addAttribute("pageTitle", "Thêm sản phẩm");
@@ -104,13 +102,13 @@ public class AdminProductController {
             Product product = productService.create(
                     request.getName(),
                     request.getShortDescription(),
-                    request. getDescription(),
+                    request.getDescription(),
                     request.getPrice(),
                     request.getSalePrice(),
                     request.getDiscountPercent(),
                     request.getQuantity(),
                     request.getCategoryId(),
-                    request. getBrandId(),
+                    request.getBrandId(),
                     request.getIsFeatured(),
                     request.getIsNew()
             );
@@ -118,7 +116,7 @@ public class AdminProductController {
             // Thêm ảnh
             if (request.getImageUrls() != null) {
                 for (int i = 0; i < request.getImageUrls().size(); i++) {
-                    productService.addImage(product. getId(), request.getImageUrls().get(i), i == 0);
+                    productService.addImage(product.getId(), request.getImageUrls().get(i), i == 0);
                 }
             }
 
@@ -141,7 +139,7 @@ public class AdminProductController {
             return "redirect:/admin/products";
 
         } catch (BadRequestException e) {
-            redirectAttributes.addFlashAttribute("error", e. getMessage());
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/admin/products/create";
         }
     }
@@ -190,19 +188,19 @@ public class AdminProductController {
             productService.update(
                     id,
                     request.getName(),
-                    request. getShortDescription(),
+                    request.getShortDescription(),
                     request.getDescription(),
                     request.getPrice(),
                     request.getSalePrice(),
                     request.getDiscountPercent(),
                     request.getQuantity(),
                     request.getCategoryId(),
-                    request. getBrandId(),
+                    request.getBrandId(),
                     request.getIsFeatured(),
                     request.getIsNew()
             );
 
-            redirectAttributes. addFlashAttribute("success", "Cập nhật sản phẩm thành công");
+            redirectAttributes.addFlashAttribute("success", "Cập nhật sản phẩm thành công");
             return "redirect:/admin/products";
 
         } catch (BadRequestException e) {
@@ -227,7 +225,17 @@ public class AdminProductController {
     @PostMapping("/{id}/toggle-featured")
     public String toggleFeatured(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         productService.toggleFeatured(id);
-        redirectAttributes. addFlashAttribute("success", "Đã cập nhật trạng thái nổi bật");
+        redirectAttributes.addFlashAttribute("success", "Đã cập nhật trạng thái nổi bật");
+        return "redirect:/admin/products";
+    }
+
+    /**
+     * Toggle is_new status
+     */
+    @PostMapping("/{id}/toggle-new")
+    public String toggleNew(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        productService.toggleNew(id);
+        redirectAttributes.addFlashAttribute("success", "Đã cập nhật trạng thái sản phẩm mới");
         return "redirect:/admin/products";
     }
 
@@ -240,7 +248,7 @@ public class AdminProductController {
             productService.deleteById(id);
             redirectAttributes.addFlashAttribute("success", "Đã xóa sản phẩm");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Không thể xóa sản phẩm: " + e. getMessage());
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa sản phẩm: " + e.getMessage());
         }
         return "redirect:/admin/products";
     }

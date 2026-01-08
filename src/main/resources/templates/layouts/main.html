@@ -2,6 +2,7 @@
 <html
   xmlns:th="http://www.thymeleaf.org"
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
   lang="vi"
 >
   <head>
@@ -9,33 +10,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      th:content="${metaDescription != null} ? ${metaDescription} : 'Argaty - Thiên đường Gaming Gear. Chuột, bàn phím, tai nghe, ghế gaming chính hãng.'"
-    />
-    <meta
-      name="keywords"
-      content="gaming gear, chuột gaming, bàn phím cơ, tai nghe gaming, ghế gaming"
-    />
-    <meta name="author" content="Argaty" />
-
-    <!-- Open Graph -->
-    <meta
-      property="og:title"
-      th:content="${pageTitle != null} ? ${pageTitle} + ' | Argaty' : 'Argaty - Gaming Gear'"
-    />
-    <meta
-      property="og:description"
-      th:content="${metaDescription != null} ? ${metaDescription} : 'Thiên đường Gaming Gear chính hãng'"
-    />
-    <meta property="og:type" content="website" />
-    <meta
-      property="og:url"
-      th:content="${#httpServletRequest != null ? #httpServletRequest.requestURL : ''}"
+      th:content="${pageDescription != null} ? ${pageDescription} : 'Argaty - Gaming Gear'"
     />
 
-    <title
-      th:text="${pageTitle != null} ? ${pageTitle} + ' | Argaty' : 'Argaty - Gaming Gear'"
-    >
-      Argaty
+    <title layout:title-pattern="$CONTENT_TITLE | Argaty">
+      Argaty - Gaming Gear
     </title>
 
     <!-- Favicon -->
@@ -58,8 +37,8 @@
     <!-- Main CSS -->
     <link rel="stylesheet" th:href="@{/css/style.css}" />
 
-    <!-- Page specific CSS -->
-    <th:block layout:fragment="styles"></th:block>
+    <!-- Additional head -->
+    <th:block layout:fragment="head"></th:block>
   </head>
   <body>
     <!-- Cosmic Background -->
@@ -68,14 +47,12 @@
       <div class="stars-2"></div>
       <div class="nebula nebula-1"></div>
       <div class="nebula nebula-2"></div>
-      <div class="nebula nebula-3"></div>
-      <div class="shooting-star"></div>
       <div class="shooting-star"></div>
       <div class="shooting-star"></div>
     </div>
 
     <!-- Header -->
-    <th:block th:replace="~{fragments/header :: header}"></th:block>
+    <div th:insert="~{fragments/header :: header}"></div>
 
     <!-- Main Content -->
     <main layout:fragment="content">
@@ -83,19 +60,15 @@
     </main>
 
     <!-- Footer -->
-    <th:block th:replace="~{fragments/footer :: footer}"></th:block>
+    <div th:insert="~{fragments/footer :: footer}"></div>
 
     <!-- Toast Container -->
-    <div id="toast-container" class="toast-container"></div>
+    <div class="toast-container" id="toast-container"></div>
 
-    <!-- Scripts -->
-    <script
-      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
-      defer
-    ></script>
+    <!-- Main JS -->
     <script th:src="@{/js/main.js}"></script>
 
-    <!-- Page specific scripts -->
+    <!-- Additional scripts -->
     <th:block layout:fragment="scripts"></th:block>
   </body>
 </html>

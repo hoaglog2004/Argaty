@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 /**
@@ -26,11 +27,28 @@ public class SecurityConfig {
     }
 
     /**
+     * Custom Success Handler - Redirect admin to /admin, users to /home
+     */
+    @Bean
+    public AuthenticationSuccessHandler customSuccessHandler() {
+        return (request, response, authentication) -> {
+            String redirectUrl = "/home";
+            
+            // Check if user has ADMIN role
+            boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+            
+            if (isAdmin) {
+                redirectUrl = "/admin";
+            }
+            
+            response.sendRedirect(request.getContextPath() + redirectUrl);
+        };
+    }
+
+    /**
      * Cấu hình Security Filter Chain
-     * 
-     * PUBLIC: Home, Products, Categories, About, Contact, FAQ, Auth, Static
-     * PROTECTED: Cart, Checkout, Profile, Orders, Wishlist
-     * ADMIN: Dashboard and management
+     * TẠM THỜI: Cho phép tất cả để test
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -40,48 +58,37 @@ public class SecurityConfig {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             )
             
-            // Cấu hình authorize requests
+            // Cấu hình authorize requests (cho phép khách xem toàn bộ site)
             .authorizeHttpRequests(auth -> auth
-                // PUBLIC - No authentication required
                 .requestMatchers(
                     "/",
                     "/home",
+                    "/products/**",
                     "/about",
                     "/contact",
                     "/faq",
                     "/policy/**",
-                    "/products",
-                    "/products/**",
-                    "/categories/**",
-                    "/brands/**",
-                    "/auth/**",
-                    "/api/public/**",
+                    "/cart",
+                    "/wishlist",
                     "/static/**",
                     "/uploads/**",
                     "/css/**",
                     "/js/**",
                     "/images/**",
-                    "/favicon.ico"
+                    "/auth/**",
+                    "/api/public/**",
+                    "/api/cart/**",
+                    "/api/products/**"
                 ).permitAll()
 
-                // ADMIN ONLY - Requires ADMIN role
+                // Admin routes - yêu cầu role ADMIN
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                // PROTECTED - Requires authentication (any authenticated user)
-                .requestMatchers(
-                    "/cart/**",
-                    "/checkout/**",
-                    "/profile/**",
-                    "/wishlist/**",
-                    "/api/cart/**",
-                    "/api/wishlist/**",
-                    "/api/address/**",
-                    "/api/reviews/**",
-                    "/api/notifications/**"
-                ).authenticated()
+                // Staff routes - yêu cầu role STAFF hoặc ADMIN
+                .requestMatchers("/staff/**").hasAnyRole("STAFF", "ADMIN")
 
-                // All other requests - deny by default (secure by default)
-                .anyRequest().authenticated()
+                // Các request khác: cho phép tất cả (khách không cần đăng nhập)
+                .anyRequest().permitAll()
             )
             
             // Cấu hình form login
@@ -90,7 +97,7 @@ public class SecurityConfig {
                 .loginProcessingUrl("/auth/login")
                 .usernameParameter("email")
                 .passwordParameter("password")
-                .defaultSuccessUrl("/home", true)
+                .successHandler(customSuccessHandler())
                 .failureUrl("/auth/login?error=true")
                 .permitAll()
             )

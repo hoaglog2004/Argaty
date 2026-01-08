@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data. domain.Pageable;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data. repository.query.Param;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.argaty.entity.Review;
@@ -52,7 +52,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT COUNT(r) FROM Review r WHERE r.product.id = :productId AND r.isVisible = true")
     long countByProductId(@Param("productId") Long productId);
 
-    @Query("SELECT r. rating, COUNT(r) FROM Review r WHERE r.product.id = :productId AND r.isVisible = true " +
+    @Query("SELECT r.rating, COUNT(r) FROM Review r WHERE r.product.id = :productId AND r.isVisible = true " +
            "GROUP BY r.rating ORDER BY r.rating DESC")
     List<Object[]> getRatingDistribution(@Param("productId") Long productId);
 

@@ -1,11 +1,11 @@
-package com. argaty.util;
+package com.argaty.util;
 
 import com.argaty.dto.response.*;
 import com.argaty.entity.*;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
-import java.util.stream. Collectors;
+import java.util.stream.Collectors;
 
 /**
  * Utility class để convert Entity sang DTO
@@ -30,7 +30,7 @@ public class DtoMapper {
 
     public static PageResponse<UserResponse> toUserPageResponse(Page<User> page) {
         List<UserResponse> content = page.getContent().stream()
-                .map(UserResponse:: fromEntity)
+                .map(UserResponse::fromEntity)
                 .collect(Collectors.toList());
         return PageResponse.of(page, content);
     }
@@ -71,7 +71,7 @@ public class DtoMapper {
     }
 
     public static List<CategoryResponse> toCategoryWithChildrenResponseList(List<Category> categories) {
-        return categories. stream()
+        return categories.stream()
                 .map(CategoryResponse::fromEntityWithChildren)
                 .collect(Collectors.toList());
     }
@@ -86,7 +86,7 @@ public class DtoMapper {
     // ========== BRAND ==========
 
     public static BrandResponse toBrandResponse(Brand brand) {
-        return BrandResponse. fromEntity(brand);
+        return BrandResponse.fromEntity(brand);
     }
 
     public static List<BrandResponse> toBrandResponseList(List<Brand> brands) {
@@ -112,7 +112,7 @@ public class DtoMapper {
     }
 
     public static List<OrderResponse> toOrderResponseList(List<Order> orders) {
-        return orders. stream()
+        return orders.stream()
                 .map(OrderResponse::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -144,13 +144,13 @@ public class DtoMapper {
         List<ReviewResponse> content = page.getContent().stream()
                 .map(ReviewResponse::fromEntity)
                 .collect(Collectors.toList());
-        return PageResponse. of(page, content);
+        return PageResponse.of(page, content);
     }
 
     // ========== VOUCHER ==========
 
     public static VoucherResponse toVoucherResponse(Voucher voucher) {
-        return VoucherResponse. fromEntity(voucher);
+        return VoucherResponse.fromEntity(voucher);
     }
 
     public static List<VoucherResponse> toVoucherResponseList(List<Voucher> vouchers) {
@@ -191,14 +191,14 @@ public class DtoMapper {
 
     public static List<UserAddressResponse> toUserAddressResponseList(List<UserAddress> addresses) {
         return addresses.stream()
-                .map(UserAddressResponse:: fromEntity)
+                .map(UserAddressResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     // ========== WISHLIST ==========
 
     public static WishlistResponse toWishlistResponse(Wishlist wishlist) {
-        return WishlistResponse. fromEntity(wishlist);
+        return WishlistResponse.fromEntity(wishlist);
     }
 
     public static List<WishlistResponse> toWishlistResponseList(List<Wishlist> wishlists) {

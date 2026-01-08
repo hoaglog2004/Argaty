@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream. Collectors;
+import java.util.stream.Collectors;
 
 /**
  * DTO cho response đánh giá
@@ -50,16 +50,16 @@ public class ReviewResponse {
     public static ReviewResponse fromEntity(Review review) {
         ReviewResponse response = ReviewResponse.builder()
                 .id(review.getId())
-                .rating(review. getRating())
+                .rating(review.getRating())
                 .title(review.getTitle())
                 .comment(review.getComment())
-                .isVerified(review. getIsVerified())
+                .isVerified(review.getIsVerified())
                 .createdAt(review.getCreatedAt())
                 .userId(review.getUser().getId())
                 .userName(review.getUser().getFullName())
                 .userAvatar(review.getUser().getAvatar())
                 .reply(review.getReply())
-                .repliedAt(review. getRepliedAt())
+                .repliedAt(review.getRepliedAt())
                 .repliedByName(review.getRepliedBy() != null ? review.getRepliedBy().getFullName() : null)
                 .build();
 
@@ -72,10 +72,10 @@ public class ReviewResponse {
 
         // Product info
         if (review.getProduct() != null) {
-            response.setProductId(review. getProduct().getId());
+            response.setProductId(review.getProduct().getId());
             response.setProductName(review.getProduct().getName());
-            response. setProductSlug(review.getProduct().getSlug());
-            response.setProductImage(review. getProduct().getMainImage());
+            response.setProductSlug(review.getProduct().getSlug());
+            response.setProductImage(review.getProduct().getMainImage());
         }
 
         return response;

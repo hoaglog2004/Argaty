@@ -37,7 +37,7 @@ import lombok.Setter;
 public class PasswordResetToken {
 
     @Id
-    @GeneratedValue(strategy = GenerationType. IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "token", nullable = false, unique = true, length = 255)
@@ -56,7 +56,7 @@ public class PasswordResetToken {
 
     // ========== RELATIONSHIPS ==========
 
-    @ManyToOne(fetch = FetchType. LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

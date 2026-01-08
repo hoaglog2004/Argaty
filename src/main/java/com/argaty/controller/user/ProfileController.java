@@ -1,25 +1,22 @@
-package com.argaty. controller.user;
+package com.argaty.controller.user;
 
-import com. argaty.dto.request. ChangePasswordRequest;
-import com. argaty.dto.request.UpdateProfileRequest;
-import com.argaty.dto.response.*;
+import com.argaty.dto.request.ChangePasswordRequest;
+import com.argaty.dto.request.UpdateProfileRequest;
 import com.argaty.entity.*;
 import com.argaty.enums.OrderStatus;
 import com.argaty.exception.BadRequestException;
 import com.argaty.service.*;
-import com. argaty.util.DtoMapper;
+import com.argaty.util.DtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org. springframework.data.domain.Page;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework. data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework. web.bind.annotation.*;
-import org.springframework.web.servlet. mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 
@@ -65,7 +62,7 @@ public class ProfileController {
 
         // Recent orders
         Page<Order> recentOrders = orderService.findByUserId(user.getId(), PageRequest.of(0, 5));
-        model.addAttribute("recentOrders", DtoMapper.toOrderResponseList(recentOrders. getContent()));
+        model.addAttribute("recentOrders", DtoMapper.toOrderResponseList(recentOrders.getContent()));
 
         model.addAttribute("currentPage", "profile");
         model.addAttribute("profileTab", "overview");
@@ -157,7 +154,7 @@ public class ProfileController {
         }
 
         // Check current password
-        if (!userService. checkPassword(user, request.getCurrentPassword())) {
+        if (!userService.checkPassword(user, request.getCurrentPassword())) {
             redirectAttributes.addFlashAttribute("error", "Mật khẩu hiện tại không đúng");
             return "redirect:/profile/change-password";
         }
@@ -182,9 +179,9 @@ public class ProfileController {
         Page<Order> orders;
         if (status != null && !status.isEmpty()) {
             try {
-                OrderStatus orderStatus = OrderStatus.valueOf(status. toUpperCase());
+                OrderStatus.valueOf(status.toUpperCase());
+                // TODO: Add findByUserIdAndStatus with Pageable to OrderService
                 orders = orderService.findByUserId(user.getId(), PageRequest.of(page, 10));
-                // Filter by status in memory (hoặc tạo thêm method trong service)
             } catch (IllegalArgumentException e) {
                 orders = orderService.findByUserId(user.getId(), PageRequest.of(page, 10));
             }
@@ -192,7 +189,7 @@ public class ProfileController {
             orders = orderService.findByUserId(user.getId(), PageRequest.of(page, 10));
         }
 
-        model. addAttribute("orders", DtoMapper.toOrderPageResponse(orders));
+        model.addAttribute("orders", DtoMapper.toOrderPageResponse(orders));
         model.addAttribute("orderStatuses", OrderStatus.values());
         model.addAttribute("currentStatus", status);
         model.addAttribute("currentPage", "profile");
@@ -208,7 +205,7 @@ public class ProfileController {
         User user = getCurrentUser(principal);
 
         Order order = orderService.findByOrderCodeAndUserId(orderCode, user.getId())
-                .orElseThrow(() -> new com.argaty.exception. ResourceNotFoundException("Order", "orderCode", orderCode));
+                .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("Order", "orderCode", orderCode));
 
         model.addAttribute("order", DtoMapper.toOrderDetailResponse(order));
         model.addAttribute("currentPage", "profile");
@@ -230,7 +227,7 @@ public class ProfileController {
 
         try {
             Order order = orderService.findByOrderCodeAndUserId(orderCode, user.getId())
-                    . orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("Order", "orderCode", orderCode));
+                    .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("Order", "orderCode", orderCode));
 
             orderService.cancelOrder(order.getId(), user, reason);
             redirectAttributes.addFlashAttribute("success", "Hủy đơn hàng thành công");
@@ -302,8 +299,8 @@ public class ProfileController {
 
         User user = getCurrentUser(principal);
 
-        Page<Notification> notifications = notificationService. findByUserId(user.getId(), PageRequest.of(page, 20));
-        model.addAttribute("notifications", DtoMapper.toNotificationResponseList(notifications. getContent()));
+        Page<Notification> notifications = notificationService.findByUserId(user.getId(), PageRequest.of(page, 20));
+        model.addAttribute("notifications", DtoMapper.toNotificationResponseList(notifications.getContent()));
         model.addAttribute("currentPage", "profile");
         model.addAttribute("profileTab", "notifications");
         return "user/profile/notifications";

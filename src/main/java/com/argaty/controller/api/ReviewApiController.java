@@ -1,7 +1,7 @@
 package com.argaty.controller.api;
 
 import com.argaty.dto.request.ReviewRequest;
-import com. argaty.dto.response.ApiResponse;
+import com.argaty.dto.response.ApiResponse;
 import com.argaty.dto.response.PageResponse;
 import com.argaty.dto.response.ReviewResponse;
 import com.argaty.dto.response.ReviewStatsResponse;
@@ -9,14 +9,14 @@ import com.argaty.entity.Review;
 import com.argaty.entity.User;
 import com.argaty.exception.BadRequestException;
 import com.argaty.service.ReviewService;
-import com.argaty. service.UserService;
+import com.argaty.service.UserService;
 import com.argaty.util.DtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain. Page;
-import org.springframework. data.domain.PageRequest;
-import org.springframework. http.ResponseEntity;
-import org. springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.HashMap;
@@ -48,10 +48,10 @@ public class ReviewApiController {
         if (rating != null && rating >= 1 && rating <= 5) {
             reviews = reviewService.findByProductIdAndRating(productId, rating, PageRequest.of(page, size));
         } else {
-            reviews = reviewService.findByProductId(productId, PageRequest. of(page, size));
+            reviews = reviewService.findByProductId(productId, PageRequest.of(page, size));
         }
 
-        return ResponseEntity.ok(ApiResponse. success(DtoMapper.toReviewPageResponse(reviews)));
+        return ResponseEntity.ok(ApiResponse.success(DtoMapper.toReviewPageResponse(reviews)));
     }
 
     /**
@@ -93,10 +93,10 @@ public class ReviewApiController {
                     request.getComment(),
                     request.getImageUrls()
             );
-            return ResponseEntity.ok(ApiResponse. success("Đánh giá thành công", 
+            return ResponseEntity.ok(ApiResponse.success("Đánh giá thành công", 
                     ReviewResponse.fromEntity(review)));
         } catch (BadRequestException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e. getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -115,7 +115,7 @@ public class ReviewApiController {
             Review review = reviewService.updateReview(
                     reviewId,
                     user.getId(),
-                    request. getRating(),
+                    request.getRating(),
                     request.getTitle(),
                     request.getComment()
             );
@@ -165,6 +165,6 @@ public class ReviewApiController {
             throw new com.argaty.exception.UnauthorizedException("Vui lòng đăng nhập");
         }
         return userService.findByEmail(principal.getName())
-                .orElseThrow(() -> new com.argaty.exception. ResourceNotFoundException("User", "email", principal.getName()));
+                .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("User", "email", principal.getName()));
     }
 }

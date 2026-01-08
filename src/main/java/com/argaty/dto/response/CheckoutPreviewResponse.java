@@ -1,4 +1,4 @@
-package com. argaty.dto.response;
+package com.argaty.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

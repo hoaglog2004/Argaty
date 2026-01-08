@@ -1,26 +1,26 @@
 package com.argaty.service.impl;
 
-import com.argaty. entity. PasswordResetToken;
+import com.argaty.entity.PasswordResetToken;
 import com.argaty.entity.User;
 import com.argaty.enums.Role;
 import com.argaty.exception.ResourceNotFoundException;
 import com.argaty.exception.BadRequestException;
-import com.argaty.repository. PasswordResetTokenRepository;
+import com.argaty.repository.PasswordResetTokenRepository;
 import com.argaty.repository.UserRepository;
 import com.argaty.service.EmailService;
 import com.argaty.service.UserService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j. Slf4j;
-import org. springframework.data.domain.Page;
-import org.springframework.data. domain.Pageable;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time. LocalDateTime;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util. List;
-import java.util. Optional;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementation của UserService
@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public boolean existsByPhone(String phone) {
-        return userRepository. existsByPhone(phone);
+        return userRepository.existsByPhone(phone);
     }
 
     // ========== AUTHENTICATION ==========
@@ -104,7 +104,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // Kiểm tra phone đã tồn tại
-        if (phone != null && ! phone.isEmpty() && userRepository.existsByPhone(phone)) {
+        if (phone != null && !phone.isEmpty() && userRepository.existsByPhone(phone)) {
             throw new BadRequestException("Số điện thoại đã được sử dụng");
         }
 
@@ -154,7 +154,7 @@ public class UserServiceImpl implements UserService {
 
         // Tạo token mới (30 phút hết hạn)
         PasswordResetToken token = PasswordResetToken.create(user, 30);
-        passwordResetTokenRepository. save(token);
+        passwordResetTokenRepository.save(token);
 
         // Gửi email
         emailService.sendPasswordResetEmail(user.getEmail(), token.getToken());
@@ -183,7 +183,7 @@ public class UserServiceImpl implements UserService {
         resetToken.markAsUsed();
         passwordResetTokenRepository.save(resetToken);
 
-        log.info("Reset password for user: {}", user. getEmail());
+        log.info("Reset password for user: {}", user.getEmail());
     }
 
     // ========== USER MANAGEMENT ==========
@@ -250,7 +250,7 @@ public class UserServiceImpl implements UserService {
         }
         if (phone != null) {
             // Kiểm tra phone trùng với user khác
-            if (! phone.isEmpty() && !phone.equals(user.getPhone())) {
+            if (!phone.isEmpty() && !phone.equals(user.getPhone())) {
                 if (userRepository.existsByPhone(phone)) {
                     throw new BadRequestException("Số điện thoại đã được sử dụng");
                 }

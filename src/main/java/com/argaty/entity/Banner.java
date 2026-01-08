@@ -66,7 +66,7 @@ public class Banner extends BaseEntity {
      * Kiểm tra banner đang trong thời gian hiển thị
      */
     public boolean isCurrentlyActive() {
-        if (! isActive) {
+        if (!isActive) {
             return false;
         }
 

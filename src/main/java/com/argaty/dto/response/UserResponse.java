@@ -1,4 +1,4 @@
-package com.argaty. dto.response;
+package com.argaty.dto.response;
 
 import com.argaty.entity.User;
 import com.argaty.enums.Role;
@@ -48,15 +48,15 @@ public class UserResponse {
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .avatar(user.getAvatar())
-                .address(user. getAddress())
+                .address(user.getAddress())
                 .city(user.getCity())
                 .district(user.getDistrict())
-                .ward(user. getWard())
+                .ward(user.getWard())
                 .role(user.getRole())
                 .isEnabled(user.getIsEnabled())
                 .isBanned(user.getIsBanned())
                 .banReason(user.getBanReason())
-                .emailVerifiedAt(user. getEmailVerifiedAt())
+                .emailVerifiedAt(user.getEmailVerifiedAt())
                 .lastLoginAt(user.getLastLoginAt())
                 .createdAt(user.getCreatedAt())
                 .build();

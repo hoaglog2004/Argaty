@@ -1,8 +1,8 @@
 package com.argaty.dto.response;
 
-import com.argaty.entity. Notification;
+import com.argaty.entity.Notification;
 import com.argaty.enums.NotificationType;
-import com.fasterxml. jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -47,7 +47,7 @@ public class NotificationResponse {
     private static String calculateTimeAgo(LocalDateTime dateTime) {
         if (dateTime == null) return "";
 
-        LocalDateTime now = LocalDateTime. now();
+        LocalDateTime now = LocalDateTime.now();
         long minutes = java.time.Duration.between(dateTime, now).toMinutes();
 
         if (minutes < 1) return "Vừa xong";

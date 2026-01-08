@@ -4,7 +4,7 @@
       layout:decorate="~{layouts/main}">
 
 <head>
-    <title th:text="${currentCategory != null} ? ${currentCategory.name} :  (${currentBrand != null} ? ${currentBrand. name} : (${searchKeyword != null} ? 'Tìm kiếm:  ' + ${searchKeyword} :  'Tất cả sản phẩm'))">Sản phẩm</title>
+    <title th:text="${currentCategory != null} ? ${currentCategory.name} : (${currentBrand != null} ? ${currentBrand.name} : (${searchKeyword != null} ? 'Tìm kiếm: ' + ${searchKeyword} : 'Tất cả sản phẩm'))">Sản phẩm</title>
 </head>
 
 <body>
@@ -75,10 +75,10 @@
                                     </div>
                                     <!-- Children -->
                                     <div th:if="${cat.children != null && ! cat.children.isEmpty()}" style="padding-left: 20px;">
-                                        <div th:each="child : ${cat. children}" class="form-check">
+                                        <div th:each="child : ${cat.children}" class="form-check">
                                             <input type="radio" name="category" th:value="${child.slug}" 
                                                    th:id="'cat-' + ${child.id}"
-                                                   th:checked="${currentCategory != null && currentCategory.id == child. id}"
+                                                   th:checked="${currentCategory != null && currentCategory.id == child.id}"
                                                    class="form-check-input"
                                                    onchange="document.getElementById('filterForm').submit()">
                                             <label th:for="'cat-' + ${child.id}" class="form-check-label">
@@ -100,7 +100,7 @@
                                     <div class="form-check">
                                         <input type="radio" name="brand" th:value="${brand.slug}" 
                                                th:id="'brand-' + ${brand.id}"
-                                               th:checked="${currentBrand != null && currentBrand. id == brand.id}"
+                                               th:checked="${currentBrand != null && currentBrand.id == brand.id}"
                                                class="form-check-input"
                                                onchange="document.getElementById('filterForm').submit()">
                                         <label th:for="'brand-' + ${brand.id}" class="form-check-label" th:text="${brand.name}">
@@ -149,7 +149,7 @@
                     <div class="products-toolbar card p-3 mb-4" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
                         <div class="toolbar-left d-flex align-center gap-3">
                             <span class="text-muted">Sắp xếp:</span>
-                            <select class="form-select" style="width: auto;" id="sortSelect" onchange="changeSort(this. value)">
+                            <select class="form-select" style="width: auto;" id="sortSelect" onchange="changeSort(this.value)">
                                 <option value="newest" th:selected="${currentSort == 'newest'}">Mới nhất</option>
                                 <option value="price-asc" th:selected="${currentSort == 'price-asc'}">Giá tăng dần</option>
                                 <option value="price-desc" th:selected="${currentSort == 'price-desc'}">Giá giảm dần</option>
@@ -171,7 +171,7 @@
                     
                     <!-- Products Grid -->
                     <div th:if="${products.content != null && ! products.content.isEmpty()}" class="products-grid" id="productsGrid">
-                        <th:block th:each="product :  ${products.content}">
+                        <th:block th:each="product : ${products.content}">
                             <th:block th:replace="~{fragments/product-card :: productCard(${product})}"></th:block>
                         </th:block>
                     </div>

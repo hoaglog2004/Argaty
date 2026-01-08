@@ -7,14 +7,14 @@ import com.argaty.service.BannerService;
 import com.argaty.util.DtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain. Page;
-import org.springframework. data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation. BindingResult;
-import org. springframework.web.bind.annotation.*;
-import org.springframework.web. servlet.mvc.support.RedirectAttributes;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * Controller quản lý banner (Admin)
@@ -35,15 +35,15 @@ public class AdminBannerController {
             @RequestParam(defaultValue = "0") int page,
             Model model) {
 
-        PageRequest pageRequest = PageRequest. of(page, 20, Sort.by("displayOrder").ascending());
+        PageRequest pageRequest = PageRequest.of(page, 20, Sort.by("displayOrder").ascending());
 
         Page<Banner> banners = bannerService.findAll(pageRequest);
 
         model.addAttribute("banners", banners);
         model.addAttribute("positions", new String[]{
-                Banner. POSITION_HOME_SLIDER,
+                Banner.POSITION_HOME_SLIDER,
                 Banner.POSITION_HOME_BANNER,
-                Banner. POSITION_PRODUCT_BANNER,
+                Banner.POSITION_PRODUCT_BANNER,
                 Banner.POSITION_POPUP
         });
         model.addAttribute("adminPage", "banners");
@@ -78,10 +78,10 @@ public class AdminBannerController {
             RedirectAttributes redirectAttributes,
             Model model) {
 
-        if (bindingResult. hasErrors()) {
-            model. addAttribute("positions", new String[]{
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("positions", new String[]{
                     Banner.POSITION_HOME_SLIDER,
-                    Banner. POSITION_HOME_BANNER,
+                    Banner.POSITION_HOME_BANNER,
                     Banner.POSITION_PRODUCT_BANNER,
                     Banner.POSITION_POPUP
             });
@@ -92,16 +92,16 @@ public class AdminBannerController {
 
         try {
             bannerService.create(
-                    request. getTitle(),
+                    request.getTitle(),
                     request.getSubtitle(),
-                    request. getImageUrl(),
+                    request.getImageUrl(),
                     request.getLink(),
                     request.getPosition(),
                     request.getDisplayOrder(),
                     request.getStartDate(),
                     request.getEndDate()
             );
-            redirectAttributes. addFlashAttribute("success", "Thêm banner thành công");
+            redirectAttributes.addFlashAttribute("success", "Thêm banner thành công");
             return "redirect:/admin/banners";
         } catch (BadRequestException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -121,9 +121,9 @@ public class AdminBannerController {
         model.addAttribute("bannerRequest", new BannerRequest());
         model.addAttribute("positions", new String[]{
                 Banner.POSITION_HOME_SLIDER,
-                Banner. POSITION_HOME_BANNER,
+                Banner.POSITION_HOME_BANNER,
                 Banner.POSITION_PRODUCT_BANNER,
-                Banner. POSITION_POPUP
+                Banner.POSITION_POPUP
         });
         model.addAttribute("adminPage", "banners");
         model.addAttribute("pageTitle", "Sửa banner");
@@ -145,10 +145,10 @@ public class AdminBannerController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("positions", new String[]{
-                    Banner. POSITION_HOME_SLIDER,
+                    Banner.POSITION_HOME_SLIDER,
                     Banner.POSITION_HOME_BANNER,
                     Banner.POSITION_PRODUCT_BANNER,
-                    Banner. POSITION_POPUP
+                    Banner.POSITION_POPUP
             });
             model.addAttribute("adminPage", "banners");
             model.addAttribute("isEdit", true);
@@ -160,7 +160,7 @@ public class AdminBannerController {
                     id,
                     request.getTitle(),
                     request.getSubtitle(),
-                    request. getImageUrl(),
+                    request.getImageUrl(),
                     request.getLink(),
                     request.getPosition(),
                     request.getDisplayOrder(),
@@ -192,7 +192,7 @@ public class AdminBannerController {
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             bannerService.deleteById(id);
-            redirectAttributes. addFlashAttribute("success", "Đã xóa banner");
+            redirectAttributes.addFlashAttribute("success", "Đã xóa banner");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Không thể xóa banner");
         }

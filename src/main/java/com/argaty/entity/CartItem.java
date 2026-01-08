@@ -39,7 +39,7 @@ import lombok.Setter;
 public class CartItem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType. IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "quantity", nullable = false)
@@ -120,7 +120,7 @@ public class CartItem {
      * Lấy ảnh sản phẩm
      */
     public String getImage() {
-        if (variant != null && variant.getImages() != null && ! variant.getImages().isEmpty()) {
+        if (variant != null && variant.getImages() != null && !variant.getImages().isEmpty()) {
             return variant.getMainImage();
         }
         return product.getMainImage();
@@ -143,6 +143,6 @@ public class CartItem {
         if (variant != null) {
             return variant.getQuantity();
         }
-        return product. getQuantity();
+        return product.getQuantity();
     }
 }

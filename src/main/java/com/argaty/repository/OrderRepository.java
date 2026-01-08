@@ -1,16 +1,16 @@
 package com.argaty.repository;
 
-import java.math. BigDecimal;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data. domain.Pageable;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository. JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository. Modifying;
-import org.springframework. data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -114,7 +114,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     @Query("SELECT COUNT(o) FROM Order o WHERE o.user.id = :userId")
     long countByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT COUNT(o) FROM Order o WHERE o. user.id = :userId AND o. status = :status")
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.user.id = :userId AND o.status = :status")
     long countByUserIdAndStatus(@Param("userId") Long userId, @Param("status") OrderStatus status);
 
     @Query("SELECT COUNT(o) FROM Order o WHERE o.createdAt >= :startDate")
@@ -129,7 +129,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status = 'COMPLETED'")
     BigDecimal getTotalRevenue();
 
-    @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status = 'COMPLETED' AND o. createdAt >= :startDate")
+    @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status = 'COMPLETED' AND o.createdAt >= :startDate")
     BigDecimal getRevenueFromDate(@Param("startDate") LocalDateTime startDate);
 
     @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status = 'COMPLETED' " +
@@ -137,14 +137,14 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     BigDecimal getRevenueBetween(@Param("startDate") LocalDateTime startDate,
                                   @Param("endDate") LocalDateTime endDate);
 
-    @Query("SELECT SUM(o. totalAmount) FROM Order o WHERE o.user.id = :userId AND o. status = 'COMPLETED'")
+    @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.user.id = :userId AND o.status = 'COMPLETED'")
     BigDecimal getTotalSpentByUser(@Param("userId") Long userId);
 
     // ========== DAILY/MONTHLY STATISTICS ==========
 
     @Query(value = "SELECT CAST(o.created_at AS DATE) as orderDate, COUNT(*) as orderCount, SUM(o.total_amount) as revenue " +
                    "FROM orders o WHERE o.status = 'COMPLETED' AND o.created_at >= :startDate " +
-                   "GROUP BY CAST(o. created_at AS DATE) ORDER BY orderDate DESC",
+                   "GROUP BY CAST(o.created_at AS DATE) ORDER BY orderDate DESC",
            nativeQuery = true)
     List<Object[]> getDailyStatistics(@Param("startDate") LocalDateTime startDate);
 
@@ -160,7 +160,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
 
     @Query("SELECT o.user.id, o.user.fullName, o.user.email, COUNT(o), SUM(o.totalAmount) " +
            "FROM Order o WHERE o.status = 'COMPLETED' " +
-           "GROUP BY o.user.id, o. user.fullName, o.user.email " +
+           "GROUP BY o.user.id, o.user.fullName, o.user.email " +
            "ORDER BY SUM(o.totalAmount) DESC")
     List<Object[]> getTopCustomers(Pageable pageable);
 }

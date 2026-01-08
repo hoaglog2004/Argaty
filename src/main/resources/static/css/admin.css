@@ -403,6 +403,16 @@
   color: var(--danger);
 }
 
+.table-action-btn.active {
+  background: rgba(0, 208, 176, 0.1);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.table-action-btn.active:hover {
+  background: rgba(0, 208, 176, 0.2);
+}
+
 /* ========== ADMIN FORMS ========== */
 .admin-form-card {
   background: var(--bg-card);

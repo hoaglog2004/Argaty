@@ -1,8 +1,8 @@
 package com.argaty.dto.response;
 
-import com.argaty. entity.Voucher;
-import com.argaty.enums. DiscountType;
-import com. fasterxml.jackson.annotation.JsonInclude;
+import com.argaty.entity.Voucher;
+import com.argaty.enums.DiscountType;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -62,7 +62,7 @@ public class VoucherResponse {
                 .discountType(voucher.getDiscountType())
                 .discountValue(voucher.getDiscountValue())
                 .maxDiscount(voucher.getMaxDiscount())
-                .minOrderAmount(voucher. getMinOrderAmount())
+                .minOrderAmount(voucher.getMinOrderAmount())
                 .usageLimit(voucher.getUsageLimit())
                 .usageLimitPerUser(voucher.getUsageLimitPerUser())
                 .usedCount(voucher.getUsedCount())

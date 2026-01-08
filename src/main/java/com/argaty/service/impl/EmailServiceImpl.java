@@ -1,19 +1,19 @@
-package com.argaty.service. impl;
+package com.argaty.service.impl;
 
 import com.argaty.entity.Order;
 import com.argaty.service.EmailService;
 import jakarta.mail.MessagingException;
-import jakarta.mail.internet. MimeMessage;
-import lombok. RequiredArgsConstructor;
+import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory. annotation.Value;
-import org. springframework.mail.SimpleMailMessage;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org. springframework.mail.javamail. MimeMessageHelper;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.thymeleaf. TemplateEngine;
-import org. thymeleaf.context.Context;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 /**
  * Implementation của EmailService
@@ -29,7 +29,7 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.username:noreply@argaty.com}")
     private String fromEmail;
 
-    @Value("${app.base-url: http://localhost:8080}")
+    @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
 
     @Override
@@ -38,7 +38,7 @@ public class EmailServiceImpl implements EmailService {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
-            message. setTo(to);
+            message.setTo(to);
             message.setSubject(subject);
             message.setText(content);
 
@@ -59,7 +59,7 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
             helper.setTo(to);
             helper.setSubject(subject);
-            helper. setText(htmlContent, true);
+            helper.setText(htmlContent, true);
 
             mailSender.send(message);
             log.info("Sent HTML email to: {}", to);
@@ -71,7 +71,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     @Async
     public void sendPasswordResetEmail(String to, String token) {
-        String resetUrl = baseUrl + "/auth/reset-password? token=" + token;
+        String resetUrl = baseUrl + "/auth/reset-password?token=" + token;
 
         Context context = new Context();
         context.setVariable("resetUrl", resetUrl);
@@ -111,8 +111,8 @@ public class EmailServiceImpl implements EmailService {
     @Override
     @Async
     public void sendOrderConfirmationEmail(Order order) {
-        String subject = String.format("[Argaty] Xác nhận đơn hàng #%s", order. getOrderCode());
-        String content = String. format(
+        String subject = String.format("[Argaty] Xác nhận đơn hàng #%s", order.getOrderCode());
+        String content = String.format(
                 "Xin chào %s,\n\n" +
                 "Cảm ơn bạn đã đặt hàng tại Argaty!\n\n" +
                 "Mã đơn hàng:  %s\n" +
@@ -135,7 +135,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     @Async
     public void sendOrderStatusUpdateEmail(Order order) {
-        String subject = String. format("[Argaty] Cập nhật đơn hàng #%s", order.getOrderCode());
+        String subject = String.format("[Argaty] Cập nhật đơn hàng #%s", order.getOrderCode());
         String content = String.format(
                 "Xin chào %s,\n\n" +
                 "Đơn hàng #%s của bạn đã được cập nhật.\n\n" +

@@ -6,18 +6,18 @@ import com.argaty.entity.*;
 import com.argaty.enums.PaymentMethod;
 import com.argaty.exception.BadRequestException;
 import com.argaty.service.*;
-import com. argaty.util.DtoMapper;
+import com.argaty.util.DtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui. Model;
-import org.springframework. validation.BindingResult;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.util. List;
+import java.util.List;
 
 /**
  * Controller cho thanh toán
@@ -47,16 +47,16 @@ public class CheckoutController {
 
         // Lấy giỏ hàng
         Cart cart = cartService.findByUserIdWithItems(user.getId());
-        if (cart. isEmpty() || cart.getSelectedItemCount() == 0) {
-            return "redirect:/cart? error=empty";
+        if (cart.isEmpty() || cart.getSelectedItemCount() == 0) {
+            return "redirect:/cart?error=empty";
         }
 
         // Validate cart items
-        if (!cartService.validateCartItems(cart. getId())) {
+        if (!cartService.validateCartItems(cart.getId())) {
             return "redirect:/cart?error=invalid";
         }
 
-        CartResponse cartResponse = DtoMapper. toCartResponse(cart);
+        CartResponse cartResponse = DtoMapper.toCartResponse(cart);
         model.addAttribute("cart", cartResponse);
 
         // User addresses
@@ -70,7 +70,7 @@ public class CheckoutController {
 
         // Available vouchers
         BigDecimal cartTotal = cart.getTotalAmount();
-        List<Voucher> vouchers = voucherService.findVouchersForUser(user. getId(), cartTotal);
+        List<Voucher> vouchers = voucherService.findVouchersForUser(user.getId(), cartTotal);
         model.addAttribute("availableVouchers", DtoMapper.toVoucherResponseList(vouchers));
 
         // Payment methods
@@ -91,12 +91,12 @@ public class CheckoutController {
             checkoutRequest.setReceiverName(defaultAddress.getReceiverName());
             checkoutRequest.setReceiverPhone(defaultAddress.getPhone());
             checkoutRequest.setShippingAddress(defaultAddress.getAddress());
-            checkoutRequest. setCity(defaultAddress.getCity());
+            checkoutRequest.setCity(defaultAddress.getCity());
             checkoutRequest.setDistrict(defaultAddress.getDistrict());
             checkoutRequest.setWard(defaultAddress.getWard());
         } else {
-            checkoutRequest. setReceiverName(user. getFullName());
-            checkoutRequest. setReceiverPhone(user. getPhone());
+            checkoutRequest.setReceiverName(user.getFullName());
+            checkoutRequest.setReceiverPhone(user.getPhone());
         }
         checkoutRequest.setReceiverEmail(user.getEmail());
         model.addAttribute("checkoutRequest", checkoutRequest);
@@ -140,7 +140,7 @@ public class CheckoutController {
                     checkoutRequest.getWard(),
                     checkoutRequest.getPaymentMethod(),
                     checkoutRequest.getVoucherCode(),
-                    checkoutRequest. getNote()
+                    checkoutRequest.getNote()
             );
 
             // Redirect theo payment method
@@ -207,7 +207,7 @@ public class CheckoutController {
         model.addAttribute("cart", DtoMapper.toCartResponse(cart));
         model.addAttribute("addresses", DtoMapper.toUserAddressResponseList(
                 userAddressService.findByUserId(user.getId())));
-        model.addAttribute("paymentMethods", PaymentMethod. values());
+        model.addAttribute("paymentMethods", PaymentMethod.values());
         model.addAttribute("checkoutRequest", checkoutRequest);
 
         BigDecimal cartTotal = cart.getTotalAmount();
@@ -220,8 +220,8 @@ public class CheckoutController {
     }
 
     private BigDecimal calculateShippingFee(BigDecimal subtotal) {
-        if (subtotal. compareTo(BigDecimal.valueOf(500000)) >= 0) {
-            return BigDecimal. ZERO;
+        if (subtotal.compareTo(BigDecimal.valueOf(500000)) >= 0) {
+            return BigDecimal.ZERO;
         }
         return BigDecimal.valueOf(30000);
     }

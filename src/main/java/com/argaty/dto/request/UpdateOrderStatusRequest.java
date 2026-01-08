@@ -1,7 +1,7 @@
 package com.argaty.dto.request;
 
 import com.argaty.enums.OrderStatus;
-import jakarta.validation. constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

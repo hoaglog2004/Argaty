@@ -1,22 +1,22 @@
 package com.argaty.service.impl;
 
-import com.argaty. entity.*;
+import com.argaty.entity.*;
 import com.argaty.exception.ResourceNotFoundException;
-import com. argaty.exception.BadRequestException;
+import com.argaty.exception.BadRequestException;
 import com.argaty.repository.*;
-import com. argaty.service.ProductService;
+import com.argaty.service.ProductService;
 import com.argaty.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework. data.domain.Pageable;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java. util.List;
-import java. util.Optional;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementation của ReviewService
@@ -90,7 +90,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
 
         // Kiểm tra đã review chưa
-        if (reviewRepository. existsByUserIdAndProductId(userId, productId)) {
+        if (reviewRepository.existsByUserIdAndProductId(userId, productId)) {
             throw new BadRequestException("Bạn đã đánh giá sản phẩm này rồi");
         }
 
@@ -111,7 +111,7 @@ public class ReviewServiceImpl implements ReviewService {
                 throw new BadRequestException("Bạn không có quyền đánh giá sản phẩm này");
             }
 
-            if (! orderItem.getOrder().isCompleted()) {
+            if (!orderItem.getOrder().isCompleted()) {
                 throw new BadRequestException("Đơn hàng chưa hoàn thành");
             }
 
@@ -169,7 +169,7 @@ public class ReviewServiceImpl implements ReviewService {
         Review savedReview = reviewRepository.save(review);
 
         // Cập nhật rating của sản phẩm
-        productService.updateRating(review. getProduct().getId());
+        productService.updateRating(review.getProduct().getId());
 
         log.info("Updated review: {}", reviewId);
         return savedReview;
@@ -242,7 +242,7 @@ public class ReviewServiceImpl implements ReviewService {
         reviewRepository.save(review);
 
         // Cập nhật rating của sản phẩm
-        productService.updateRating(review. getProduct().getId());
+        productService.updateRating(review.getProduct().getId());
 
         log.info("Toggled review visibility: {} -> {}", reviewId, review.getIsVisible());
     }

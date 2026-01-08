@@ -1,29 +1,29 @@
-package com.argaty.service. impl;
+package com.argaty.service.impl;
 
 import com.argaty.entity.Order;
-import com.argaty. entity.User;
-import com.argaty. entity.Voucher;
+import com.argaty.entity.User;
+import com.argaty.entity.Voucher;
 import com.argaty.entity.VoucherUsage;
 import com.argaty.enums.DiscountType;
-import com.argaty.exception. ResourceNotFoundException;
+import com.argaty.exception.ResourceNotFoundException;
 import com.argaty.exception.BadRequestException;
 import com.argaty.repository.OrderRepository;
-import com. argaty.repository.UserRepository;
+import com.argaty.repository.UserRepository;
 import com.argaty.repository.VoucherRepository;
 import com.argaty.repository.VoucherUsageRepository;
 import com.argaty.service.VoucherService;
-import lombok. RequiredArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain. Page;
-import org.springframework. data.domain.Pageable;
-import org.springframework.stereotype. Service;
-import org.springframework. transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java. util.List;
-import java. util.Optional;
-import java.util.stream. Collectors;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Implementation của VoucherService
@@ -55,7 +55,7 @@ public class VoucherServiceImpl implements VoucherService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Voucher> findByCode(String code) {
-        return voucherRepository.findByCode(code. toUpperCase());
+        return voucherRepository.findByCode(code.toUpperCase());
     }
 
     @Override
@@ -97,12 +97,12 @@ public class VoucherServiceImpl implements VoucherService {
         String upperCode = code.toUpperCase();
 
         // Kiểm tra code trùng
-        if (voucherRepository. existsByCode(upperCode)) {
+        if (voucherRepository.existsByCode(upperCode)) {
             throw new BadRequestException("Mã voucher đã tồn tại");
         }
 
         // Validate
-        if (discountType == DiscountType.PERCENTAGE && discountValue. compareTo(BigDecimal.valueOf(100)) > 0) {
+        if (discountType == DiscountType.PERCENTAGE && discountValue.compareTo(BigDecimal.valueOf(100)) > 0) {
             throw new BadRequestException("Phần trăm giảm giá không được vượt quá 100%");
         }
 
@@ -145,7 +145,7 @@ public class VoucherServiceImpl implements VoucherService {
         voucher.setMinOrderAmount(minOrderAmount);
         voucher.setUsageLimit(usageLimit);
         if (usageLimitPerUser != null) {
-            voucher. setUsageLimitPerUser(usageLimitPerUser);
+            voucher.setUsageLimitPerUser(usageLimitPerUser);
         }
         voucher.setStartDate(startDate);
         voucher.setEndDate(endDate);
@@ -161,7 +161,7 @@ public class VoucherServiceImpl implements VoucherService {
 
         voucher.setIsActive(!voucher.getIsActive());
         voucherRepository.save(voucher);
-        log.info("Toggled voucher active status: {} -> {}", id, voucher. getIsActive());
+        log.info("Toggled voucher active status: {} -> {}", id, voucher.getIsActive());
     }
 
     // ========== VALIDATION & APPLY ==========
@@ -169,7 +169,7 @@ public class VoucherServiceImpl implements VoucherService {
     @Override
     @Transactional(readOnly = true)
     public boolean isVoucherValid(String code) {
-        Optional<Voucher> voucherOpt = voucherRepository.findByCodeAndIsActiveTrue(code. toUpperCase());
+        Optional<Voucher> voucherOpt = voucherRepository.findByCodeAndIsActiveTrue(code.toUpperCase());
         return voucherOpt.isPresent() && voucherOpt.get().isValid();
     }
 
@@ -184,17 +184,17 @@ public class VoucherServiceImpl implements VoucherService {
         }
 
         // Kiểm tra số lần user đã sử dụng
-        int usedByUser = voucherUsageRepository. countByVoucherIdAndUserId(voucher.getId(), userId);
+        int usedByUser = voucherUsageRepository.countByVoucherIdAndUserId(voucher.getId(), userId);
         return usedByUser < voucher.getUsageLimitPerUser();
     }
 
     @Override
     @Transactional(readOnly = true)
     public BigDecimal calculateDiscount(String code, BigDecimal orderAmount) {
-        Voucher voucher = voucherRepository.findByCodeAndIsActiveTrue(code. toUpperCase())
+        Voucher voucher = voucherRepository.findByCodeAndIsActiveTrue(code.toUpperCase())
                 .orElseThrow(() -> new BadRequestException("Mã voucher không hợp lệ"));
 
-        if (! voucher.isValid()) {
+        if (!voucher.isValid()) {
             throw new BadRequestException("Mã voucher đã hết hạn hoặc hết lượt sử dụng");
         }
 
@@ -260,7 +260,7 @@ public class VoucherServiceImpl implements VoucherService {
         // Lọc vouchers mà user còn có thể sử dụng
         return applicableVouchers.stream()
                 .filter(v -> {
-                    int usedByUser = voucherUsageRepository.countByVoucherIdAndUserId(v. getId(), userId);
+                    int usedByUser = voucherUsageRepository.countByVoucherIdAndUserId(v.getId(), userId);
                     return usedByUser < v.getUsageLimitPerUser();
                 })
                 .collect(Collectors.toList());

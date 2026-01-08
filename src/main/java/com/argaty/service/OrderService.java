@@ -2,7 +2,7 @@ package com.argaty.service;
 
 import com.argaty.entity.Order;
 import com.argaty.entity.OrderItem;
-import com.argaty.entity. User;
+import com.argaty.entity.User;
 import com.argaty.enums.OrderStatus;
 import com.argaty.enums.PaymentMethod;
 import org.springframework.data.domain.Page;
@@ -10,8 +10,8 @@ import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java. util.List;
-import java. util.Optional;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Service interface cho Order

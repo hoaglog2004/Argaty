@@ -85,14 +85,11 @@
                         <span
                           class="text-muted"
                           style="font-size: 12px"
-                          th:text="${#temporals.format(notif. createdAt, 'dd/MM/yyyy HH:mm')}"
+                          th:text="${#temporals.format(notif.createdAt, 'dd/MM/yyyy HH:mm')}"
                           >01/01/2024</span
                         >
                       </div>
-                      <p
-                        class="text-secondary mb-2"
-                        th:text="${notif. content}"
-                      >
+                      <p class="text-secondary mb-2" th:text="${notif.content}">
                         Nội dung thông báo...
                       </p>
                       <a

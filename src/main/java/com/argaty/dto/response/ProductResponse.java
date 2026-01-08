@@ -1,13 +1,14 @@
-package com.argaty. dto.response;
+package com.argaty.dto.response;
 
-import com. argaty.entity.Product;
+import java.math.BigDecimal;
+
+import com.argaty.entity.Product;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
 
 /**
  * DTO cho response danh sách sản phẩm (card)
@@ -22,6 +23,7 @@ public class ProductResponse {
     private Long id;
     private String name;
     private String slug;
+    private String sku;
     private String shortDescription;
     private String mainImage;
     private BigDecimal price;
@@ -35,6 +37,7 @@ public class ProductResponse {
     private Boolean isBestSeller;
     private Boolean isOnSale;
     private Boolean isInStock;
+    private Boolean isActive;
 
     // Category & Brand
     private String categoryName;
@@ -43,10 +46,11 @@ public class ProductResponse {
     private String brandSlug;
 
     public static ProductResponse fromEntity(Product product) {
-        return ProductResponse. builder()
+        return ProductResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
                 .slug(product.getSlug())
+                .sku(product.getSku())
                 .shortDescription(product.getShortDescription())
                 .mainImage(product.getMainImage())
                 .price(product.getPrice())
@@ -56,13 +60,14 @@ public class ProductResponse {
                 .reviewCount(product.getReviewCount())
                 .quantity(product.getQuantity())
                 .isNew(product.getIsNew())
-                .isFeatured(product. getIsFeatured())
+                .isFeatured(product.getIsFeatured())
                 .isBestSeller(product.getIsBestSeller())
                 .isOnSale(product.isOnSale())
                 .isInStock(product.isInStock())
-                .categoryName(product. getCategory() != null ? product.getCategory().getName() : null)
+                .isActive(product.getIsActive())
+                .categoryName(product.getCategory() != null ? product.getCategory().getName() : null)
                 .categorySlug(product.getCategory() != null ? product.getCategory().getSlug() : null)
-                .brandName(product. getBrand() != null ? product.getBrand().getName() : null)
+                .brandName(product.getBrand() != null ? product.getBrand().getName() : null)
                 .brandSlug(product.getBrand() != null ? product.getBrand().getSlug() : null)
                 .build();
     }

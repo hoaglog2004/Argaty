@@ -99,7 +99,7 @@
                     </div>
                     <div class="cart-item__info">
                       <a
-                        th:href="@{/products/{slug}(slug=${item. productSlug})}"
+                        th:href="@{/products/{slug}(slug=${item.productSlug})}"
                         class="cart-item__name"
                         th:text="${item.productName}"
                       >
@@ -243,12 +243,12 @@
                       onclick="document.getElementById('voucherCode').value = this.dataset.code; applyVoucher();"
                     >
                       <div class="d-flex justify-between align-center">
-                        <span class="text-cyan" th:text="${voucher. code}"
+                        <span class="text-cyan" th:text="${voucher.code}"
                           >CODE</span
                         >
                         <span
                           class="text-primary"
-                          th:text="${voucher. discountDisplay}"
+                          th:text="${voucher.discountDisplay}"
                           >Giảm</span
                         >
                       </div>
@@ -281,12 +281,12 @@
                   <span class="cart-summary__label">Phí vận chuyển</span>
                   <span class="cart-summary__value" id="shippingFee">
                     <span
-                      th:if="${shippingFee. compareTo(T(java.math.BigDecimal).ZERO) == 0}"
+                      th:if="${shippingFee.compareTo(T(java.math.BigDecimal).ZERO) == 0}"
                       class="text-success"
                       >Miễn phí</span
                     >
                     <span
-                      th:unless="${shippingFee.compareTo(T(java.math. BigDecimal).ZERO) == 0}"
+                      th:unless="${shippingFee.compareTo(T(java.math.BigDecimal).ZERO) == 0}"
                       th:text="${#numbers.formatDecimal(shippingFee, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
                       >30,000 ₫</span
                     >
@@ -308,7 +308,7 @@
 
                 <!-- Free Shipping Progress -->
                 <div
-                  th:if="${cart.selectedAmount. compareTo(freeShippingThreshold) < 0}"
+                  th:if="${cart.selectedAmount.compareTo(freeShippingThreshold) < 0}"
                   class="free-shipping-progress mt-3 p-3"
                   style="background: var(--bg-void); border-radius: 8px"
                 >
@@ -317,7 +317,7 @@
                     Mua thêm
                     <span
                       class="text-cyan"
-                      th:text="${#numbers.formatDecimal(freeShippingThreshold. subtract(cart.selectedAmount), 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                      th:text="${#numbers.formatDecimal(freeShippingThreshold.subtract(cart.selectedAmount), 0, 'COMMA', 0, 'POINT')} + ' ₫'"
                       >0 ₫</span
                     >
                     để được miễn phí ship
@@ -335,7 +335,7 @@
                   <span
                     class="cart-summary__total-value"
                     id="totalAmount"
-                    th:text="${#numbers.formatDecimal(cart.selectedAmount. add(shippingFee), 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                    th:text="${#numbers.formatDecimal(cart.selectedAmount.add(shippingFee), 0, 'COMMA', 0, 'POINT')} + ' ₫'"
                     >0 ₫</span
                   >
                 </div>

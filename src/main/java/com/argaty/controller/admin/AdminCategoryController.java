@@ -1,20 +1,20 @@
-package com. argaty.controller.admin;
+package com.argaty.controller.admin;
 
-import com.argaty.dto. request.CategoryRequest;
+import com.argaty.dto.request.CategoryRequest;
 import com.argaty.entity.Category;
 import com.argaty.exception.BadRequestException;
 import com.argaty.service.CategoryService;
-import com.argaty. util.DtoMapper;
+import com.argaty.util.DtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework. data.domain.Sort;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui. Model;
-import org.springframework. validation.BindingResult;
-import org.springframework.web.bind. annotation.*;
-import org.springframework. web.servlet.mvc.support. RedirectAttributes;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * Controller quản lý danh mục (Admin)
@@ -36,7 +36,7 @@ public class AdminCategoryController {
 
         Page<Category> categories;
         if (q != null && !q.trim().isEmpty()) {
-            categories = categoryService. search(q.trim(), pageRequest);
+            categories = categoryService.search(q.trim(), pageRequest);
             model.addAttribute("searchKeyword", q);
         } else {
             categories = categoryService.findAll(pageRequest);
@@ -82,7 +82,7 @@ public class AdminCategoryController {
             redirectAttributes.addFlashAttribute("success", "Thêm danh mục thành công");
             return "redirect:/admin/categories";
         } catch (BadRequestException e) {
-            redirectAttributes.addFlashAttribute("error", e. getMessage());
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/admin/categories/create";
         }
     }
@@ -121,10 +121,10 @@ public class AdminCategoryController {
             categoryService.update(
                     id,
                     request.getName(),
-                    request. getDescription(),
-                    request. getImage(),
-                    request. getIcon(),
-                    request. getParentId()
+                    request.getDescription(),
+                    request.getImage(),
+                    request.getIcon(),
+                    request.getParentId()
             );
             redirectAttributes.addFlashAttribute("success", "Cập nhật danh mục thành công");
             return "redirect:/admin/categories";

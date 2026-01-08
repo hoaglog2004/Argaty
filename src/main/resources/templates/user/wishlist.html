@@ -97,7 +97,7 @@
                   <span
                     th:if="${item.isOnSale}"
                     class="price-original"
-                    th:text="${#numbers. formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                    th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
                     >0 ₫</span
                   >
                 </div>

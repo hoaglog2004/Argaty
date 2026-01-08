@@ -1,6 +1,6 @@
-package com.argaty. dto.response;
+package com.argaty.dto.response;
 
-import com. argaty.entity.Brand;
+import com.argaty.entity.Brand;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,12 +32,12 @@ public class BrandResponse {
                 .id(brand.getId())
                 .name(brand.getName())
                 .slug(brand.getSlug())
-                .logo(brand. getLogo())
+                .logo(brand.getLogo())
                 .description(brand.getDescription())
                 .website(brand.getWebsite())
-                .displayOrder(brand. getDisplayOrder())
+                .displayOrder(brand.getDisplayOrder())
                 .isActive(brand.getIsActive())
-                .productCount(brand. getProductCount())
+                .productCount(brand.getProductCount())
                 .build();
     }
 }

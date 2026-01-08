@@ -1,7 +1,7 @@
 package com.argaty.dto.response;
 
 import com.argaty.entity.Order;
-import com.argaty. entity.OrderItem;
+import com.argaty.entity.OrderItem;
 import com.argaty.entity.OrderStatusHistory;
 import com.argaty.enums.OrderStatus;
 import com.argaty.enums.PaymentMethod;
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream. Collectors;
+import java.util.stream.Collectors;
 
 /**
  * DTO cho response chi tiết đơn hàng
@@ -113,7 +113,7 @@ public class OrderDetailResponse {
     }
 
     public static OrderDetailResponse fromEntity(Order order) {
-        OrderDetailResponse response = OrderDetailResponse. builder()
+        OrderDetailResponse response = OrderDetailResponse.builder()
                 .id(order.getId())
                 .orderCode(order.getOrderCode())
                 .status(order.getStatus())
@@ -123,12 +123,12 @@ public class OrderDetailResponse {
                 .receiverPhone(order.getReceiverPhone())
                 .receiverEmail(order.getReceiverEmail())
                 .fullAddress(order.getFullAddress())
-                .shippingAddress(order. getShippingAddress())
+                .shippingAddress(order.getShippingAddress())
                 .city(order.getCity())
                 .district(order.getDistrict())
                 .ward(order.getWard())
-                .paymentMethod(order. getPaymentMethod())
-                .paymentMethodDisplayName(order. getPaymentMethod().getDisplayName())
+                .paymentMethod(order.getPaymentMethod())
+                .paymentMethodDisplayName(order.getPaymentMethod().getDisplayName())
                 .isPaid(order.getIsPaid())
                 .paidAt(order.getPaidAt())
                 .paymentTransactionId(order.getPaymentTransactionId())
@@ -136,15 +136,15 @@ public class OrderDetailResponse {
                 .shippingFee(order.getShippingFee())
                 .discountAmount(order.getDiscountAmount())
                 .totalAmount(order.getTotalAmount())
-                .voucherCode(order. getVoucherCode())
+                .voucherCode(order.getVoucherCode())
                 .note(order.getNote())
-                .adminNote(order. getAdminNote())
+                .adminNote(order.getAdminNote())
                 .cancelReason(order.getCancelReason())
                 .returnReason(order.getReturnReason())
                 .createdAt(order.getCreatedAt())
                 .confirmedAt(order.getConfirmedAt())
                 .shippedAt(order.getShippedAt())
-                .deliveredAt(order. getDeliveredAt())
+                .deliveredAt(order.getDeliveredAt())
                 .completedAt(order.getCompletedAt())
                 .cancelledAt(order.getCancelledAt())
                 .canCancel(order.canCancel())
@@ -163,7 +163,7 @@ public class OrderDetailResponse {
                             .variantName(item.getVariantName())
                             .sku(item.getSku())
                             .unitPrice(item.getUnitPrice())
-                            . quantity(item.getQuantity())
+                            .quantity(item.getQuantity())
                             .subtotal(item.getSubtotal())
                             .isReviewed(item.getIsReviewed())
                             .build())
@@ -172,14 +172,14 @@ public class OrderDetailResponse {
 
         // Status History
         if (order.getStatusHistory() != null) {
-            response.setStatusHistory(order. getStatusHistory().stream()
+            response.setStatusHistory(order.getStatusHistory().stream()
                     .map(h -> StatusHistoryResponse.builder()
-                            .status(h. getStatus())
+                            .status(h.getStatus())
                             .statusDisplayName(h.getStatus().getDisplayName())
-                            . note(h.getNote())
+                            .note(h.getNote())
                             .changedByName(h.getChangedBy() != null ? h.getChangedBy().getFullName() : "Hệ thống")
                             .createdAt(h.getCreatedAt())
-                            . build())
+                            .build())
                     .collect(Collectors.toList()));
         }
 

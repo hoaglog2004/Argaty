@@ -1,8 +1,8 @@
-package com. argaty.dto.response;
+package com.argaty.dto.response;
 
-import com.argaty.entity. Product;
+import com.argaty.entity.Product;
 import com.argaty.entity.ProductImage;
-import com.argaty. entity.ProductVariant;
+import com.argaty.entity.ProductVariant;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java. util.List;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -102,7 +102,7 @@ public class ProductDetailResponse {
                 .salePrice(product.getSalePrice())
                 .discountPercent(product.getCalculatedDiscountPercent())
                 .quantity(product.getQuantity())
-                .soldCount(product. getSoldCount())
+                .soldCount(product.getSoldCount())
                 .rating(product.getRating())
                 .reviewCount(product.getReviewCount())
                 .isNew(product.getIsNew())
@@ -113,7 +113,7 @@ public class ProductDetailResponse {
                 .isLowStock(product.isLowStock())
                 .specifications(product.getSpecifications())
                 .saleStartDate(product.getSaleStartDate())
-                .saleEndDate(product. getSaleEndDate())
+                .saleEndDate(product.getSaleEndDate())
                 .createdAt(product.getCreatedAt())
                 .build();
 
@@ -128,7 +128,7 @@ public class ProductDetailResponse {
         }
 
         // Images
-        if (product. getImages() != null) {
+        if (product.getImages() != null) {
             response.setImages(product.getImages().stream()
                     .map(img -> ImageResponse.builder()
                             .id(img.getId())
@@ -140,24 +140,24 @@ public class ProductDetailResponse {
         }
 
         // Variants
-        if (product. getVariants() != null) {
+        if (product.getVariants() != null) {
             response.setVariants(product.getVariants().stream()
                     .filter(ProductVariant::getIsActive)
                     .map(v -> VariantResponse.builder()
-                            .id(v. getId())
+                            .id(v.getId())
                             .name(v.getName())
-                            . sku(v.getSku())
-                            .color(v. getColor())
+                            .sku(v.getSku())
+                            .color(v.getColor())
                             .colorCode(v.getColorCode())
-                            .size(v. getSize())
+                            .size(v.getSize())
                             .additionalPrice(v.getAdditionalPrice())
                             .finalPrice(v.getFinalPrice())
-                            .quantity(v. getQuantity())
-                            . isActive(v.getIsActive())
+                            .quantity(v.getQuantity())
+                            .isActive(v.getIsActive())
                             .isInStock(v.isInStock())
                             .images(v.getImages() != null ? 
                                     v.getImages().stream()
-                                            . map(img -> img.getImageUrl())
+                                            .map(img -> img.getImageUrl())
                                             .collect(Collectors.toList()) : null)
                             .build())
                     .collect(Collectors.toList()));

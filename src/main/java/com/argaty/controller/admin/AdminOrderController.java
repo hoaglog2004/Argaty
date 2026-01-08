@@ -1,20 +1,20 @@
 package com.argaty.controller.admin;
 
-import com.argaty.dto.request. UpdateOrderStatusRequest;
-import com. argaty.dto.response.OrderDetailResponse;
+import com.argaty.dto.request.UpdateOrderStatusRequest;
+import com.argaty.dto.response.OrderDetailResponse;
 import com.argaty.dto.response.OrderResponse;
 import com.argaty.dto.response.PageResponse;
 import com.argaty.entity.Order;
-import com.argaty. entity.User;
-import com.argaty. enums.OrderStatus;
+import com.argaty.entity.User;
+import com.argaty.enums.OrderStatus;
 import com.argaty.exception.BadRequestException;
 import com.argaty.service.OrderService;
-import com.argaty. service.UserService;
+import com.argaty.service.UserService;
 import com.argaty.util.DtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data. domain.Page;
-import org. springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -63,7 +63,7 @@ public class AdminOrderController {
             orders = orderService.findAll(pageRequest);
         }
 
-        model. addAttribute("orders", DtoMapper.toOrderPageResponse(orders));
+        model.addAttribute("orders", DtoMapper.toOrderPageResponse(orders));
         model.addAttribute("orderStatuses", OrderStatus.values());
         model.addAttribute("adminPage", "orders");
 
@@ -76,7 +76,7 @@ public class AdminOrderController {
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
         Order order = orderService.findByIdWithDetails(id)
-                .orElseThrow(() -> new com.argaty.exception. ResourceNotFoundException("Order", "id", id));
+                .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("Order", "id", id));
 
         model.addAttribute("order", OrderDetailResponse.fromEntity(order));
         model.addAttribute("orderStatuses", OrderStatus.values());
@@ -150,11 +150,11 @@ public class AdminOrderController {
     @PostMapping("/{id}/complete")
     public String completeOrder(@PathVariable Long id, Principal principal, RedirectAttributes redirectAttributes) {
         try {
-            User admin = userService. findByEmail(principal.getName()).orElse(null);
+            User admin = userService.findByEmail(principal.getName()).orElse(null);
             orderService.completeOrder(id, admin);
-            redirectAttributes. addFlashAttribute("success", "Đã hoàn thành đơn hàng");
+            redirectAttributes.addFlashAttribute("success", "Đã hoàn thành đơn hàng");
         } catch (BadRequestException e) {
-            redirectAttributes.addFlashAttribute("error", e. getMessage());
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/admin/orders/" + id;
     }

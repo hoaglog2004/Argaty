@@ -26,7 +26,7 @@
                 <th:block th:if="${product.category}">
                     <span class="breadcrumb__separator"><i class='bx bx-chevron-right'></i></span>
                     <div class="breadcrumb__item">
-                        <a th:href="@{/products(category=${product.category.slug})}" th:text="${product.category. name}">Danh mục</a>
+                        <a th:href="@{/products(category=${product.category.slug})}" th:text="${product.category.name}">Danh mục</a>
                     </div>
                 </th:block>
                 <span class="breadcrumb__separator"><i class='bx bx-chevron-right'></i></span>
@@ -50,7 +50,7 @@
                                 -[[${product.discountPercent}]]%
                             </span>
                             <span th:if="${product.isNew}" class="badge badge-new">Mới</span>
-                            <span th:if="${! product.isInStock}" class="badge badge-soldout">Hết hàng</span>
+                            <span th:if="${!product.isInStock}" class="badge badge-soldout">Hết hàng</span>
                         </div>
                     </div>
                     
@@ -76,7 +76,7 @@
                     
                     <!-- Category -->
                     <a th:if="${product.category}" 
-                       th:href="@{/products(category=${product. category.slug})}" 
+                       th:href="@{/products(category=${product.category.slug})}" 
                        class="product-info__category" 
                        th:text="${product.category.name}">
                         Danh mục
@@ -93,7 +93,7 @@
                                    style="color: var(--star-gold);"></i>
                             </th:block>
                         </div>
-                        <span class="product-info__rating-score" th:text="${product.rating != null} ? ${#numbers.formatDecimal(product. rating, 1, 1)} : '0'">4.5</span>
+                        <span class="product-info__rating-score" th:text="${product.rating != null} ? ${#numbers.formatDecimal(product.rating, 1, 1)} : '0'">4.5</span>
                         <span class="product-info__rating-count">
                             (<span th:text="${product.reviewCount}">0</span> đánh giá)
                         </span>
@@ -104,7 +104,7 @@
                     <!-- Price -->
                     <div class="product-info__price">
                         <span class="product-info__price-current" 
-                              th:text="${#numbers.formatDecimal(product. isOnSale ? product.salePrice : product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                              th:text="${#numbers.formatDecimal(product.isOnSale ? product.salePrice : product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
                             0 ₫
                         </span>
                         <span th:if="${product.isOnSale}" class="product-info__price-original" 
@@ -122,10 +122,10 @@
                     </p>
                     
                     <!-- Variants -->
-                    <div class="product-variants" th:if="${product.variants != null && ! product.variants.isEmpty()}">
+                    <div class="product-variants" th:if="${product.variants != null && !product.variants.isEmpty()}">
                         <!-- Color Options -->
-                        <div class="variant-group" th:if="${#lists.size(product.variants. ? [color != null]) > 0}">
-                            <div class="variant-label">Màu sắc:  <span id="selectedColor" class="text-cyan"></span></div>
+                        <div class="variant-group" th:if="${#lists.size(product.variants.?[color != null]) > 0}">
+                            <div class="variant-label">Màu sắc: <span id="selectedColor" class="text-cyan"></span></div>
                             <div class="color-options">
                                 <th:block th:each="variant : ${product.variants}">
                                     <div th:if="${variant.color != null}" 
@@ -137,7 +137,7 @@
                                          th:data-color="${variant.color}"
                                          th:data-price="${variant.finalPrice}"
                                          th:data-stock="${variant.quantity}"
-                                         th:classappend="${! variant.isInStock} ? 'disabled' : ''"
+                                         th:classappend="${!variant.isInStock} ? 'disabled' : ''"
                                          onclick="selectVariant(this)">
                                     </div>
                                 </th:block>
@@ -145,13 +145,13 @@
                         </div>
                         
                         <!-- Size/Type Options -->
-                        <div class="variant-group" th:if="${#lists.size(product. variants.?[size != null]) > 0}">
+                        <div class="variant-group" th:if="${#lists.size(product.variants.?[size != null]) > 0}">
                             <div class="variant-label">Phiên bản: </div>
                             <div class="variant-options">
-                                <th:block th:each="variant :  ${product.variants}">
+                                <th:block th:each="variant : ${product.variants}">
                                     <div th:if="${variant.size != null || variant.name != null}" 
                                          class="variant-option"
-                                         th:text="${variant.size != null} ? ${variant.size} :  ${variant.name}"
+                                         th:text="${variant.size != null} ? ${variant.size} : ${variant.name}"
                                          th:data-variant-id="${variant.id}"
                                          th:data-name="${variant.name}"
                                          th:data-price="${variant.finalPrice}"
@@ -167,17 +167,17 @@
                     
                     <!-- Stock Status -->
                     <div class="product-info__stock">
-                        <span th:if="${product.isInStock && ! product.isLowStock}" class="stock-indicator in-stock"></span>
+                        <span th:if="${product.isInStock && !product.isLowStock}" class="stock-indicator in-stock"></span>
                         <span th:if="${product.isInStock && product.isLowStock}" class="stock-indicator low-stock"></span>
                         <span th:unless="${product.isInStock}" class="stock-indicator out-of-stock"></span>
                         
-                        <span th:if="${product.isInStock && ! product.isLowStock}" class="stock-text in-stock">
+                        <span th:if="${product.isInStock && !product.isLowStock}" class="stock-text in-stock">
                             Còn hàng (<span th:text="${product.quantity}">0</span> sản phẩm)
                         </span>
                         <span th:if="${product.isInStock && product.isLowStock}" class="stock-text low-stock">
                             Sắp hết hàng (Còn <span th:text="${product.quantity}">0</span> sản phẩm)
                         </span>
-                        <span th:unless="${product. isInStock}" class="stock-text out-of-stock">
+                        <span th:unless="${product.isInStock}" class="stock-text out-of-stock">
                             Hết hàng
                         </span>
                     </div>
@@ -251,7 +251,7 @@
                     
                     <!-- SKU & Brand -->
                     <div class="product-meta mt-4" style="font-size: 14px; color: var(--text-muted);">
-                        <p th:if="${product. sku}">SKU: <span class="text-cyan" th:text="${product. sku}">SKU</span></p>
+                        <p th:if="${product.sku}">SKU: <span class="text-cyan" th:text="${product.sku}">SKU</span></p>
                         <p th:if="${product.brand}">
                             Thương hiệu: 
                             <a th:href="@{/products(brand=${product.brand.slug})}" class="text-cyan" th:text="${product.brand.name}">Brand</a>
@@ -283,11 +283,11 @@
                         <!-- Parse specifications JSON if needed -->
                         <tr>
                             <th>Thương hiệu</th>
-                            <td th:text="${product.brand?. name}">-</td>
+                            <td th:text="${product.brand?.name}">-</td>
                         </tr>
                         <tr>
                             <th>Model</th>
-                            <td th:text="${product. sku}">-</td>
+                            <td th:text="${product.sku}">-</td>
                         </tr>
                         <!-- Add more specifications based on your data -->
                     </table>
@@ -303,8 +303,8 @@
                         <div class="reviews-summary">
                             <div class="reviews-summary__score" th:text="${reviewStats.averageRating}">0</div>
                             <div class="reviews-summary__stars">
-                                <th:block th:each="i :  ${#numbers.sequence(1, 5)}">
-                                    <i th:class="${i <= reviewStats. averageRating} ? 'bx bxs-star' : 'bx bx-star'"></i>
+                                <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                                    <i th:class="${i <= reviewStats.averageRating} ? 'bx bxs-star' : 'bx bx-star'"></i>
                                 </th:block>
                             </div>
                             <div class="reviews-summary__count">
@@ -313,7 +313,7 @@
                             
                             <!-- Rating Bars -->
                             <div class="rating-bars mt-4">
-                                <th:block th:each="i :  ${#numbers.sequence(5, 1, -1)}">
+                                <th:block th:each="i : ${#numbers.sequence(5, 1, -1)}">
                                     <div class="rating-bar">
                                         <div class="rating-bar__label">
                                             <span th:text="${i}">5</span>
@@ -321,7 +321,7 @@
                                         </div>
                                         <div class="rating-bar__track">
                                             <div class="rating-bar__fill" 
-                                                 th:style="'width: ' + ${reviewStats.ratingPercentage. get(i) != null ? reviewStats.ratingPercentage.get(i) : 0} + '%'"></div>
+                                                 th:style="'width: ' + ${reviewStats.ratingPercentage.get(i) != null ? reviewStats.ratingPercentage.get(i) : 0} + '%'"></div>
                                         </div>
                                         <div class="rating-bar__count" 
                                              th:text="${reviewStats.ratingDistribution.get(i) != null ? reviewStats.ratingDistribution.get(i) : 0}">0</div>
@@ -341,7 +341,7 @@
                         <!-- Reviews List -->
                         <div class="reviews-list">
                             <th:block th:if="${reviews.content != null && ! reviews.content.isEmpty()}">
-                                <div th:each="review : ${reviews. content}" class="review-card">
+                                <div th:each="review : ${reviews.content}" class="review-card">
                                     <div class="review-card__header">
                                         <div class="review-card__user">
                                             <div class="review-card__avatar">
@@ -357,8 +357,8 @@
                                             </div>
                                         </div>
                                         <div class="review-card__rating">
-                                            <th:block th:each="i :  ${#numbers.sequence(1, 5)}">
-                                                <i th:class="${i <= review.rating} ? 'bx bxs-star' :  'bx bx-star'"></i>
+                                            <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                                                <i th:class="${i <= review.rating} ? 'bx bxs-star' : 'bx bx-star'"></i>
                                             </th:block>
                                         </div>
                                     </div>
@@ -410,7 +410,7 @@
                     <h2 class="section-title">Sản phẩm liên quan</h2>
                 </div>
                 <div class="products-grid">
-                    <th:block th:each="product :  ${relatedProducts}">
+                    <th:block th:each="product : ${relatedProducts}">
                         <th:block th:replace="~{fragments/product-card :: productCard(${product})}"></th:block>
                     </th:block>
                 </div>
@@ -452,8 +452,8 @@ function selectVariant(el) {
     el.classList.add('selected');
     
     // Update data
-    selectedVariantId = el. dataset.variantId;
-    const variantPrice = parseFloat(el.dataset. price);
+    selectedVariantId = el.dataset.variantId;
+    const variantPrice = parseFloat(el.dataset.price);
     const variantStock = parseInt(el.dataset.stock);
     
     // Update price display if needed
@@ -506,7 +506,7 @@ async function addToCart(productId, variantId, quantity, redirect = false) {
             updateCartCount();
             
             if (redirect) {
-                window. location.href = '/checkout';
+                window.location.href = '/checkout';
             }
         } else {
             showToast('error', 'Lỗi', data.message || 'Không thể thêm vào giỏ hàng');
@@ -517,11 +517,11 @@ async function addToCart(productId, variantId, quantity, redirect = false) {
 }
 
 // Tabs
-document.querySelectorAll('. tab').forEach(tab => {
+document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', function() {
         const tabId = this.dataset.tab;
         
-        document.querySelectorAll('.tab').forEach(t => t.classList. remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         
         this.classList.add('active');

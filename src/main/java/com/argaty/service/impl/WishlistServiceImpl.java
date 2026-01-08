@@ -1,21 +1,21 @@
 package com.argaty.service.impl;
 
-import com.argaty. entity.Product;
-import com.argaty. entity.User;
-import com. argaty.entity.Wishlist;
+import com.argaty.entity.Product;
+import com.argaty.entity.User;
+import com.argaty.entity.Wishlist;
 import com.argaty.exception.ResourceNotFoundException;
-import com.argaty. repository.ProductRepository;
+import com.argaty.repository.ProductRepository;
 import com.argaty.repository.UserRepository;
 import com.argaty.repository.WishlistRepository;
-import com. argaty.service.WishlistService;
+import com.argaty.service.WishlistService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j. Slf4j;
-import org. springframework.data.domain.Page;
-import org.springframework.data. domain. Pageable;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation. Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
-import java. util.List;
+import java.util.List;
 
 /**
  * Implementation của WishlistService
@@ -88,7 +88,7 @@ public class WishlistServiceImpl implements WishlistService {
     @Override
     @Transactional(readOnly = true)
     public List<Long> getWishlistProductIds(Long userId) {
-        return wishlistRepository. findProductIdsByUserId(userId);
+        return wishlistRepository.findProductIdsByUserId(userId);
     }
 
     @Override

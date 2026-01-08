@@ -1,12 +1,12 @@
 package com.argaty.service.impl;
 
-import com.argaty. entity.User;
-import com.argaty. entity.UserAddress;
+import com.argaty.entity.User;
+import com.argaty.entity.UserAddress;
 import com.argaty.exception.ResourceNotFoundException;
-import com.argaty. exception.BadRequestException;
+import com.argaty.exception.BadRequestException;
 import com.argaty.repository.UserAddressRepository;
 import com.argaty.repository.UserRepository;
-import com.argaty.service. UserAddressService;
+import com.argaty.service.UserAddressService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Override
     @Transactional(readOnly = true)
     public Optional<UserAddress> findById(Long id) {
-        return userAddressRepository. findById(id);
+        return userAddressRepository.findById(id);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class UserAddressServiceImpl implements UserAddressService {
 
     @Override
     public void deleteById(Long id, Long userId) {
-        UserAddress address = userAddressRepository. findByIdAndUserId(id, userId)
+        UserAddress address = userAddressRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserAddress", "id", id));
 
         boolean wasDefault = address.getIsDefault();
@@ -72,8 +72,8 @@ public class UserAddressServiceImpl implements UserAddressService {
                     .findByUserIdOrderByIsDefaultDescCreatedAtDesc(userId);
             if (!remainingAddresses.isEmpty()) {
                 UserAddress newDefault = remainingAddresses.get(0);
-                newDefault. setIsDefault(true);
-                userAddressRepository. save(newDefault);
+                newDefault.setIsDefault(true);
+                userAddressRepository.save(newDefault);
             }
         }
 
@@ -89,7 +89,7 @@ public class UserAddressServiceImpl implements UserAddressService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
         // Kiểm tra số lượng địa chỉ
-        int addressCount = userAddressRepository. countByUserId(userId);
+        int addressCount = userAddressRepository.countByUserId(userId);
         if (addressCount >= MAX_ADDRESSES_PER_USER) {
             throw new BadRequestException("Bạn chỉ có thể lưu tối đa " + MAX_ADDRESSES_PER_USER + " địa chỉ");
         }
@@ -137,7 +137,7 @@ public class UserAddressServiceImpl implements UserAddressService {
         }
 
         log.info("Updated address {} for user {}", id, userId);
-        return userAddressRepository. save(userAddress);
+        return userAddressRepository.save(userAddress);
     }
 
     @Override

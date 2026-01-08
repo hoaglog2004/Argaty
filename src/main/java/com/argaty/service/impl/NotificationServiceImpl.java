@@ -1,10 +1,10 @@
 package com.argaty.service.impl;
 
-import com.argaty. entity.Notification;
+import com.argaty.entity.Notification;
 import com.argaty.entity.Order;
 import com.argaty.entity.User;
 import com.argaty.enums.NotificationType;
-import com.argaty. enums.OrderStatus;
+import com.argaty.enums.OrderStatus;
 import com.argaty.exception.ResourceNotFoundException;
 import com.argaty.repository.NotificationRepository;
 import com.argaty.repository.UserRepository;
@@ -16,7 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time. LocalDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -39,7 +39,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional(readOnly = true)
     public Page<Notification> findByUserId(Long userId, Pageable pageable) {
-        return notificationRepository. findByUserIdOrderByCreatedAtDesc(userId, pageable);
+        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendNotification(Long userId, String title, String message, NotificationType type, String link) {
-        User user = userRepository. findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
         Notification notification = Notification.builder()
@@ -115,7 +115,7 @@ public class NotificationServiceImpl implements NotificationService {
                 order.getOrderCode(), newStatus.getDisplayName());
         String link = "/profile/orders/" + order.getOrderCode();
 
-        sendNotification(order.getUser().getId(), title, message, NotificationType. ORDER, link);
+        sendNotification(order.getUser().getId(), title, message, NotificationType.ORDER, link);
     }
 
     @Override

@@ -1,25 +1,26 @@
-package com.argaty.controller. user;
-
-import com.argaty.dto.response. CartResponse;
-import com.argaty.dto.response.VoucherResponse;
-import com. argaty.entity.Cart;
-import com.argaty. entity.User;
-import com.argaty. entity.Voucher;
-import com.argaty.service.CartService;
-import com.argaty. service.UserService;
-import com.argaty.service.VoucherService;
-import com.argaty.util.DtoMapper;
-import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation. GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+package com.argaty.controller.user;
 
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.argaty.dto.response.CartResponse;
+import com.argaty.entity.Cart;
+import com.argaty.entity.User;
+import com.argaty.entity.Voucher;
+import com.argaty.service.CartService;
+import com.argaty.service.UserService;
+import com.argaty.service.VoucherService;
+import com.argaty.util.DtoMapper;
+
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Controller cho giỏ hàng
@@ -43,8 +44,8 @@ public class CartController {
         if (principal != null) {
             // User đã đăng nhập
             User user = userService.findByEmail(principal.getName())
-                    .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("User", "email", principal. getName()));
-            cart = cartService.getOrCreateCart(user. getId());
+                    .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("User", "email", principal.getName()));
+            cart = cartService.getOrCreateCart(user.getId());
 
             // Lấy vouchers khả dụng
             BigDecimal cartTotal = cart.getTotalAmount();
@@ -56,11 +57,11 @@ public class CartController {
             cart = cartService.getOrCreateCartBySession(sessionId);
         }
 
-        CartResponse cartResponse = DtoMapper. toCartResponse(cart);
+        CartResponse cartResponse = DtoMapper.toCartResponse(cart);
         model.addAttribute("cart", cartResponse);
 
         // Tính phí ship
-        BigDecimal shippingFee = calculateShippingFee(cart. getTotalAmount());
+        BigDecimal shippingFee = calculateShippingFee(cart.getTotalAmount());
         model.addAttribute("shippingFee", shippingFee);
         model.addAttribute("freeShippingThreshold", BigDecimal.valueOf(500000));
 

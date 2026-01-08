@@ -167,7 +167,7 @@ public class AuthController {
         try {
             userService.createPasswordResetToken(request.getEmail());
             redirectAttributes.addFlashAttribute("success", 
-                    "Đã gửi email hướng dẫn đặt lại mật khẩu. Vui lòng kiểm tra hộp thư.");
+                    "Đã gửi email hướng dẫn đặt lại mật khẩu.Vui lòng kiểm tra hộp thư.");
             return "redirect:/auth/forgot-password";
         } catch (Exception e) {
             // Không tiết lộ email có tồn tại hay không
@@ -216,7 +216,7 @@ public class AuthController {
         }
 
         // Validate confirm password
-        if (! request.getNewPassword().equals(request.getConfirmPassword())) {
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             model.addAttribute("error", "Mật khẩu xác nhận không khớp");
             model.addAttribute("authPage", "reset");
             return "auth/reset-password";

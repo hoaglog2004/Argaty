@@ -1,7 +1,7 @@
-package com.argaty. entity;
+package com.argaty.entity;
 
-import java.math. BigDecimal;
-import java. time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import com.argaty.enums.DiscountType;
 
@@ -77,7 +77,7 @@ public class Voucher extends BaseEntity {
      * Kiểm tra voucher còn hiệu lực
      */
     public boolean isValid() {
-        if (! isActive) {
+        if (!isActive) {
             return false;
         }
 
@@ -108,7 +108,7 @@ public class Voucher extends BaseEntity {
         }
 
         // Kiểm tra đơn hàng tối thiểu
-        if (minOrderAmount != null && orderAmount. compareTo(minOrderAmount) < 0) {
+        if (minOrderAmount != null && orderAmount.compareTo(minOrderAmount) < 0) {
             return BigDecimal.ZERO;
         }
 

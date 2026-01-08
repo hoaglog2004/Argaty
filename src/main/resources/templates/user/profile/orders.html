@@ -90,11 +90,11 @@
 
               <!-- Orders List -->
               <div
-                th:if="${orders. content != null && !orders.content.isEmpty()}"
+                th:if="${orders.content != null && !orders.content.isEmpty()}"
                 class="orders-list"
               >
                 <div
-                  th:each="order : ${orders. content}"
+                  th:each="order : ${orders.content}"
                   class="order-card card mb-4"
                 >
                   <div
@@ -111,13 +111,13 @@
                       <span
                         class="text-muted"
                         style="font-size: 13px"
-                        th:text="${#temporals. format(order.createdAt, 'dd/MM/yyyy HH:mm')}"
+                        th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}"
                         >01/01/2024</span
                       >
                     </div>
                     <span
                       class="status-badge"
-                      th:classappend="'status-badge--' + ${order. status.name().toLowerCase()}"
+                      th:classappend="'status-badge--' + ${order.status.name().toLowerCase()}"
                       th:text="${order.statusDisplayName}"
                       >Trạng thái</span
                     >
@@ -152,7 +152,7 @@
                             <span th:text="${order.totalItems - 1}">0</span> sản
                             phẩm khác</span
                           >
-                          <span th:if="${order. totalItems == 1}">x1</span>
+                          <span th:if="${order.totalItems == 1}">x1</span>
                         </p>
                       </div>
                       <div class="text-right">

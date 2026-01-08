@@ -52,7 +52,7 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 30)
     @Builder.Default
-    private NotificationType type = NotificationType. SYSTEM;
+    private NotificationType type = NotificationType.SYSTEM;
 
     @Column(name = "link", length = 500)
     private String link;
@@ -67,7 +67,7 @@ public class Notification {
 
     // ========== RELATIONSHIPS ==========
 
-    @ManyToOne(fetch = FetchType. LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
