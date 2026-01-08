@@ -7,28 +7,28 @@
 
 // Get CSRF token from cookie
 function getCsrfToken() {
-  const name = 'XSRF-TOKEN=';
+  const name = "XSRF-TOKEN=";
   const decodedCookie = decodeURIComponent(document.cookie);
-  const ca = decodedCookie.split(';');
+  const ca = decodedCookie.split(";");
   for (let i = 0; i < ca.length; i++) {
     let c = ca[i];
-    while (c.charAt(0) === ' ') {
+    while (c.charAt(0) === " ") {
       c = c.substring(1);
     }
     if (c.indexOf(name) === 0) {
       return c.substring(name.length, c.length);
     }
   }
-  return '';
+  return "";
 }
 
 // Helper function for fetch with CSRF token
 async function fetchWithCsrf(url, options = {}) {
   const defaultHeaders = {
-    'Content-Type': 'application/json',
-    'X-XSRF-TOKEN': getCsrfToken()
+    "Content-Type": "application/json",
+    "X-XSRF-TOKEN": getCsrfToken(),
   };
-  
+
   options.headers = { ...defaultHeaders, ...options.headers };
   return fetch(url, options);
 }
