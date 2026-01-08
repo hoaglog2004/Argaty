@@ -236,12 +236,17 @@ public class ProductServiceImpl implements ProductService {
     public Product createWithExtras(String name, String shortDescription, String description,
                                     BigDecimal price, BigDecimal salePrice, Integer discountPercent,
                                     Integer quantity, Long categoryId, Long brandId,
-                                    Boolean isFeatured, Boolean isNew,
+                                    Boolean isFeatured, Boolean isNew, Boolean isBestSeller,
                                     String specifications, String metaTitle, String metaDescription,
                                     java.time.LocalDateTime saleStartDate, java.time.LocalDateTime saleEndDate) {
         
         Product product = create(name, shortDescription, description, price, salePrice, 
                                  discountPercent, quantity, categoryId, brandId, isFeatured, isNew);
+        
+        // Set additional flags
+        if (isBestSeller != null) {
+            product.setIsBestSeller(isBestSeller);
+        }
         
         // Set additional fields
         if (specifications != null && !specifications.trim().isEmpty()) {
@@ -322,12 +327,17 @@ public class ProductServiceImpl implements ProductService {
     public Product updateWithExtras(Long id, String name, String shortDescription, String description,
                                     BigDecimal price, BigDecimal salePrice, Integer discountPercent,
                                     Integer quantity, Long categoryId, Long brandId,
-                                    Boolean isFeatured, Boolean isNew,
+                                    Boolean isFeatured, Boolean isNew, Boolean isBestSeller,
                                     String specifications, String metaTitle, String metaDescription,
                                     java.time.LocalDateTime saleStartDate, java.time.LocalDateTime saleEndDate) {
         
         Product product = update(id, name, shortDescription, description, price, salePrice,
                                  discountPercent, quantity, categoryId, brandId, isFeatured, isNew);
+        
+        // Update additional flags
+        if (isBestSeller != null) {
+            product.setIsBestSeller(isBestSeller);
+        }
         
         // Update additional fields
         product.setSpecifications(specifications);
@@ -367,6 +377,16 @@ public class ProductServiceImpl implements ProductService {
         product.setIsNew(!product.getIsNew());
         productRepository.save(product);
         log.info("Toggled product isNew status: {} -> {}", id, product.getIsNew());
+    }
+    
+    @Override
+    public void toggleBestSeller(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
+
+        product.setIsBestSeller(!product.getIsBestSeller());
+        productRepository.save(product);
+        log.info("Toggled product isBestSeller status: {} -> {}", id, product.getIsBestSeller());
     }
 
     // ========== IMAGES ==========

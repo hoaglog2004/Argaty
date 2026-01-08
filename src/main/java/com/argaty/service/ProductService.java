@@ -79,6 +79,8 @@ public interface ProductService {
     void toggleFeatured(Long id);
 
     void toggleNew(Long id);
+    
+    void toggleBestSeller(Long id);
 
     // ========== IMAGES ==========
 

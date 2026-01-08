@@ -111,6 +111,7 @@ public class AdminProductController {
                     request.getBrandId(),
                     request.getIsFeatured(),
                     request.getIsNew(),
+                    request.getIsBestSeller(),
                     request.getSpecifications(),
                     request.getMetaTitle(),
                     request.getMetaDescription(),
@@ -203,6 +204,7 @@ public class AdminProductController {
                     request.getBrandId(),
                     request.getIsFeatured(),
                     request.getIsNew(),
+                    request.getIsBestSeller(),
                     request.getSpecifications(),
                     request.getMetaTitle(),
                     request.getMetaDescription(),
@@ -246,6 +248,16 @@ public class AdminProductController {
     public String toggleNew(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         productService.toggleNew(id);
         redirectAttributes.addFlashAttribute("success", "Đã cập nhật trạng thái sản phẩm mới");
+        return "redirect:/admin/products";
+    }
+    
+    /**
+     * Toggle is_best_seller status
+     */
+    @PostMapping("/{id}/toggle-bestseller")
+    public String toggleBestSeller(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        productService.toggleBestSeller(id);
+        redirectAttributes.addFlashAttribute("success", "Đã cập nhật trạng thái bán chạy");
         return "redirect:/admin/products";
     }
 
