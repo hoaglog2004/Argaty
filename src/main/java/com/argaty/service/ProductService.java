@@ -62,17 +62,29 @@ public interface ProductService {
 
     Page<Product> findByPriceRange(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
 
+    // ========== ADMIN METHODS (bao gồm cả inactive) ==========
+
+    Page<Product> searchAll(String keyword, Pageable pageable);
+
+    Page<Product> findAllByCategory(Long categoryId, Pageable pageable);
+
+    Page<Product> findAllByBrand(Long brandId, Pageable pageable);
+
     // ========== CREATE & UPDATE ==========
 
     Product create(String name, String shortDescription, String description,
                    BigDecimal price, BigDecimal salePrice, Integer discountPercent,
                    Integer quantity, Long categoryId, Long brandId,
-                   Boolean isFeatured, Boolean isNew);
+                   Boolean isFeatured, Boolean isNew, Boolean isBestSeller,
+                   String specifications, String metaTitle, String metaDescription,
+                   java.time.LocalDateTime saleStartDate, java.time.LocalDateTime saleEndDate);
 
     Product update(Long id, String name, String shortDescription, String description,
                    BigDecimal price, BigDecimal salePrice, Integer discountPercent,
                    Integer quantity, Long categoryId, Long brandId,
-                   Boolean isFeatured, Boolean isNew);
+                   Boolean isFeatured, Boolean isNew, Boolean isBestSeller,
+                   String specifications, String metaTitle, String metaDescription,
+                   java.time.LocalDateTime saleStartDate, java.time.LocalDateTime saleEndDate);
 
     void toggleActive(Long id);
 
@@ -92,6 +104,9 @@ public interface ProductService {
 
     ProductVariant addVariant(Long productId, String name, String color, String colorCode,
                               String size, BigDecimal additionalPrice, Integer quantity);
+
+    // Variant images
+    com.argaty.entity.VariantImage addVariantImage(Long variantId, String imageUrl, boolean isMain);
 
     ProductVariant updateVariant(Long variantId, String name, String color, String colorCode,
                                  String size, BigDecimal additionalPrice, Integer quantity);

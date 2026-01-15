@@ -16,6 +16,7 @@ import com.argaty.entity.Category;
 import com.argaty.entity.Product;
 import com.argaty.entity.ProductImage;
 import com.argaty.entity.ProductVariant;
+import com.argaty.entity.VariantImage;
 import com.argaty.exception.BadRequestException;
 import com.argaty.exception.ResourceNotFoundException;
 import com.argaty.repository.BrandRepository;
@@ -24,6 +25,7 @@ import com.argaty.repository.ProductImageRepository;
 import com.argaty.repository.ProductRepository;
 import com.argaty.repository.ProductVariantRepository;
 import com.argaty.repository.ReviewRepository;
+import com.argaty.repository.VariantImageRepository;
 import com.argaty.service.ProductService;
 import com.argaty.util.SlugUtil;
 
@@ -42,6 +44,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
     private final ProductVariantRepository productVariantRepository;
+    private final VariantImageRepository variantImageRepository;
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
     private final ReviewRepository reviewRepository;
@@ -133,19 +136,34 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<Product> findFeaturedProducts(int limit) {
-        return productRepository.findFeaturedProducts(PageRequest.of(0, limit));
+        List<Product> products = productRepository.findFeaturedProducts(PageRequest.of(0, limit));
+        if (products.isEmpty()) {
+            // Fallback: Lấy sản phẩm active mới nhất nếu chưa set featured
+            return productRepository.findByIsActiveTrueOrderByCreatedAtDesc(PageRequest.of(0, limit)).getContent();
+        }
+        return products;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Product> findNewProducts(int limit) {
-        return productRepository.findNewProducts(PageRequest.of(0, limit));
+        List<Product> products = productRepository.findNewProducts(PageRequest.of(0, limit));
+        if (products.isEmpty()) {
+            // Fallback: Lấy sản phẩm active mới nhất
+            return productRepository.findByIsActiveTrueOrderByCreatedAtDesc(PageRequest.of(0, limit)).getContent();
+        }
+        return products;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Product> findBestSellerProducts(int limit) {
-        return productRepository.findBestSellerProducts(PageRequest.of(0, limit));
+        List<Product> products = productRepository.findBestSellerProducts(PageRequest.of(0, limit));
+        if (products.isEmpty()) {
+            // Fallback: Lấy sản phẩm bán chạy nhất hoặc active mới nhất
+            return productRepository.findByIsActiveTrueOrderBySoldCountDesc(PageRequest.of(0, limit)).getContent();
+        }
+        return products;
     }
 
     @Override
@@ -181,13 +199,35 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findByPriceRange(minPrice, maxPrice, pageable);
     }
 
+    // ========== ADMIN METHODS (bao gồm cả inactive) ==========
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Product> searchAll(String keyword, Pageable pageable) {
+        return productRepository.searchAllProducts(keyword, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Product> findAllByCategory(Long categoryId, Pageable pageable) {
+        return productRepository.findAllByCategoryAndSubcategories(categoryId, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Product> findAllByBrand(Long brandId, Pageable pageable) {
+        return productRepository.findByBrandId(brandId, pageable);
+    }
+
     // ========== CREATE & UPDATE ==========
 
     @Override
     public Product create(String name, String shortDescription, String description,
                           BigDecimal price, BigDecimal salePrice, Integer discountPercent,
                           Integer quantity, Long categoryId, Long brandId,
-                          Boolean isFeatured, Boolean isNew) {
+                          Boolean isFeatured, Boolean isNew, Boolean isBestSeller,
+                          String specifications, String metaTitle, String metaDescription,
+                          java.time.LocalDateTime saleStartDate, java.time.LocalDateTime saleEndDate) {
 
         // Tạo slug
         String slug = SlugUtil.toSlug(name);
@@ -221,7 +261,13 @@ public class ProductServiceImpl implements ProductService {
                 .brand(brand)
                 .isFeatured(isFeatured != null && isFeatured)
                 .isNew(isNew != null && isNew)
+                .isBestSeller(isBestSeller != null && isBestSeller)
                 .isActive(true)
+                .specifications(specifications)
+                .metaTitle(metaTitle)
+                .metaDescription(metaDescription)
+                .saleStartDate(saleStartDate)
+                .saleEndDate(saleEndDate)
                 .build();
 
         Product savedProduct = productRepository.save(product);
@@ -234,7 +280,9 @@ public class ProductServiceImpl implements ProductService {
     public Product update(Long id, String name, String shortDescription, String description,
                           BigDecimal price, BigDecimal salePrice, Integer discountPercent,
                           Integer quantity, Long categoryId, Long brandId,
-                          Boolean isFeatured, Boolean isNew) {
+                          Boolean isFeatured, Boolean isNew, Boolean isBestSeller,
+                          String specifications, String metaTitle, String metaDescription,
+                          java.time.LocalDateTime saleStartDate, java.time.LocalDateTime saleEndDate) {
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
@@ -282,6 +330,15 @@ public class ProductServiceImpl implements ProductService {
         if (isNew != null) {
             product.setIsNew(isNew);
         }
+        if (isBestSeller != null) {
+            product.setIsBestSeller(isBestSeller);
+        }
+
+        product.setSpecifications(specifications);
+        product.setMetaTitle(metaTitle);
+        product.setMetaDescription(metaDescription);
+        product.setSaleStartDate(saleStartDate);
+        product.setSaleEndDate(saleEndDate);
 
         log.info("Updated product: {}", id);
         return productRepository.save(product);
@@ -396,6 +453,27 @@ public class ProductServiceImpl implements ProductService {
         log.info("Added variant to product {}: {}", productId, name);
 
         return savedVariant;
+    }
+
+    @Override
+    public VariantImage addVariantImage(Long variantId, String imageUrl, boolean isMain) {
+        ProductVariant variant = productVariantRepository.findById(variantId)
+                .orElseThrow(() -> new ResourceNotFoundException("ProductVariant", "id", variantId));
+
+        if (isMain) {
+            variantImageRepository.clearMainImage(variantId);
+        }
+
+        VariantImage image = VariantImage.builder()
+                .variant(variant)
+                .imageUrl(imageUrl)
+                .isMain(isMain)
+                .displayOrder(variant.getImages() != null ? variant.getImages().size() : 0)
+                .build();
+
+        VariantImage saved = variantImageRepository.save(image);
+        log.info("Added variant image {} to variant {}", saved.getId(), variantId);
+        return saved;
     }
 
     @Override

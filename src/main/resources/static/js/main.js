@@ -386,10 +386,15 @@ function initSearchAutocomplete() {
 
 // Intersection Observer for scroll animations
 function initScrollAnimations() {
+  // Check if IntersectionObserver is supported
+  if (!('IntersectionObserver' in window)) {
+    return; // Do nothing if not supported
+  }
+
   const observerOptions = {
     root: null,
     rootMargin: "0px",
-    threshold: 0.1,
+    threshold: 0, // Changed to 0 to trigger as soon as any part is visible
   };
 
   const observer = new IntersectionObserver((entries) => {
@@ -401,25 +406,31 @@ function initScrollAnimations() {
     });
   }, observerOptions);
 
+  // Set initial state via class instead of inline style
+  // to avoid specificity issues and provide fallback
+  const style = document.createElement("style");
+  style.textContent = `
+      .scroll-hidden {
+          opacity: 0;
+          transform: translateY(20px);
+          transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+      .animate-in {
+          opacity: 1 !important;
+          transform: translateY(0) !important;
+      }
+  `;
+  document.head.appendChild(style);
+
   document
     .querySelectorAll(".product-card, .category-card, .card")
     .forEach((el) => {
-      el.style.opacity = "0";
-      el.style.transform = "translateY(20px)";
-      el.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+      el.classList.add("scroll-hidden");
       observer.observe(el);
     });
 }
-
-// Add animate-in styles
-const style = document.createElement("style");
-style.textContent = `
-    . animate-in {
-        opacity:  1 !important;
-        transform: translateY(0) !important;
-    }
-`;
-document.head.appendChild(style);
+// Remove old style injection
+// Add animate-in styles (REMOVED - moved inside function)
 
 // ========== MODAL ==========
 

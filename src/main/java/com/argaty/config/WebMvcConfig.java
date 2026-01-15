@@ -40,11 +40,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/static/");
 
         // Upload folder - cho phép truy cập file đã upload
+        // Sử dụng đường dẫn tuyệt đối với prefix file:///
         Path uploadPath = Paths.get(uploadDir).toAbsolutePath();
-                String uploadAbsolutePath = uploadPath.toUri().toString();
-                if (!uploadAbsolutePath.endsWith("/")) {
-                        uploadAbsolutePath = uploadAbsolutePath + "/";
-                }
+        String uploadAbsolutePath = "file:///" + uploadPath.toString().replace("\\", "/") + "/";
 
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(uploadAbsolutePath);

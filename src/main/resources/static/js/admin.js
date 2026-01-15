@@ -97,6 +97,24 @@ function initImageUpload() {
 function handleFileSelect(input, previewContainer) {
   const files = input.files;
 
+  const maxFilesAttr = input?.dataset?.maxFiles;
+  const maxFiles = maxFilesAttr ? parseInt(maxFilesAttr, 10) : 0;
+  if (maxFiles > 0 && files && files.length > maxFiles) {
+    if (typeof showToast === "function") {
+      showToast(
+        "error",
+        "Quá nhiều ảnh",
+        `Chỉ được chọn tối đa ${maxFiles} ảnh mỗi lần.`
+      );
+    } else {
+      alert(`Chỉ được chọn tối đa ${maxFiles} ảnh mỗi lần.`);
+    }
+
+    // Reset input to prevent submitting too many parts
+    input.value = "";
+    return;
+  }
+
   if (!previewContainer) return;
 
   Array.from(files).forEach((file) => {

@@ -1,20 +1,22 @@
 package com.argaty.service.impl;
 
-import com.argaty.entity.Category;
-import com.argaty.exception.ResourceNotFoundException;
-import com.argaty.exception.BadRequestException;
-import com.argaty.repository.CategoryRepository;
-import com.argaty.service.CategoryService;
-import com.argaty.util.SlugUtil;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import com.argaty.entity.Category;
+import com.argaty.exception.BadRequestException;
+import com.argaty.exception.ResourceNotFoundException;
+import com.argaty.repository.CategoryRepository;
+import com.argaty.service.CategoryService;
+import com.argaty.util.SlugUtil;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Implementation của CategoryService
@@ -59,7 +61,12 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public List<Category> findFeaturedCategories() {
-        return categoryRepository.findFeaturedCategories();
+        List<Category> categories = categoryRepository.findFeaturedCategories();
+        if (categories.isEmpty()) {
+            // Fallback: Lấy danh mục gốc nếu chưa set featured
+            return categoryRepository.findRootCategories();
+        }
+        return categories;
     }
 
     @Override

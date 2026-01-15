@@ -111,6 +111,12 @@
                   th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
                   >0 ₫</span
                 >
+                <div
+                  th:if="${product.isBestSeller}"
+                  class="badge badge-hot mt-1"
+                >
+                  Bán chạy
+                </div>
                 <br th:if="${product.salePrice}" />
                 <small
                   th:if="${product.salePrice}"

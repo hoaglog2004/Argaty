@@ -1,22 +1,30 @@
 package com.argaty.controller.admin;
 
-import com.argaty.dto.request.ProductRequest;
-import com.argaty.entity.Product;
-import com.argaty.exception.BadRequestException;
-import com.argaty.service.BrandService;
-import com.argaty.service.CategoryService;
-import com.argaty.service.ProductService;
-import com.argaty.util.DtoMapper;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.argaty.dto.request.ProductRequest;
+import com.argaty.entity.Product;
+import com.argaty.entity.ProductVariant;
+import com.argaty.exception.BadRequestException;
+import com.argaty.service.BrandService;
+import com.argaty.service.CategoryService;
+import com.argaty.service.ProductService;
+import com.argaty.util.DtoMapper;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Controller quản lý sản phẩm (Admin)
@@ -46,15 +54,19 @@ public class AdminProductController {
 
         Page<Product> products;
         if (q != null && !q.trim().isEmpty()) {
-            products = productService.search(q.trim(), pageRequest);
+            // Admin: tìm tất cả sản phẩm (kể cả inactive)
+            products = productService.searchAll(q.trim(), pageRequest);
             model.addAttribute("searchKeyword", q);
         } else if (categoryId != null) {
-            products = productService.findByCategory(categoryId, pageRequest);
+            // Admin: lấy tất cả sản phẩm theo category (kể cả inactive)
+            products = productService.findAllByCategory(categoryId, pageRequest);
             model.addAttribute("selectedCategoryId", categoryId);
         } else if (brandId != null) {
-            products = productService.findByBrand(brandId, pageRequest);
+            // Admin: lấy tất cả sản phẩm theo brand (kể cả inactive)
+            products = productService.findAllByBrand(brandId, pageRequest);
             model.addAttribute("selectedBrandId", brandId);
         } else {
+            // Admin: lấy tất cả sản phẩm
             products = productService.findAll(pageRequest);
         }
 
@@ -110,7 +122,13 @@ public class AdminProductController {
                     request.getCategoryId(),
                     request.getBrandId(),
                     request.getIsFeatured(),
-                    request.getIsNew()
+                    request.getIsNew(),
+                    request.getIsBestSeller(),
+                    request.getSpecifications(),
+                    request.getMetaTitle(),
+                    request.getMetaDescription(),
+                    request.getSaleStartDate(),
+                    request.getSaleEndDate()
             );
 
             // Thêm ảnh
@@ -123,7 +141,7 @@ public class AdminProductController {
             // Thêm variants
             if (request.getVariants() != null) {
                 for (ProductRequest.ProductVariantRequest v : request.getVariants()) {
-                    productService.addVariant(
+                    ProductVariant savedVariant = productService.addVariant(
                             product.getId(),
                             v.getName(),
                             v.getColor(),
@@ -132,6 +150,12 @@ public class AdminProductController {
                             v.getAdditionalPrice(),
                             v.getQuantity()
                     );
+
+                    if (v.getImageUrls() != null) {
+                        for (int j = 0; j < v.getImageUrls().size(); j++) {
+                            productService.addVariantImage(savedVariant.getId(), v.getImageUrls().get(j), j == 0);
+                        }
+                    }
                 }
             }
 
@@ -197,7 +221,13 @@ public class AdminProductController {
                     request.getCategoryId(),
                     request.getBrandId(),
                     request.getIsFeatured(),
-                    request.getIsNew()
+                    request.getIsNew(),
+                    request.getIsBestSeller(),
+                    request.getSpecifications(),
+                    request.getMetaTitle(),
+                    request.getMetaDescription(),
+                    request.getSaleStartDate(),
+                    request.getSaleEndDate()
             );
 
             redirectAttributes.addFlashAttribute("success", "Cập nhật sản phẩm thành công");

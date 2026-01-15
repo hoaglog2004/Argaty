@@ -54,6 +54,13 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     Page<Product> findByBrandIdAndIsActiveTrue(Long brandId, Pageable pageable);
 
+    // Admin: lấy tất cả sản phẩm theo brand (kể cả inactive)
+    Page<Product> findByBrandId(Long brandId, Pageable pageable);
+
+    // Admin: lấy tất cả sản phẩm theo category (kể cả inactive)
+    @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId OR p.category.parent.id = :categoryId")
+    Page<Product> findAllByCategoryAndSubcategories(@Param("categoryId") Long categoryId, Pageable pageable);
+
     // ========== FIND FEATURED / NEW / BESTSELLER ==========
 
     @Query("SELECT p FROM Product p WHERE p.isFeatured = true AND p.isActive = true " +
@@ -96,6 +103,13 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
            "LOWER(p.shortDescription) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(p.sku) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Product> searchProducts(@Param("keyword") String keyword, Pageable pageable);
+
+    // Admin: tìm kiếm tất cả sản phẩm (kể cả inactive)
+    @Query("SELECT p FROM Product p WHERE " +
+           "LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(p.shortDescription) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(p.sku) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    Page<Product> searchAllProducts(@Param("keyword") String keyword, Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE p.isActive = true AND " +
            "p.category.id = :categoryId AND " +

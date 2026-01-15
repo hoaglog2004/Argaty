@@ -3,12 +3,12 @@ package com.argaty.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.argaty.dto.response.ApiResponse;
 
@@ -123,13 +123,48 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(NoHandlerFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ModelAndView handleNoHandlerFound(NoHandlerFoundException ex) {
+    public Object handleNoHandlerFound(
+            NoHandlerFoundException ex, 
+            HttpServletRequest request) {
+        
+        // Nếu là request static files, trả về 404 đơn giản
+        if (isStaticResourceRequest(request)) {
+            return ResponseEntity.notFound().build();
+        }
+        
         log.error("No handler found: {}", ex.getMessage());
         
         ModelAndView mav = new ModelAndView("error/error");
         mav.addObject("errorCode", 404);
         mav.addObject("errorTitle", "Không tìm thấy trang");
         mav.addObject("errorMessage", "Trang bạn đang tìm kiếm không tồn tại");
+        return mav;
+    }
+
+    /**
+     * Handle missing static resources (404), e.g. /uploads/**
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Object handleNoResourceFound(
+            NoResourceFoundException ex,
+            HttpServletRequest request) {
+
+        // For static resources, return a clean 404 (avoid noisy 500 logs)
+        if (isStaticResourceRequest(request)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (isApiRequest(request)) {
+            return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("Không tìm thấy tài nguyên"));
+        }
+
+        ModelAndView mav = new ModelAndView("error/error");
+        mav.addObject("errorCode", 404);
+        mav.addObject("errorTitle", "Không tìm thấy");
+        mav.addObject("errorMessage", "Tài nguyên bạn yêu cầu không tồn tại");
         return mav;
     }
 
@@ -143,6 +178,11 @@ public class GlobalExceptionHandler {
             HttpServletRequest request) {
         
         log.error("Internal server error: ", ex);
+        
+        // Nếu là request static files, trả về 500 đơn giản
+        if (isStaticResourceRequest(request)) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
         
         if (isApiRequest(request)) {
             return ResponseEntity
@@ -163,5 +203,25 @@ public class GlobalExceptionHandler {
     private boolean isApiRequest(HttpServletRequest request) {
         String requestUri = request.getRequestURI();
         return requestUri.startsWith("/api/");
+    }
+
+    /**
+     * Check if the request is for static resources
+     */
+    private boolean isStaticResourceRequest(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return uri.startsWith("/css/") || 
+               uri.startsWith("/js/") || 
+               uri.startsWith("/images/") || 
+               uri.startsWith("/uploads/") || 
+               uri.startsWith("/static/") ||
+               uri.endsWith(".css") ||
+               uri.endsWith(".js") ||
+               uri.endsWith(".svg") ||
+               uri.endsWith(".webp") ||
+               uri.endsWith(".png") ||
+               uri.endsWith(".jpg") ||
+               uri.endsWith(".jpeg") ||
+               uri.endsWith(".ico");
     }
 }

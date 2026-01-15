@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/main}"
+>
+  <head>
+    <title>Chính sách</title>
+  </head>
+
+  <body>
+    <main layout:fragment="content">
+      <div style="padding: 120px 0 80px">
+        <div class="container">
+          <div class="text-center mb-5">
+            <h1 class="section-title text-gradient">Chính sách</h1>
+            <p
+              class="section-subtitle"
+              th:text="${policyType} != null ? ${policyType} : 'Thông tin chính sách'"
+            >
+              Thông tin chính sách
+            </p>
+          </div>
+
+          <div class="card glass p-5">
+            <p class="text-secondary" style="line-height: 1.9">
+              Trang chính sách cho mục
+              <strong class="text-primary" th:text="${policyType}"
+                >policy</strong
+              >
+              hiện chưa có nội dung. Bạn có thể bổ sung nội dung theo từng loại
+              chính sách (ví dụ: đổi trả, bảo hành, vận chuyển, thanh toán).
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

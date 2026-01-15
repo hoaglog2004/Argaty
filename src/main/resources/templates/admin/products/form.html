@@ -15,7 +15,7 @@
       <div class="admin-page-header">
         <h1
           class="admin-page-title"
-          th:text="${isEdit} ?  'Sửa sản phẩm' : 'Thêm sản phẩm mới'"
+          th:text="${isEdit} ?  'Sửa sản phẩm (Updated)' : 'Thêm sản phẩm mới (Updated)'"
         >
           Sản phẩm
         </h1>
@@ -30,7 +30,6 @@
         th:action="${isEdit} ? @{/admin/products/{id}/edit(id=${product.id})} : @{/admin/products/create}"
         method="post"
         th:object="${productRequest}"
-        enctype="multipart/form-data"
       >
         <input
           type="hidden"
@@ -108,6 +107,43 @@
                   placeholder="Mô tả chi tiết sản phẩm"
                 ></textarea>
               </div>
+
+              <div class="form-group mt-3">
+                <label class="form-label">Thông số kỹ thuật</label>
+                <textarea
+                  th:field="*{specifications}"
+                  class="form-control"
+                  rows="4"
+                  placeholder="Thông số kỹ thuật chi tiết..."
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- SEO Metadata -->
+            <div class="admin-form-card mb-4">
+              <div class="admin-form-card__header">
+                <h4 class="admin-form-card__title">
+                  <i class="bx bx-search-alt text-primary"></i> SEO Metadata
+                </h4>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Meta Title</label>
+                <input
+                  type="text"
+                  th:field="*{metaTitle}"
+                  class="form-control"
+                  placeholder="Tiêu đề SEO"
+                />
+              </div>
+              <div class="form-group mb-0">
+                <label class="form-label">Meta Description</label>
+                <textarea
+                  th:field="*{metaDescription}"
+                  class="form-control"
+                  rows="3"
+                  placeholder="Mô tả SEO"
+                ></textarea>
+              </div>
             </div>
 
             <!-- Images -->
@@ -125,9 +161,9 @@
                 <input
                   type="file"
                   id="imageInput"
-                  name="images"
                   multiple
                   accept="image/*"
+                  data-max-files="10"
                   style="display: none"
                 />
                 <i class="bx bx-cloud-upload image-upload__icon"></i>
@@ -140,26 +176,30 @@
               </div>
 
               <div class="image-preview-grid" id="imagePreview">
-                <div
-                  th:if="${product != null}"
-                  th:each="img : ${product.images}"
-                  class="image-preview-item"
-                >
-                  <img th:src="${img.imageUrl}" />
-                  <button
-                    type="button"
-                    class="image-preview-item__remove"
-                    th:onclick="'removeExistingImage(' + ${img.id} + ', this)'"
+                <th:block th:if="${product != null && product.images != null}">
+                  <div
+                    th:each="img : ${product.images}"
+                    class="image-preview-item"
                   >
-                    <i class="bx bx-x"></i>
-                  </button>
-                  <input
-                    type="hidden"
-                    name="existingImageIds"
-                    th:value="${img.id}"
-                  />
-                </div>
+                    <img th:src="${img.imageUrl}" />
+                    <button
+                      type="button"
+                      class="image-preview-item__remove"
+                      th:onclick="'removeExistingImage(' + ${img.id} + ', this)'"
+                    >
+                      <i class="bx bx-x"></i>
+                    </button>
+                    <input
+                      type="hidden"
+                      name="existingImageIds"
+                      th:value="${img.id}"
+                    />
+                  </div>
+                </th:block>
               </div>
+
+              <!-- Uploaded image URLs for ProductRequest.imageUrls -->
+              <div id="imageUrlsContainer" style="display: none"></div>
             </div>
 
             <!-- Variants -->
@@ -180,182 +220,196 @@
               </div>
 
               <div id="variantsContainer">
-                <div
+                <th:block
                   th:if="${product != null && product.variants != null}"
-                  th:each="variant, stat : ${product.variants}"
-                  class="variant-item card p-3 mb-3"
                 >
-                  <div class="d-flex justify-between align-center mb-3">
-                    <strong class="text-primary">
-                      <i class="bx bx-cube"></i> Biến thể #<span
-                        class="variant-index"
-                        th:text="${stat.index + 1}"
-                        >1</span
-                      >
-                    </strong>
-                    <button
-                      type="button"
-                      class="btn btn-ghost btn-sm text-danger"
-                      onclick="removeVariant(this)"
-                    >
-                      <i class="bx bx-trash"></i> Xóa
-                    </button>
-                  </div>
-                  <input
-                    type="hidden"
-                    th:name="'variants[' + ${stat.index} + '].id'"
-                    th:value="${variant.id}"
-                  />
                   <div
-                    class="admin-form-grid"
-                    style="grid-template-columns: repeat(3, 1fr)"
+                    th:each="variant, stat : ${product.variants}"
+                    class="variant-item card p-3 mb-3"
+                    th:attr="data-variant-index=${stat.index}"
                   >
-                    <div class="form-group mb-3">
-                      <label class="form-label"
-                        >Tên biến thể <span class="text-danger">*</span></label
-                      >
-                      <input
-                        type="text"
-                        th:name="'variants[' + ${stat.index} + '].name'"
-                        th:value="${variant.name}"
-                        class="form-control"
-                        placeholder="VD: Đen 128GB, Size L"
-                        required
-                      />
-                    </div>
-                    <div class="form-group mb-3">
-                      <label class="form-label">SKU biến thể</label>
-                      <input
-                        type="text"
-                        th:name="'variants[' + ${stat.index} + '].sku'"
-                        th:value="${variant.sku}"
-                        class="form-control"
-                        placeholder="Mã SKU riêng"
-                      />
-                    </div>
-                    <div class="form-group mb-3">
-                      <label class="form-label">Màu sắc</label>
-                      <input
-                        type="text"
-                        th:name="'variants[' + ${stat.index} + '].color'"
-                        th:value="${variant.color}"
-                        class="form-control"
-                        placeholder="VD: Đen, Trắng, Xanh"
-                      />
-                    </div>
-                    <div class="form-group mb-3">
-                      <label class="form-label">Mã màu</label>
-                      <div class="d-flex gap-2">
-                        <input
-                          type="color"
-                          th:name="'variants[' + ${stat.index} + '].colorCode'"
-                          th:value="${variant.colorCode ?: '#000000'}"
-                          class="form-control"
-                          style="width: 50px; padding: 4px"
-                        />
-                        <input
-                          type="text"
-                          th:value="${variant.colorCode}"
-                          class="form-control"
-                          placeholder="#000000"
-                          readonly
-                        />
-                      </div>
-                    </div>
-                    <div class="form-group mb-3">
-                      <label class="form-label">Size</label>
-                      <input
-                        type="text"
-                        th:name="'variants[' + ${stat.index} + '].size'"
-                        th:value="${variant.size}"
-                        class="form-control"
-                        placeholder="VD: S, M, L, XL, 128GB"
-                      />
-                    </div>
-                    <div class="form-group mb-3">
-                      <label class="form-label">Giá thêm (+)</label>
-                      <input
-                        type="number"
-                        th:name="'variants[' + ${stat.index} + '].additionalPrice'"
-                        th:value="${variant.additionalPrice}"
-                        class="form-control"
-                        min="0"
-                        step="1000"
-                        placeholder="0"
-                      />
-                    </div>
-                    <div class="form-group mb-0">
-                      <label class="form-label"
-                        >Số lượng <span class="text-danger">*</span></label
-                      >
-                      <input
-                        type="number"
-                        th:name="'variants[' + ${stat.index} + '].quantity'"
-                        th:value="${variant.quantity}"
-                        class="form-control"
-                        min="0"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <!-- Variant Images -->
-                  <div
-                    class="mt-3 p-3"
-                    style="background: var(--bg-void); border-radius: 8px"
-                  >
-                    <label class="form-label d-flex align-center gap-2">
-                      <i class="bx bx-image"></i> Ảnh biến thể
-                    </label>
-                    <div
-                      class="variant-images-preview d-flex gap-2 flex-wrap"
-                      th:id="'variantImages-' + ${stat.index}"
-                    >
-                      <div
-                        th:if="${variant.images != null}"
-                        th:each="img : ${variant.images}"
-                        class="variant-image-item"
-                        style="position: relative"
-                      >
-                        <img
-                          th:src="${img}"
-                          style="
-                            width: 60px;
-                            height: 60px;
-                            object-fit: cover;
-                            border-radius: 6px;
-                          "
-                        />
-                        <button
-                          type="button"
-                          class="btn btn-sm"
-                          onclick="this.parentElement.remove()"
-                          style="
-                            position: absolute;
-                            top: -8px;
-                            right: -8px;
-                            background: var(--danger);
-                            color: white;
-                            border-radius: 50%;
-                            width: 20px;
-                            height: 20px;
-                            padding: 0;
-                          "
+                    <div class="d-flex justify-between align-center mb-3">
+                      <strong class="text-primary">
+                        <i class="bx bx-cube"></i> Biến thể #<span
+                          class="variant-index"
+                          th:text="${stat.index + 1}"
+                          >1</span
                         >
-                          <i class="bx bx-x" style="font-size: 14px"></i>
-                        </button>
-                      </div>
+                      </strong>
+                      <button
+                        type="button"
+                        class="btn btn-ghost btn-sm text-danger"
+                        onclick="removeVariant(this)"
+                      >
+                        <i class="bx bx-trash"></i> Xóa
+                      </button>
                     </div>
                     <input
-                      type="file"
-                      th:id="'variantImageInput-' + ${stat.index}"
-                      th:name="'variantImages[' + ${stat.index} + ']'"
-                      multiple
-                      accept="image/*"
-                      class="form-control mt-2"
-                      style="font-size: 13px"
+                      type="hidden"
+                      th:name="'variants[' + ${stat.index} + '].id'"
+                      th:value="${variant.id}"
                     />
+                    <div
+                      class="admin-form-grid"
+                      style="grid-template-columns: repeat(3, 1fr)"
+                    >
+                      <div class="form-group mb-3">
+                        <label class="form-label"
+                          >Tên biến thể
+                          <span class="text-danger">*</span></label
+                        >
+                        <input
+                          type="text"
+                          th:name="'variants[' + ${stat.index} + '].name'"
+                          th:value="${variant.name}"
+                          class="form-control"
+                          placeholder="VD: Đen 128GB, Size L"
+                          required
+                        />
+                      </div>
+                      <div class="form-group mb-3">
+                        <label class="form-label">SKU biến thể</label>
+                        <input
+                          type="text"
+                          th:name="'variants[' + ${stat.index} + '].sku'"
+                          th:value="${variant.sku}"
+                          class="form-control"
+                          placeholder="Mã SKU riêng"
+                        />
+                      </div>
+                      <div class="form-group mb-3">
+                        <label class="form-label">Màu sắc</label>
+                        <input
+                          type="text"
+                          th:name="'variants[' + ${stat.index} + '].color'"
+                          th:value="${variant.color}"
+                          class="form-control"
+                          placeholder="VD: Đen, Trắng, Xanh"
+                        />
+                      </div>
+                      <div class="form-group mb-3">
+                        <label class="form-label">Mã màu</label>
+                        <div class="d-flex gap-2">
+                          <input
+                            type="color"
+                            th:name="'variants[' + ${stat.index} + '].colorCode'"
+                            th:value="${variant.colorCode ?: '#000000'}"
+                            class="form-control"
+                            style="width: 50px; padding: 4px"
+                          />
+                          <input
+                            type="text"
+                            th:value="${variant.colorCode}"
+                            class="form-control"
+                            placeholder="#000000"
+                            readonly
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group mb-3">
+                        <label class="form-label">Size</label>
+                        <input
+                          type="text"
+                          th:name="'variants[' + ${stat.index} + '].size'"
+                          th:value="${variant.size}"
+                          class="form-control"
+                          placeholder="VD: S, M, L, XL, 128GB"
+                        />
+                      </div>
+                      <div class="form-group mb-3">
+                        <label class="form-label">Giá thêm (+)</label>
+                        <input
+                          type="number"
+                          th:name="'variants[' + ${stat.index} + '].additionalPrice'"
+                          th:value="${variant.additionalPrice}"
+                          class="form-control"
+                          min="0"
+                          step="1000"
+                          placeholder="0"
+                        />
+                      </div>
+                      <div class="form-group mb-0">
+                        <label class="form-label"
+                          >Số lượng <span class="text-danger">*</span></label
+                        >
+                        <input
+                          type="number"
+                          th:name="'variants[' + ${stat.index} + '].quantity'"
+                          th:value="${variant.quantity}"
+                          class="form-control"
+                          min="0"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <!-- Variant Images -->
+                    <div
+                      class="mt-3 p-3"
+                      style="background: var(--bg-void); border-radius: 8px"
+                    >
+                      <label class="form-label d-flex align-center gap-2">
+                        <i class="bx bx-image"></i> Ảnh biến thể
+                      </label>
+                      <div
+                        class="variant-images-preview d-flex gap-2 flex-wrap"
+                        th:id="'variantImages-' + ${stat.index}"
+                      >
+                        <th:block th:if="${variant.images != null}">
+                          <div
+                            th:each="img : ${variant.images}"
+                            class="variant-image-item"
+                            style="position: relative"
+                          >
+                            <img
+                              th:src="${img}"
+                              style="
+                                width: 60px;
+                                height: 60px;
+                                object-fit: cover;
+                                border-radius: 6px;
+                              "
+                            />
+                            <button
+                              type="button"
+                              class="btn btn-sm"
+                              onclick="this.parentElement.remove()"
+                              style="
+                                position: absolute;
+                                top: -8px;
+                                right: -8px;
+                                background: var(--danger);
+                                color: white;
+                                border-radius: 50%;
+                                width: 20px;
+                                height: 20px;
+                                padding: 0;
+                              "
+                            >
+                              <i class="bx bx-x" style="font-size: 14px"></i>
+                            </button>
+                          </div>
+                        </th:block>
+                      </div>
+
+                      <!-- Uploaded image URLs for ProductRequest.variants[i].imageUrls -->
+                      <div
+                        class="variant-image-urls"
+                        th:id="'variantImageUrls-' + ${stat.index}"
+                        style="display: none"
+                      ></div>
+
+                      <input
+                        type="file"
+                        th:id="'variantImageInput-' + ${stat.index}"
+                        multiple
+                        accept="image/*"
+                        data-max-files="10"
+                        class="form-control mt-2 variant-image-input"
+                        style="font-size: 13px"
+                      />
+                    </div>
                   </div>
-                </div>
+                </th:block>
               </div>
 
               <p
@@ -461,6 +515,24 @@
                 />
               </div>
 
+              <div class="form-group">
+                <label class="form-label">Ngày bắt đầu giảm giá</label>
+                <input
+                  type="datetime-local"
+                  th:field="*{saleStartDate}"
+                  class="form-control"
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Ngày kết thúc giảm giá</label>
+                <input
+                  type="datetime-local"
+                  th:field="*{saleEndDate}"
+                  class="form-control"
+                />
+              </div>
+
               <div class="form-group mb-0">
                 <label class="form-label">Số lượng trong kho</label>
                 <input
@@ -529,7 +601,120 @@
 
     <th:block layout:fragment="scripts">
       <script>
-        let variantIndex = [[${product?.variants?.size() ?: 0}]];
+        let variantIndex = /*[[${(product != null and product.variants != null) ? #lists.size(product.variants) : 0}]]*/ 0;
+
+        function getCsrfField() {
+          const inputs = Array.from(
+            document.querySelectorAll('form input[type="hidden"][name][value]')
+          );
+          return (
+            inputs.find((i) => i.name.toLowerCase().includes("csrf")) || null
+          );
+        }
+
+        async function uploadMultipleFiles(files, directory) {
+          const csrf = getCsrfField();
+          const formData = new FormData();
+          files.forEach((f) => formData.append("files", f));
+          formData.append("directory", directory);
+          if (csrf) {
+            formData.append(csrf.name, csrf.value);
+          }
+
+          const res = await fetch("/api/files/upload-multiple", {
+            method: "POST",
+            body: formData,
+            credentials: "same-origin",
+          });
+
+          const json = await res.json().catch(() => null);
+          if (!res.ok || !json || json.success !== true) {
+            throw new Error(json?.message || "Upload thất bại");
+          }
+
+          const urls = json?.data?.urls || [];
+          if (!Array.isArray(urls) || urls.length === 0) {
+            throw new Error("Upload thất bại: không nhận được URL");
+          }
+
+          return urls;
+        }
+
+        function setSubmitEnabled(enabled) {
+          const btn = document.querySelector('button[type="submit"]');
+          if (!btn) return;
+          btn.disabled = !enabled;
+        }
+
+        let pendingUploads = 0;
+        function beginUpload() {
+          pendingUploads++;
+          setSubmitEnabled(false);
+        }
+
+        function endUpload() {
+          pendingUploads = Math.max(0, pendingUploads - 1);
+          if (pendingUploads === 0) {
+            setSubmitEnabled(true);
+          }
+        }
+
+        function clearContainer(el) {
+          if (!el) return;
+          while (el.firstChild) el.removeChild(el.firstChild);
+        }
+
+        function appendHiddenInput(container, name, value) {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = name;
+          input.value = value;
+          container.appendChild(input);
+        }
+
+        function reindexVariants() {
+          const items = Array.from(document.querySelectorAll(".variant-item"));
+          items.forEach((item, newIndex) => {
+            item.dataset.variantIndex = String(newIndex);
+
+            const indexLabel = item.querySelector(".variant-index");
+            if (indexLabel) indexLabel.textContent = String(newIndex + 1);
+
+            // Update ids for preview/hidden containers and file input
+            const preview = item.querySelector(".variant-images-preview");
+            if (preview) preview.id = `variantImages-${newIndex}`;
+
+            const urlsContainer = item.querySelector(".variant-image-urls");
+            if (urlsContainer)
+              urlsContainer.id = `variantImageUrls-${newIndex}`;
+
+            const fileInput = item.querySelector(".variant-image-input");
+            if (fileInput) fileInput.id = `variantImageInput-${newIndex}`;
+
+            // Update all form field names variants[old].xxx -> variants[new].xxx
+            item
+              .querySelectorAll("input[name], select[name], textarea[name]")
+              .forEach((field) => {
+                field.name = field.name.replace(
+                  /variants\[\d+\]/g,
+                  `variants[${newIndex}]`
+                );
+              });
+
+            // Update hidden inputs names for imageUrls if using indexed notation
+            item
+              .querySelectorAll('input[type="hidden"][name^="variants["]')
+              .forEach((hidden) => {
+                hidden.name = hidden.name.replace(
+                  /variants\[\d+\]/g,
+                  `variants[${newIndex}]`
+                );
+              });
+          });
+
+          // Keep variantIndex in sync for newly added variants
+          variantIndex = items.length;
+        }
 
         function addVariant() {
           document.getElementById("noVariantsText")?.remove();
@@ -539,7 +724,9 @@
             <div class="variant-item card p-3 mb-3">
               <div class="d-flex justify-between align-center mb-3">
                 <strong class="text-primary">
-                  <i class='bx bx-cube'></i> Biến thể #<span class="variant-index">${variantIndex + 1}</span>
+                  <i class='bx bx-cube'></i> Biến thể #<span class="variant-index">${
+                    variantIndex + 1
+                  }</span>
                 </strong>
                 <button type="button" class="btn btn-ghost btn-sm text-danger" onclick="removeVariant(this)">
                   <i class='bx bx-trash'></i> Xóa
@@ -583,73 +770,163 @@
                   <i class='bx bx-image'></i> Ảnh biến thể
                 </label>
                 <div class="variant-images-preview d-flex gap-2 flex-wrap" id="variantImages-${variantIndex}"></div>
-                <input type="file" id="variantImageInput-${variantIndex}" name="variantImages[${variantIndex}]" multiple accept="image/*" class="form-control mt-2" style="font-size: 13px;" onchange="previewVariantImages(this, ${variantIndex})">
+                <div class="variant-image-urls" id="variantImageUrls-${variantIndex}" style="display:none"></div>
+                <input type="file" id="variantImageInput-${variantIndex}" multiple accept="image/*" data-max-files="10" class="form-control mt-2 variant-image-input" style="font-size: 13px;">
               </div>
             </div>
           `;
           container.insertAdjacentHTML("beforeend", html);
-          variantIndex++;
+          reindexVariants();
         }
 
         function removeVariant(btn) {
           btn.closest(".variant-item").remove();
-          updateVariantIndices();
+          reindexVariants();
         }
 
-        function updateVariantIndices() {
-          document.querySelectorAll(".variant-index").forEach((el, i) => {
-            el.textContent = i + 1;
-          });
-        }
+        async function handleVariantImageSelect(input) {
+          const item = input.closest(".variant-item");
+          if (!item) return;
 
-        function previewVariantImages(input, index) {
-          const preview = document.getElementById('variantImages-' + index);
-          if (!preview) return;
+          const index = Number(item.dataset.variantIndex || "0");
+          const preview = document.getElementById(`variantImages-${index}`);
+          const urlsContainer = document.getElementById(
+            `variantImageUrls-${index}`
+          );
+          if (!preview || !urlsContainer) return;
 
-          Array.from(input.files).forEach((file) => {
-            if (!file.type.startsWith("image/")) return;
+          const maxFiles = Number(input.dataset.maxFiles || "10");
+          const files = Array.from(input.files || []);
+          if (files.length === 0) return;
 
-            const reader = new FileReader();
-            reader.onload = function (e) {
+          if (files.length > maxFiles) {
+            if (typeof showToast === "function") {
+              showToast(
+                "error",
+                "Quá nhiều ảnh",
+                `Tối đa ${maxFiles} ảnh mỗi biến thể.`
+              );
+            } else {
+              alert(`Tối đa ${maxFiles} ảnh mỗi biến thể.`);
+            }
+            input.value = "";
+            return;
+          }
+
+          beginUpload();
+          try {
+            const urls = await uploadMultipleFiles(files, "products");
+
+            // Append previews + hidden url fields
+            urls.forEach((url) => {
               const div = document.createElement("div");
               div.className = "variant-image-item";
               div.style.cssText = "position: relative;";
               div.innerHTML = `
-                <img src="${e.target.result}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;">
+                <img src="${url}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;">
                 <button type="button" class="btn btn-sm" onclick="this.parentElement.remove()" style="position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; border-radius: 50%; width: 20px; height: 20px; padding: 0;">
                   <i class='bx bx-x' style="font-size: 14px;"></i>
                 </button>
               `;
               preview.appendChild(div);
-            };
-            reader.readAsDataURL(file);
-          });
+
+              const currentCount = urlsContainer.querySelectorAll(
+                'input[type="hidden"]'
+              ).length;
+              appendHiddenInput(
+                urlsContainer,
+                `variants[${index}].imageUrls[${currentCount}]`,
+                url
+              );
+            });
+
+            // reset so user can re-pick same file
+            input.value = "";
+          } catch (e) {
+            if (typeof showToast === "function") {
+              showToast(
+                "error",
+                "Upload thất bại",
+                e?.message || "Không thể upload ảnh."
+              );
+            } else {
+              alert(e?.message || "Không thể upload ảnh.");
+            }
+          } finally {
+            endUpload();
+          }
         }
 
         // Image preview for main images
         document
           .getElementById("imageInput")
-          ?.addEventListener("change", function () {
+          ?.addEventListener("change", async function () {
             const preview = document.getElementById("imagePreview");
+            const urlsContainer = document.getElementById("imageUrlsContainer");
+            if (!preview || !urlsContainer) return;
 
-            Array.from(this.files).forEach((file) => {
-              if (!file.type.startsWith("image/")) return;
+            const maxFiles = Number(this.dataset.maxFiles || "10");
+            const files = Array.from(this.files || []);
+            if (files.length === 0) return;
 
-              const reader = new FileReader();
-              reader.onload = function (e) {
+            if (files.length > maxFiles) {
+              if (typeof showToast === "function") {
+                showToast(
+                  "error",
+                  "Quá nhiều ảnh",
+                  `Tối đa ${maxFiles} ảnh cho sản phẩm.`
+                );
+              } else {
+                alert(`Tối đa ${maxFiles} ảnh cho sản phẩm.`);
+              }
+              this.value = "";
+              return;
+            }
+
+            beginUpload();
+            try {
+              const urls = await uploadMultipleFiles(files, "products");
+              urls.forEach((url) => {
                 const div = document.createElement("div");
                 div.className = "image-preview-item";
                 div.innerHTML = `
-                  <img src="${e.target.result}">
+                  <img src="${url}">
                   <button type="button" class="image-preview-item__remove" onclick="this.parentElement.remove()">
                     <i class='bx bx-x'></i>
                   </button>
                 `;
                 preview.appendChild(div);
-              };
-              reader.readAsDataURL(file);
-            });
+
+                appendHiddenInput(urlsContainer, "imageUrls", url);
+              });
+
+              this.value = "";
+            } catch (e) {
+              if (typeof showToast === "function") {
+                showToast(
+                  "error",
+                  "Upload thất bại",
+                  e?.message || "Không thể upload ảnh."
+                );
+              } else {
+                alert(e?.message || "Không thể upload ảnh.");
+              }
+            } finally {
+              endUpload();
+            }
           });
+
+        // Variant image inputs (both existing and dynamically added)
+        document.addEventListener("change", (e) => {
+          const target = e.target;
+          if (!(target instanceof HTMLInputElement)) return;
+          if (target.classList.contains("variant-image-input")) {
+            handleVariantImageSelect(target);
+          }
+        });
+
+        // Ensure correct initial indices for edit mode
+        reindexVariants();
 
         function removeExistingImage(id, btn) {
           btn.closest(".image-preview-item").remove();

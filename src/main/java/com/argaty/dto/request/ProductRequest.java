@@ -1,14 +1,19 @@
 package com.argaty.dto.request;
 
-import jakarta.validation.constraints.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * DTO cho request tạo/cập nhật sản phẩm
@@ -22,6 +27,8 @@ public class ProductRequest {
     @NotBlank(message = "Tên sản phẩm không được để trống")
     @Size(max = 200, message = "Tên sản phẩm tối đa 200 ký tự")
     private String name;
+
+    private String slug;
 
     private String sku;
 
@@ -52,6 +59,8 @@ public class ProductRequest {
     private Boolean isFeatured;
 
     private Boolean isNew;
+
+    private Boolean isBestSeller;
 
     private Boolean isActive;
 
