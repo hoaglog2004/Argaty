@@ -27,19 +27,18 @@ public class SecurityConfig {
     }
 
     /**
-     * Custom Success Handler - Redirect admin to /admin, users to /home
+     * Custom Success Handler - Redirect all users to homepage
      */
     @Bean
     public AuthenticationSuccessHandler customSuccessHandler() {
         return (request, response, authentication) -> {
-            String redirectUrl = "/home";
+            // Always redirect to homepage
+            String redirectUrl = "/";
             
-            // Check if user has ADMIN role
-            boolean isAdmin = authentication.getAuthorities().stream()
-                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
-            
-            if (isAdmin) {
-                redirectUrl = "/admin";
+            // Check if there's a specific redirect parameter
+            String targetUrl = request.getParameter("redirect");
+            if (targetUrl != null && !targetUrl.isEmpty()) {
+                redirectUrl = targetUrl;
             }
             
             response.sendRedirect(request.getContextPath() + redirectUrl);
