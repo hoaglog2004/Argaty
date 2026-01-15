@@ -111,6 +111,18 @@ public class AdminProductController {
         }
 
         try {
+            // Validate business rules
+            if (request.getSalePrice() != null && request.getPrice() != null 
+                && request.getSalePrice().compareTo(request.getPrice()) >= 0) {
+                bindingResult.rejectValue("salePrice", "error.salePrice", 
+                    "Giá sale phải nhỏ hơn giá gốc");
+                model.addAttribute("categories", DtoMapper.toCategoryWithChildrenResponseList(categoryService.findRootCategories()));
+                model.addAttribute("brands", DtoMapper.toBrandResponseList(brandService.findAllActive()));
+                model.addAttribute("adminPage", "products");
+                model.addAttribute("pageTitle", "Thêm sản phẩm");
+                return "admin/products/form";
+            }
+
             Product product = productService.create(
                     request.getName(),
                     request.getShortDescription(),
@@ -177,7 +189,7 @@ public class AdminProductController {
                 .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("Product", "id", id));
 
         model.addAttribute("product", DtoMapper.toProductDetailResponse(product));
-        model.addAttribute("productRequest", new ProductRequest());
+        model.addAttribute("productRequest", convertToProductRequest(product));
         model.addAttribute("categories", DtoMapper.toCategoryWithChildrenResponseList(categoryService.findRootCategories()));
         model.addAttribute("brands", DtoMapper.toBrandResponseList(brandService.findAllActive()));
         model.addAttribute("adminPage", "products");
@@ -209,6 +221,20 @@ public class AdminProductController {
         }
 
         try {
+            // Validate business rules
+            if (request.getSalePrice() != null && request.getPrice() != null 
+                && request.getSalePrice().compareTo(request.getPrice()) >= 0) {
+                bindingResult.rejectValue("salePrice", "error.salePrice", 
+                    "Giá sale phải nhỏ hơn giá gốc");
+                Product product = productService.findByIdWithDetails(id).orElse(null);
+                model.addAttribute("product", product != null ? DtoMapper.toProductDetailResponse(product) : null);
+                model.addAttribute("categories", DtoMapper.toCategoryWithChildrenResponseList(categoryService.findRootCategories()));
+                model.addAttribute("brands", DtoMapper.toBrandResponseList(brandService.findAllActive()));
+                model.addAttribute("adminPage", "products");
+                model.addAttribute("isEdit", true);
+                return "admin/products/form";
+            }
+
             productService.update(
                     id,
                     request.getName(),
@@ -229,6 +255,34 @@ public class AdminProductController {
                     request.getSaleStartDate(),
                     request.getSaleEndDate()
             );
+
+            // Handle new images
+            if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
+                for (int i = 0; i < request.getImageUrls().size(); i++) {
+                    productService.addImage(id, request.getImageUrls().get(i), i == 0);
+                }
+            }
+
+            // Handle new variants
+            if (request.getVariants() != null && !request.getVariants().isEmpty()) {
+                for (ProductRequest.ProductVariantRequest v : request.getVariants()) {
+                    ProductVariant savedVariant = productService.addVariant(
+                            id,
+                            v.getName(),
+                            v.getColor(),
+                            v.getColorCode(),
+                            v.getSize(),
+                            v.getAdditionalPrice(),
+                            v.getQuantity()
+                    );
+
+                    if (v.getImageUrls() != null && !v.getImageUrls().isEmpty()) {
+                        for (int j = 0; j < v.getImageUrls().size(); j++) {
+                            productService.addVariantImage(savedVariant.getId(), v.getImageUrls().get(j), j == 0);
+                        }
+                    }
+                }
+            }
 
             redirectAttributes.addFlashAttribute("success", "Cập nhật sản phẩm thành công");
             return "redirect:/admin/products";
@@ -281,5 +335,38 @@ public class AdminProductController {
             redirectAttributes.addFlashAttribute("error", "Không thể xóa sản phẩm: " + e.getMessage());
         }
         return "redirect:/admin/products";
+    }
+
+    /**
+     * Helper method to convert Product entity to ProductRequest DTO
+     * Used for populating the edit form with existing product data
+     */
+    private ProductRequest convertToProductRequest(Product product) {
+        if (product == null) {
+            return new ProductRequest();
+        }
+
+        return ProductRequest.builder()
+                .name(product.getName())
+                .slug(product.getSlug())
+                .sku(product.getSku())
+                .shortDescription(product.getShortDescription())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .salePrice(product.getSalePrice())
+                .discountPercent(product.getDiscountPercent())
+                .quantity(product.getQuantity())
+                .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
+                .brandId(product.getBrand() != null ? product.getBrand().getId() : null)
+                .isFeatured(product.getIsFeatured())
+                .isNew(product.getIsNew())
+                .isBestSeller(product.getIsBestSeller())
+                .isActive(product.getIsActive())
+                .saleStartDate(product.getSaleStartDate())
+                .saleEndDate(product.getSaleEndDate())
+                .specifications(product.getSpecifications())
+                .metaTitle(product.getMetaTitle())
+                .metaDescription(product.getMetaDescription())
+                .build();
     }
 }
