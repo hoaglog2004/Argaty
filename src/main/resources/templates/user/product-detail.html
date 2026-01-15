@@ -89,7 +89,7 @@
                     <div class="product-info__rating">
                         <div class="product-info__rating-stars">
                             <th:block th:each="i : ${#numbers.sequence(1, 5)}">
-                                <i th:class="${i <= product.rating} ? 'bx bxs-star' : (i - 0.5 <= product.rating) ? 'bx bxs-star-half' : 'bx bx-star'" 
+                                <i th:class="${i <= (product.rating ?: 0)} ? 'bx bxs-star' : (i - 0.5 <= (product.rating ?: 0)) ? 'bx bxs-star-half' : 'bx bx-star'" 
                                    style="color: var(--star-gold);"></i>
                             </th:block>
                         </div>

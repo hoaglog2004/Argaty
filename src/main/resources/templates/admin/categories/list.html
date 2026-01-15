@@ -39,7 +39,7 @@
               <td>
                 <div class="d-flex align-center gap-3">
                   <div
-                    th:if="${cat.icon}"
+                    th:if="${!#strings.isEmpty(cat.icon)}"
                     style="
                       width: 40px;
                       height: 40px;
