@@ -34,26 +34,36 @@
             </tr>
           </thead>
           <tbody>
-            <tr th:each="cat, stat : ${categories}">
+            <tr th:each="cat, stat : ${categories.content}">
               <td th:text="${stat.index + 1}">1</td>
               <td>
                 <div class="d-flex align-center gap-3">
                   <div
-                    th:if="${!#strings.isEmpty(cat.icon)}"
+                    class="category-visual"
                     style="
                       width: 40px;
                       height: 40px;
                       border-radius: 8px;
+                      overflow: hidden;
                       background: rgba(139, 92, 246, 0.1);
                       display: flex;
                       align-items: center;
                       justify-content: center;
                     "
                   >
+                    <img
+                      th:if="${cat.image != null && cat.image.length() > 3}"
+                      th:src="${cat.image}"
+                      alt="Icon"
+                      style="width: 100%; height: 100%; object-fit: cover"
+                    />
+
                     <i
-                      th:class="${cat.icon}"
+                      th:unless="${cat.image != null && cat.image.length() > 3}"
+                      th:class="${cat.icon != null && cat.icon.contains('bx ')} ? ${cat.icon} : ('bx ' + ${cat.icon})"
                       style="font-size: 20px; color: var(--primary)"
-                    ></i>
+                    >
+                    </i>
                   </div>
                   <span th:text="${cat.name}">Danh mục</span>
                 </div>
@@ -109,7 +119,9 @@
                 </div>
               </td>
             </tr>
-            <tr th:if="${categories == null || categories.isEmpty()}">
+            <tr
+              th:if="${categories.content == null || categories.content.isEmpty()}"
+            >
               <td colspan="8" class="text-center text-muted p-5">
                 Chưa có danh mục nào
               </td>
@@ -117,6 +129,11 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Pagination -->
+      <th:block
+        th:replace="~{fragments/pagination :: pagination(${categories}, '/admin/categories')}"
+      ></th:block>
     </div>
   </body>
 </html>

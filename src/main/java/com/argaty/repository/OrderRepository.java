@@ -34,11 +34,14 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
 
     // ========== FIND BY USER ==========
 
-    Page<Order> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+    // [QUAN TRỌNG] Đã đổi tên từ findByUserIdOrderByCreatedAtDesc -> findByUserId
+    // Để tránh bị trùng lặp ORDER BY với Pageable truyền vào
+    Page<Order> findByUserId(Long userId, Pageable pageable);
 
     List<Order> findByUserIdAndStatusOrderByCreatedAtDesc(Long userId, OrderStatus status);
 
-    @Query("SELECT o FROM Order o WHERE o.user.id = :userId ORDER BY o.createdAt DESC")
+    // [SỬA] Bỏ ORDER BY cứng, để Pageable tự xử lý sắp xếp
+    @Query("SELECT o FROM Order o WHERE o.user.id = :userId")
     List<Order> findRecentOrdersByUserId(@Param("userId") Long userId, Pageable pageable);
 
     // ========== FIND BY STATUS ==========
@@ -59,21 +62,23 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     // ========== SEARCH ==========
 
     @Query("SELECT o FROM Order o WHERE " +
-           "o.orderCode LIKE CONCAT('%', :keyword, '%') OR " +
-           "o.receiverName LIKE CONCAT('%', :keyword, '%') OR " +
-           "o.receiverPhone LIKE CONCAT('%', :keyword, '%')")
+            "o.orderCode LIKE CONCAT('%', :keyword, '%') OR " +
+            "o.receiverName LIKE CONCAT('%', :keyword, '%') OR " +
+            "o.receiverPhone LIKE CONCAT('%', :keyword, '%')")
     Page<Order> searchOrders(@Param("keyword") String keyword, Pageable pageable);
 
+    // [SỬA] Fix lỗi khoảng trắng ": keyword" thành ":keyword"
     @Query("SELECT o FROM Order o WHERE o.user.id = :userId AND " +
-           "(o.orderCode LIKE CONCAT('%', : keyword, '%') OR " +
-           "o.receiverName LIKE CONCAT('%', :keyword, '%'))")
-    Page<Order> searchUserOrders(@Param("userId") Long userId, 
-                                  @Param("keyword") String keyword, 
-                                  Pageable pageable);
+            "(o.orderCode LIKE CONCAT('%', :keyword, '%') OR " +
+            "o.receiverName LIKE CONCAT('%', :keyword, '%'))")
+    Page<Order> searchUserOrders(@Param("userId") Long userId,
+                                 @Param("keyword") String keyword,
+                                 Pageable pageable);
 
     // ========== FIND BY DATE RANGE ==========
 
-    @Query("SELECT o FROM Order o WHERE o.createdAt BETWEEN : startDate AND :endDate")
+    // [SỬA] Fix lỗi khoảng trắng ": startDate" thành ":startDate"
+    @Query("SELECT o FROM Order o WHERE o.createdAt BETWEEN :startDate AND :endDate")
     Page<Order> findByDateRange(@Param("startDate") LocalDateTime startDate,
                                 @Param("endDate") LocalDateTime endDate,
                                 Pageable pageable);
@@ -87,7 +92,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     @Query("SELECT o FROM Order o LEFT JOIN FETCH o.items WHERE o.id = :id")
     Optional<Order> findByIdWithItems(@Param("id") Long id);
 
-    @Query("SELECT o FROM Order o LEFT JOIN FETCH o.items LEFT JOIN FETCH o.statusHistory WHERE o.id = :id")
+    @Query("SELECT o FROM Order o LEFT JOIN FETCH o.items WHERE o.id = :id")
     Optional<Order> findByIdWithDetails(@Param("id") Long id);
 
     @Query("SELECT o FROM Order o LEFT JOIN FETCH o.items WHERE o.orderCode = :orderCode")
@@ -99,9 +104,10 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     @Query("UPDATE Order o SET o.status = :status WHERE o.id = :orderId")
     void updateStatus(@Param("orderId") Long orderId, @Param("status") OrderStatus status);
 
+    // [SỬA] Fix lỗi khoảng trắng ": paidAt", ": orderId"
     @Modifying
-    @Query("UPDATE Order o SET o.isPaid = true, o.paidAt = : paidAt, " +
-           "o.paymentTransactionId = :transactionId WHERE o.id = : orderId")
+    @Query("UPDATE Order o SET o.isPaid = true, o.paidAt = :paidAt, " +
+            "o.paymentTransactionId = :transactionId WHERE o.id = :orderId")
     void updatePaymentStatus(@Param("orderId") Long orderId,
                              @Param("paidAt") LocalDateTime paidAt,
                              @Param("transactionId") String transactionId);
@@ -133,9 +139,9 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     BigDecimal getRevenueFromDate(@Param("startDate") LocalDateTime startDate);
 
     @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status = 'COMPLETED' " +
-           "AND o.createdAt BETWEEN :startDate AND :endDate")
+            "AND o.createdAt BETWEEN :startDate AND :endDate")
     BigDecimal getRevenueBetween(@Param("startDate") LocalDateTime startDate,
-                                  @Param("endDate") LocalDateTime endDate);
+                                 @Param("endDate") LocalDateTime endDate);
 
     @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.user.id = :userId AND o.status = 'COMPLETED'")
     BigDecimal getTotalSpentByUser(@Param("userId") Long userId);
@@ -143,24 +149,24 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     // ========== DAILY/MONTHLY STATISTICS ==========
 
     @Query(value = "SELECT CAST(o.created_at AS DATE) as orderDate, COUNT(*) as orderCount, SUM(o.total_amount) as revenue " +
-                   "FROM orders o WHERE o.status = 'COMPLETED' AND o.created_at >= :startDate " +
-                   "GROUP BY CAST(o.created_at AS DATE) ORDER BY orderDate DESC",
-           nativeQuery = true)
+            "FROM orders o WHERE o.status = 'COMPLETED' AND o.created_at >= :startDate " +
+            "GROUP BY CAST(o.created_at AS DATE) ORDER BY orderDate DESC",
+            nativeQuery = true)
     List<Object[]> getDailyStatistics(@Param("startDate") LocalDateTime startDate);
 
     @Query(value = "SELECT YEAR(o.created_at) as year, MONTH(o.created_at) as month, " +
-                   "COUNT(*) as orderCount, SUM(o.total_amount) as revenue " +
-                   "FROM orders o WHERE o.status = 'COMPLETED' " +
-                   "GROUP BY YEAR(o.created_at), MONTH(o.created_at) " +
-                   "ORDER BY year DESC, month DESC",
-           nativeQuery = true)
+            "COUNT(*) as orderCount, SUM(o.total_amount) as revenue " +
+            "FROM orders o WHERE o.status = 'COMPLETED' " +
+            "GROUP BY YEAR(o.created_at), MONTH(o.created_at) " +
+            "ORDER BY year DESC, month DESC",
+            nativeQuery = true)
     List<Object[]> getMonthlyStatistics();
 
     // ========== TOP CUSTOMERS ==========
 
     @Query("SELECT o.user.id, o.user.fullName, o.user.email, COUNT(o), SUM(o.totalAmount) " +
-           "FROM Order o WHERE o.status = 'COMPLETED' " +
-           "GROUP BY o.user.id, o.user.fullName, o.user.email " +
-           "ORDER BY SUM(o.totalAmount) DESC")
+            "FROM Order o WHERE o.status = 'COMPLETED' " +
+            "GROUP BY o.user.id, o.user.fullName, o.user.email " +
+            "ORDER BY SUM(o.totalAmount) DESC")
     List<Object[]> getTopCustomers(Pageable pageable);
 }

@@ -92,7 +92,7 @@ public class VoucherServiceImpl implements VoucherService {
                           DiscountType discountType, BigDecimal discountValue,
                           BigDecimal maxDiscount, BigDecimal minOrderAmount,
                           Integer usageLimit, Integer usageLimitPerUser,
-                          LocalDateTime startDate, LocalDateTime endDate) {
+                          LocalDateTime startDate, LocalDateTime endDate, Boolean isActive) {
 
         String upperCode = code.toUpperCase();
 
@@ -118,7 +118,7 @@ public class VoucherServiceImpl implements VoucherService {
                 .usageLimitPerUser(usageLimitPerUser != null ? usageLimitPerUser : 1)
                 .startDate(startDate)
                 .endDate(endDate)
-                .isActive(true)
+                .isActive(isActive != null ? isActive : true)
                 .build();
 
         Voucher savedVoucher = voucherRepository.save(voucher);
@@ -132,7 +132,7 @@ public class VoucherServiceImpl implements VoucherService {
                           DiscountType discountType, BigDecimal discountValue,
                           BigDecimal maxDiscount, BigDecimal minOrderAmount,
                           Integer usageLimit, Integer usageLimitPerUser,
-                          LocalDateTime startDate, LocalDateTime endDate) {
+                          LocalDateTime startDate, LocalDateTime endDate, Boolean isActive) {
 
         Voucher voucher = voucherRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Voucher", "id", id));
@@ -149,6 +149,9 @@ public class VoucherServiceImpl implements VoucherService {
         }
         voucher.setStartDate(startDate);
         voucher.setEndDate(endDate);
+        if (isActive != null) {
+            voucher.setIsActive(isActive);
+        }
 
         log.info("Updated voucher: {}", id);
         return voucherRepository.save(voucher);

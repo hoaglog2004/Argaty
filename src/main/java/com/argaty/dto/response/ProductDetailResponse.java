@@ -1,18 +1,18 @@
 package com.argaty.dto.response;
 
-import com.argaty.entity.Product;
-import com.argaty.entity.ProductImage;
-import com.argaty.entity.ProductVariant;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.argaty.entity.Product;
+import com.argaty.entity.ProductVariant;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * DTO cho response chi tiết sản phẩm
@@ -60,6 +60,10 @@ public class ProductDetailResponse {
     // Variants
     private List<VariantResponse> variants;
 
+    // --- [THÊM 2 TRƯỜNG NÀY ĐỂ GOM NHÓM BIẾN THỂ] ---
+    private List<String> uniqueColors; 
+    private List<String> uniqueSizes;
+
     @Data
     @Builder
     @NoArgsConstructor
@@ -69,6 +73,7 @@ public class ProductDetailResponse {
         private String imageUrl;
         private String altText;
         private Boolean isMain;
+        private Integer displayOrder; // Thêm nếu cần sort
     }
 
     @Data
@@ -88,6 +93,7 @@ public class ProductDetailResponse {
         private Boolean isActive;
         private Boolean isInStock;
         private List<String> images;
+        private String imageUrl; // Ảnh đại diện của variant
     }
 
     public static ProductDetailResponse fromEntity(Product product) {
@@ -159,6 +165,9 @@ public class ProductDetailResponse {
                                     v.getImages().stream()
                                             .map(img -> img.getImageUrl())
                                             .collect(Collectors.toList()) : null)
+                            .imageUrl( (v.getImages() != null && !v.getImages().isEmpty()) 
+                                    ? v.getImages().get(0).getImageUrl() 
+                                    : null )
                             .build())
                     .collect(Collectors.toList()));
         }

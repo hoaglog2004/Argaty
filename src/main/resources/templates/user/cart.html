@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html
   xmlns:th="http://www.thymeleaf.org"
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -60,7 +60,7 @@
                       id="selectAll"
                       class="cart-item__checkbox"
                       th:checked="${cart.selectedItems == cart.totalItems}"
-                      onchange="toggleSelectAll(this. checked)"
+                      onchange="toggleSelectAll(this.checked)"
                     />
                   </div>
                   <div class="cart-table__header-cell">Sản phẩm</div>
@@ -240,7 +240,11 @@
                         cursor: pointer;
                       "
                       th:data-code="${voucher.code}"
-                      onclick="document.getElementById('voucherCode').value = this.dataset.code; applyVoucher();"
+                      onclick="
+                        document.getElementById('voucherCode').value =
+                          this.dataset.code;
+                        applyVoucher();
+                      "
                     >
                       <div class="d-flex justify-between align-center">
                         <span class="text-cyan" th:text="${voucher.code}"
@@ -432,7 +436,7 @@
               showToast(
                 "success",
                 "Thành công",
-                "Đã xóa sản phẩm khỏi giỏ hàng"
+                "Đã xóa sản phẩm khỏi giỏ hàng",
               );
               document
                 .querySelector(`.cart-item[data-item-id="${itemId}"]`)
@@ -476,16 +480,33 @@
             return;
           }
 
+          const messageEl = document.getElementById("voucherMessage");
+          messageEl.innerHTML =
+            '<span class="text-muted"><i class="bx bx-loader-alt bx-spin"></i> Đang kiểm tra...</span>';
+
           try {
             const subtotal = /*[[${cart.selectedAmount}]]*/ 0;
-            const response = await fetch("/api/vouchers/check", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ code: code, orderAmount: subtotal }),
-            });
+            // Get CSRF token from meta tag or cookie
+            const csrfToken =
+              document.querySelector('meta[name="_csrf"]')?.content || "";
+            const csrfHeader =
+              document.querySelector('meta[name="_csrf_header"]')?.content ||
+              "X-CSRF-TOKEN";
+
+            // FIX: orderAmount must be a query parameter, not in body
+            const response = await fetch(
+              `/api/vouchers/check?orderAmount=${subtotal}`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  [csrfHeader]: csrfToken,
+                },
+                body: JSON.stringify({ code: code }),
+              },
+            );
 
             const data = await response.json();
-            const messageEl = document.getElementById("voucherMessage");
 
             if (data.success) {
               messageEl.innerHTML = `<span class="text-success"><i class='bx bx-check'></i> ${data.message}</span>`;
@@ -495,7 +516,7 @@
               document.getElementById("discountAmount").textContent =
                 "-" +
                 new Intl.NumberFormat("vi-VN").format(
-                  data.data.discountAmount
+                  data.data.discountAmount,
                 ) +
                 " ₫";
               document.getElementById("totalAmount").textContent =
@@ -504,10 +525,22 @@
 
               // Store voucher code for checkout
               sessionStorage.setItem("voucherCode", code);
+              showToast(
+                "success",
+                "Thành công",
+                "Áp dụng mã giảm giá thành công",
+              );
             } else {
               messageEl.innerHTML = `<span class="text-danger"><i class='bx bx-x'></i> ${data.message}</span>`;
+              showToast(
+                "error",
+                "Lỗi",
+                data.message || "Mã voucher không hợp lệ",
+              );
             }
           } catch (error) {
+            console.error("Voucher check error:", error);
+            messageEl.innerHTML = `<span class="text-danger"><i class='bx bx-x'></i> Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau.</span>`;
             showToast("error", "Lỗi", "Không thể kiểm tra mã giảm giá");
           }
         }

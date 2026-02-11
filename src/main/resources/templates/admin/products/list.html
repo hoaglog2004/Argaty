@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html
   xmlns:th="http://www.thymeleaf.org"
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -20,20 +20,28 @@
       </div>
 
       <!-- Filters -->
-      <div class="admin-filters">
+      <form
+        id="filterForm"
+        th:action="@{/admin/products}"
+        method="get"
+        class="admin-filters mb-4"
+      >
         <div class="admin-search">
           <i class="bx bx-search"></i>
           <input
             type="text"
+            name="q"
             class="form-control"
-            placeholder="Tìm kiếm sản phẩm..."
+            placeholder="Tìm tên, SKU..."
             th:value="${searchKeyword}"
+            onchange="this.form.submit()"
           />
         </div>
+
         <select
           class="form-control form-select admin-filter-select"
-          name="category"
-          data-param="category"
+          name="categoryId"
+          onchange="this.form.submit()"
         >
           <option value="">Tất cả danh mục</option>
           <option
@@ -43,10 +51,11 @@
             th:selected="${selectedCategoryId == cat.id}"
           ></option>
         </select>
+
         <select
           class="form-control form-select admin-filter-select"
-          name="brand"
-          data-param="brand"
+          name="brandId"
+          onchange="this.form.submit()"
         >
           <option value="">Tất cả thương hiệu</option>
           <option
@@ -56,7 +65,49 @@
             th:selected="${selectedBrandId == brand.id}"
           ></option>
         </select>
-      </div>
+
+        <select
+          class="form-control form-select"
+          name="sortField"
+          onchange="this.form.submit()"
+          style="width: 150px"
+        >
+          <option value="createdAt" th:selected="${sortField == 'createdAt'}">
+            Ngày tạo
+          </option>
+          <option value="price" th:selected="${sortField == 'price'}">
+            Giá tiền
+          </option>
+          <option value="soldCount" th:selected="${sortField == 'soldCount'}">
+            Lượt bán
+          </option>
+          <option value="quantity" th:selected="${sortField == 'quantity'}">
+            Tồn kho
+          </option>
+        </select>
+
+        <select
+          class="form-control form-select"
+          name="sortDir"
+          onchange="this.form.submit()"
+          style="width: 120px"
+        >
+          <option value="desc" th:selected="${sortDir == 'desc'}">
+            Giảm dần
+          </option>
+          <option value="asc" th:selected="${sortDir == 'asc'}">
+            Tăng dần
+          </option>
+        </select>
+
+        <a
+          th:href="@{/admin/products}"
+          class="btn btn-outline-secondary"
+          title="Xóa bộ lọc"
+        >
+          <i class="bx bx-refresh"></i>
+        </a>
+      </form>
 
       <!-- Products Table -->
       <div class="admin-table-wrapper">
@@ -176,13 +227,21 @@
                   >
                     <i class="bx bx-edit"></i>
                   </a>
-                  <button
+                  <a
+                    th:href="@{'/products/' + ${product.slug}}"
                     class="table-action-btn"
                     title="Xem"
-                    th:onclick="'window.open(\'/products/' + ${product.slug} + '\', \'_blank\')'"
+                    target="_blank"
+                    style="
+                      display: inline-flex;
+                      align-items: center;
+                      justify-content: center;
+                      text-decoration: none;
+                      color: inherit;
+                    "
                   >
                     <i class="bx bx-show"></i>
-                  </button>
+                  </a>
 
                   <!-- Toggle Featured -->
                   <form
@@ -240,7 +299,12 @@
                       type="button"
                       class="table-action-btn delete"
                       title="Xóa"
-                      onclick="confirmDelete('Bạn có chắc muốn xóa sản phẩm này?', () => this.closest('form').submit())"
+                      onclick="
+                        confirmDelete(
+                          'Bạn có chắc muốn xóa sản phẩm này?',
+                          () => this.closest('form').submit(),
+                        )
+                      "
                     >
                       <i class="bx bx-trash"></i>
                     </button>
@@ -274,5 +338,38 @@
         ></th:block>
       </div>
     </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const paginationLinks = document.querySelectorAll(
+          ".pagination a.page-link",
+        );
+
+        paginationLinks.forEach((link) => {
+          link.addEventListener("click", function (e) {
+            e.preventDefault(); // Chặn chuyển trang mặc định
+
+            // Lấy số trang từ href (ví dụ: ?page=1)
+            const url = new URL(this.href);
+            const page = url.searchParams.get("page") || 0;
+            const size = url.searchParams.get("size") || 20;
+
+            // Tạo input hidden cho page vào form và submit
+            const form = document.getElementById("filterForm");
+
+            let pageInput = form.querySelector("input[name='page']");
+            if (!pageInput) {
+              pageInput = document.createElement("input");
+              pageInput.type = "hidden";
+              pageInput.name = "page";
+              form.appendChild(pageInput);
+            }
+            pageInput.value = page;
+
+            // Submit form thay vì chuyển link
+            form.submit();
+          });
+        });
+      });
+    </script>
   </body>
 </html>

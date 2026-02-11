@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -20,6 +21,12 @@ import com.argaty.entity.Product;
  */
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
+
+    // ========== FIND ALL FOR ADMIN ==========
+    
+    @EntityGraph(attributePaths = {"category", "brand"})
+    @Query("SELECT p FROM Product p")
+    Page<Product> findAllWithCategoryAndBrand(Pageable pageable);
 
     // ========== FIND BY FIELD ==========
 
@@ -55,9 +62,11 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     Page<Product> findByBrandIdAndIsActiveTrue(Long brandId, Pageable pageable);
 
     // Admin: lấy tất cả sản phẩm theo brand (kể cả inactive)
+    @EntityGraph(attributePaths = {"category", "brand"})
     Page<Product> findByBrandId(Long brandId, Pageable pageable);
 
     // Admin: lấy tất cả sản phẩm theo category (kể cả inactive)
+    @EntityGraph(attributePaths = {"category", "brand"})
     @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId OR p.category.parent.id = :categoryId")
     Page<Product> findAllByCategoryAndSubcategories(@Param("categoryId") Long categoryId, Pageable pageable);
 
@@ -105,6 +114,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     Page<Product> searchProducts(@Param("keyword") String keyword, Pageable pageable);
 
     // Admin: tìm kiếm tất cả sản phẩm (kể cả inactive)
+    @EntityGraph(attributePaths = {"category", "brand"})
     @Query("SELECT p FROM Product p WHERE " +
            "LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(p.shortDescription) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
@@ -186,15 +196,25 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     // ========== ADMIN QUERIES ==========
 
-    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category LEFT JOIN FETCH p.brand")
-    Page<Product> findAllWithCategoryAndBrand(Pageable pageable);
-
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.images WHERE p.id = :id")
     Optional<Product> findByIdWithImages(@Param("id") Long id);
 
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.variants WHERE p.id = :id")
     Optional<Product> findByIdWithVariants(@Param("id") Long id);
 
+    @Query("SELECT p FROM Product p WHERE " +
+           "(:keyword IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(p.sku) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
+           "(:categoryId IS NULL OR p.category.id = :categoryId OR p.category.parent.id = :categoryId) AND " +
+           "(:brandId IS NULL OR p.brand.id = :brandId) AND " +
+           "(:minPrice IS NULL OR p.price >= :minPrice) AND " +
+           "(:maxPrice IS NULL OR p.price <= :maxPrice)")
+    Page<Product> filterProducts(
+            @Param("keyword") String keyword,
+            @Param("categoryId") Long categoryId,
+            @Param("brandId") Long brandId,
+            @Param("minPrice") BigDecimal minPrice,
+            @Param("maxPrice") BigDecimal maxPrice,
+            Pageable pageable);
     @Query("SELECT DISTINCT p FROM Product p " +
            "LEFT JOIN FETCH p.images " +
            "LEFT JOIN FETCH p.variants " +

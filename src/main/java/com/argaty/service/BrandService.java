@@ -8,36 +8,25 @@ import org.springframework.data.domain.Pageable;
 
 import com.argaty.entity.Brand;
 
-/**
- * Service interface cho Brand
- */
 public interface BrandService {
-
+    
+    // Các hàm Query cơ bản
     Brand save(Brand brand);
-
     Optional<Brand> findById(Long id);
-
     Optional<Brand> findBySlug(String slug);
-
     List<Brand> findAllActive();
-
     Page<Brand> findAll(Pageable pageable);
-
     Page<Brand> search(String keyword, Pageable pageable);
-
     void deleteById(Long id);
-
     boolean existsBySlug(String slug);
-
     boolean existsByName(String name);
-
-    Brand create(String name, String description, String logo, String website);
-
-    Brand update(Long id, String name, String description, String logo, String website);
-
+    List<Brand> findBrandsWithProducts();
+    long countActiveBrands();
     void toggleActive(Long id);
 
-    List<Brand> findBrandsWithProducts();
+    // --- CẬP NHẬT 2 HÀM NÀY ---
+    // Thêm tham số slug và isActive vào để khớp với Controller
+    Brand create(String name, String slug, String logo, String description, Boolean isActive);
 
-    long countActiveBrands();
+    Brand update(Long id, String name, String slug, String logo, String description, Boolean isActive);
 }

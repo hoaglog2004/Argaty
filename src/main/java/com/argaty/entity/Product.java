@@ -1,14 +1,27 @@
 package com.argaty.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Entity Product - Sản phẩm
@@ -99,9 +112,9 @@ public class Product extends BaseEntity {
 
     // ========== RELATIONSHIPS ==========
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true) // Cho phép LEFT JOIN
+@JoinColumn(name = "category_id")
+private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id")
@@ -247,5 +260,15 @@ public class Product extends BaseEntity {
     public void removeVariant(ProductVariant variant) {
         variants.remove(variant);
         variant.setProduct(null);
+    }
+    @PrePersist
+    public void generateSkuIfMissing() {
+        if (this.sku == null || this.sku.trim().isEmpty()) {
+            // Tự động tạo SKU nếu thiếu: VD: SP-1701234567
+            this.sku = "SP-" + System.currentTimeMillis();
+            
+            // Hoặc dùng UUID nếu muốn chắc chắn không trùng 100%
+            // this.sku = "SP-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        }
     }
 }

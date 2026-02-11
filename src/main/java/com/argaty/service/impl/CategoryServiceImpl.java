@@ -1,7 +1,9 @@
 package com.argaty.service.impl;
 
+import java.text.Normalizer;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,14 +15,10 @@ import com.argaty.exception.BadRequestException;
 import com.argaty.exception.ResourceNotFoundException;
 import com.argaty.repository.CategoryRepository;
 import com.argaty.service.CategoryService;
-import com.argaty.util.SlugUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Implementation của CategoryService
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -63,7 +61,6 @@ public class CategoryServiceImpl implements CategoryService {
     public List<Category> findFeaturedCategories() {
         List<Category> categories = categoryRepository.findFeaturedCategories();
         if (categories.isEmpty()) {
-            // Fallback: Lấy danh mục gốc nếu chưa set featured
             return categoryRepository.findRootCategories();
         }
         return categories;
@@ -92,12 +89,10 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
 
-        // Kiểm tra có danh mục con không
         if (category.hasChildren()) {
             throw new BadRequestException("Không thể xóa danh mục đang có danh mục con");
         }
 
-        // Kiểm tra có sản phẩm không
         if (category.getProductCount() > 0) {
             throw new BadRequestException("Không thể xóa danh mục đang có sản phẩm");
         }
@@ -115,7 +110,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Category create(String name, String description, String image, String icon, Long parentId) {
         // Tạo slug
-        String slug = SlugUtil.toSlug(name);
+        String slug = toSlug(name);
         int count = 1;
         String originalSlug = slug;
         while (categoryRepository.existsBySlug(slug)) {
@@ -132,7 +127,6 @@ public class CategoryServiceImpl implements CategoryService {
                 .isFeatured(false)
                 .build();
 
-        // Set parent nếu có
         if (parentId != null) {
             Category parent = categoryRepository.findById(parentId)
                     .orElseThrow(() -> new ResourceNotFoundException("Category", "id", parentId));
@@ -141,7 +135,6 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category savedCategory = categoryRepository.save(category);
         log.info("Created category: {}", name);
-
         return savedCategory;
     }
 
@@ -152,7 +145,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         // Cập nhật slug nếu tên thay đổi
         if (!category.getName().equals(name)) {
-            String slug = SlugUtil.toSlug(name);
+            String slug = toSlug(name);
             int count = 1;
             String originalSlug = slug;
             while (categoryRepository.existsBySlug(slug) && !slug.equals(category.getSlug())) {
@@ -163,14 +156,15 @@ public class CategoryServiceImpl implements CategoryService {
 
         category.setName(name);
         category.setDescription(description);
-        if (image != null) {
+        
+        // Chỉ cập nhật ảnh nếu có ảnh mới
+        if (image != null && !image.isEmpty()) {
             category.setImage(image);
         }
+        
         category.setIcon(icon);
 
-        // Cập nhật parent
         if (parentId != null) {
-            // Không cho phép set parent là chính nó hoặc con của nó
             if (parentId.equals(id)) {
                 throw new BadRequestException("Không thể chọn danh mục cha là chính nó");
             }
@@ -189,20 +183,16 @@ public class CategoryServiceImpl implements CategoryService {
     public void toggleActive(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
-
         category.setIsActive(!category.getIsActive());
         categoryRepository.save(category);
-        log.info("Toggled category active status: {} -> {}", id, category.getIsActive());
     }
 
     @Override
     public void toggleFeatured(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
-
         category.setIsFeatured(!category.getIsFeatured());
         categoryRepository.save(category);
-        log.info("Toggled category featured status: {} -> {}", id, category.getIsFeatured());
     }
 
     @Override
@@ -215,5 +205,14 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     public long countActiveCategories() {
         return categoryRepository.countActiveCategories();
+    }
+
+    // Helper: Tạo slug
+    private String toSlug(String input) {
+        if (input == null) return "";
+        String nowhitespace = input.trim().replaceAll("\\s+", "-");
+        String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
+        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        return pattern.matcher(normalized).replaceAll("").toLowerCase();
     }
 }

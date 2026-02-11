@@ -1,11 +1,41 @@
 package com.argaty.util;
 
-import com.argaty.dto.response.*;
-import com.argaty.entity.*;
-import org.springframework.data.domain.Page;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+
+import com.argaty.dto.response.BannerResponse;
+import com.argaty.dto.response.BrandResponse;
+import com.argaty.dto.response.CartItemResponse;
+import com.argaty.dto.response.CartResponse;
+import com.argaty.dto.response.CategoryResponse;
+import com.argaty.dto.response.NotificationResponse;
+import com.argaty.dto.response.OrderDetailResponse;
+import com.argaty.dto.response.OrderResponse;
+import com.argaty.dto.response.PageResponse;
+import com.argaty.dto.response.ProductDetailResponse;
+import com.argaty.dto.response.ProductResponse;
+import com.argaty.dto.response.ReviewResponse;
+import com.argaty.dto.response.UserAddressResponse;
+import com.argaty.dto.response.UserResponse;
+import com.argaty.dto.response.VoucherResponse;
+import com.argaty.dto.response.WishlistResponse;
+import com.argaty.entity.Banner;
+import com.argaty.entity.Brand;
+import com.argaty.entity.Cart;
+import com.argaty.entity.CartItem;
+import com.argaty.entity.Category;
+import com.argaty.entity.Notification;
+import com.argaty.entity.Order;
+import com.argaty.entity.Product;
+import com.argaty.entity.ProductVariant;
+import com.argaty.entity.Review;
+import com.argaty.entity.User;
+import com.argaty.entity.UserAddress;
+import com.argaty.entity.Voucher;
+import com.argaty.entity.Wishlist;
 
 /**
  * Utility class để convert Entity sang DTO
@@ -38,8 +68,28 @@ public class DtoMapper {
     // ========== PRODUCT ==========
 
     public static ProductResponse toProductResponse(Product product) {
-        return ProductResponse.fromEntity(product);
-    }
+    return ProductResponse.builder()
+            .id(product.getId())
+            .name(product.getName())
+            .sku(product.getSku())
+            .price(product.getPrice())
+            .salePrice(product.getSalePrice())
+            .quantity(product.getQuantity())
+            .isActive(product.getIsActive())
+            .isFeatured(product.getIsFeatured())
+            .isNew(product.getIsNew())
+            .isBestSeller(product.getIsBestSeller())
+            
+            // --- SỬA ĐOẠN NÀY ĐỂ TRÁNH LỖI NULL POINTER ---
+            .categoryName(product.getCategory() != null ? product.getCategory().getName() : "Chưa phân loại")
+            .brandName(product.getBrand() != null ? product.getBrand().getName() : "N/A")
+            
+            // Xử lý ảnh an toàn
+            .mainImage((product.getImages() != null && !product.getImages().isEmpty()) 
+                            ? product.getImages().iterator().next().getImageUrl() 
+                            : "/images/no-image.png")
+                .build();
+}
 
     public static List<ProductResponse> toProductResponseList(List<Product> products) {
         return products.stream()
@@ -55,7 +105,108 @@ public class DtoMapper {
     }
 
     public static ProductDetailResponse toProductDetailResponse(Product product) {
-        return ProductDetailResponse.fromEntity(product);
+        // 1. Map thông tin cơ bản
+        ProductDetailResponse response = ProductDetailResponse.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .slug(product.getSlug())
+                .sku(product.getSku())
+                .shortDescription(product.getShortDescription())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .salePrice(product.getSalePrice())
+                .discountPercent(product.getCalculatedDiscountPercent())
+                .quantity(product.getQuantity())
+                .soldCount(product.getSoldCount())
+                .rating(product.getRating())
+                .reviewCount(product.getReviewCount())
+                .isNew(product.getIsNew())
+                .isFeatured(product.getIsFeatured())
+                .isBestSeller(product.getIsBestSeller())
+                .isOnSale(product.isOnSale())
+                .isInStock(product.isInStock())
+                .isLowStock(product.isLowStock())
+                .specifications(product.getSpecifications())
+                .saleStartDate(product.getSaleStartDate())
+                .saleEndDate(product.getSaleEndDate())
+                .createdAt(product.getCreatedAt())
+                .build();
+
+        // 2. Map Category & Brand
+        if (product.getCategory() != null) {
+            response.setCategory(CategoryResponse.fromEntity(product.getCategory()));
+        }
+        if (product.getBrand() != null) {
+            response.setBrand(BrandResponse.fromEntity(product.getBrand()));
+        }
+
+        // 3. Map Images
+        if (product.getImages() != null) {
+            response.setImages(product.getImages().stream()
+                    .map(img -> ProductDetailResponse.ImageResponse.builder()
+                            .id(img.getId())
+                            .imageUrl(img.getImageUrl())
+                            .altText(img.getAltText())
+                            .isMain(img.getIsMain())
+                            .displayOrder(img.getDisplayOrder())
+                            .build())
+                    .collect(Collectors.toList()));
+        }
+
+        // 4. Map Variants & Gom Nhóm (Unique Colors/Sizes)
+        List<String> uniqueColors = new ArrayList<>();
+        List<String> uniqueSizes = new ArrayList<>();
+
+        if (product.getVariants() != null) {
+            // A. Map danh sách biến thể
+            List<ProductDetailResponse.VariantResponse> variantResponses = product.getVariants().stream()
+                    .filter(ProductVariant::getIsActive)
+                    .map(v -> {
+                        // Lấy ảnh đại diện của biến thể (nếu có)
+                        String variantImg = null;
+                        // Kiểm tra xem biến thể có danh sách ảnh không (List<VariantImage>)
+                        if (v.getImages() != null && !v.getImages().isEmpty()) {
+                            variantImg = v.getImages().get(0).getImageUrl();
+                        }
+
+                        return ProductDetailResponse.VariantResponse.builder()
+                                .id(v.getId())
+                                .name(v.getName())
+                                .sku(v.getSku())
+                                .color(v.getColor())
+                                .colorCode(v.getColorCode())
+                                .size(v.getSize())
+                                .additionalPrice(v.getAdditionalPrice())
+                                .finalPrice(v.getFinalPrice())
+                                .quantity(v.getQuantity())
+                                .isActive(v.getIsActive())
+                                .isInStock(v.isInStock())
+                                .imageUrl(variantImg) // Gán ảnh vào DTO để JS xử lý đổi ảnh
+                                .build();
+                    })
+                    .collect(Collectors.toList());
+            
+            response.setVariants(variantResponses);
+
+            // B. Gom nhóm màu sắc duy nhất
+            uniqueColors = product.getVariants().stream()
+                    .map(ProductVariant::getColor)
+                    .filter(c -> c != null && !c.trim().isEmpty())
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            // C. Gom nhóm size/phiên bản duy nhất
+            uniqueSizes = product.getVariants().stream()
+                    .map(ProductVariant::getSize)
+                    .filter(s -> s != null && !s.trim().isEmpty())
+                    .distinct()
+                    .collect(Collectors.toList());
+        }
+
+        response.setUniqueColors(uniqueColors);
+        response.setUniqueSizes(uniqueSizes);
+
+        return response;
     }
 
     // ========== CATEGORY ==========

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Lỗi Hệ Thống - Debug Mode</title>
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: monospace;
+        background: #0f1015;
+        color: #ff6b6b;
+        padding: 40px;
+        margin: 0;
+      }
+      .error-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: #1a1d23;
+        padding: 30px;
+        border-radius: 12px;
+        border: 1px solid #333;
+      }
+      h1 {
+        color: #ff4757;
+        font-size: 24px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 20px;
+      }
+      .info-group {
+        margin-bottom: 20px;
+      }
+      .label {
+        color: #a4b0be;
+        font-weight: bold;
+        display: inline-block;
+        width: 100px;
+      }
+      .value {
+        color: #fff;
+      }
+      .trace-box {
+        background: #000;
+        padding: 20px;
+        border-radius: 8px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        color: #2ed573;
+        font-size: 13px;
+        line-height: 1.5;
+        border: 1px solid #333;
+        max-height: 600px;
+        overflow-y: auto;
+      }
+      .btn-home {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background: #3742fa;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="error-container">
+      <h1><i class="bx bx-bug"></i> OOPS! CÓ LỖI XẢY RA (DEBUG MODE)</h1>
+
+      <div class="info-group">
+        <span class="label">Status:</span>
+        <span class="value" th:text="${status}">500</span>
+      </div>
+      <div class="info-group">
+        <span class="label">Error:</span>
+        <span class="value" th:text="${error}">Internal Server Error</span>
+      </div>
+      <div class="info-group">
+        <span class="label">Path:</span>
+        <span class="value" th:text="${path}">/url</span>
+      </div>
+      <div class="info-group">
+        <span class="label">Message:</span>
+        <strong class="value" style="color: #ffa502" th:text="${message}"
+          >No message available</strong
+        >
+      </div>
+
+      <div class="info-group">
+        <p class="label" style="width: 100%">
+          Stack Trace (Nguyên nhân chi tiết):
+        </p>
+        <div class="trace-box" th:text="${trace}">Loading stack trace...</div>
+      </div>
+
+      <a href="/" class="btn-home">Về trang chủ</a>
+    </div>
+  </body>
+</html>

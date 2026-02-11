@@ -7,9 +7,11 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.argaty.dto.request.ProductRequest;
 import com.argaty.entity.Product;
 import com.argaty.entity.ProductImage;
 import com.argaty.entity.ProductVariant;
+import com.argaty.entity.VariantImage;
 
 /**
  * Service interface cho Product
@@ -61,6 +63,10 @@ public interface ProductService {
     Page<Product> searchByCategory(String keyword, Long categoryId, Pageable pageable);
 
     Page<Product> findByPriceRange(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
+    
+    // [MỚI] Hàm lọc tổng hợp (Master Filter)
+    Page<Product> filterProducts(String keyword, Long categoryId, Long brandId, 
+                                 BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
 
     // ========== ADMIN METHODS (bao gồm cả inactive) ==========
 
@@ -72,19 +78,16 @@ public interface ProductService {
 
     // ========== CREATE & UPDATE ==========
 
-    Product create(String name, String shortDescription, String description,
+    // [CẬP NHẬT] Thêm tham số SKU
+    Product create(String name, String sku, String shortDescription, String description,
                    BigDecimal price, BigDecimal salePrice, Integer discountPercent,
                    Integer quantity, Long categoryId, Long brandId,
                    Boolean isFeatured, Boolean isNew, Boolean isBestSeller,
                    String specifications, String metaTitle, String metaDescription,
                    java.time.LocalDateTime saleStartDate, java.time.LocalDateTime saleEndDate);
 
-    Product update(Long id, String name, String shortDescription, String description,
-                   BigDecimal price, BigDecimal salePrice, Integer discountPercent,
-                   Integer quantity, Long categoryId, Long brandId,
-                   Boolean isFeatured, Boolean isNew, Boolean isBestSeller,
-                   String specifications, String metaTitle, String metaDescription,
-                   java.time.LocalDateTime saleStartDate, java.time.LocalDateTime saleEndDate);
+    // [CẬP NHẬT] Đổi tham số thành DTO ProductRequest
+    Product update(Long id, ProductRequest request);
 
     void toggleActive(Long id);
 
@@ -106,7 +109,7 @@ public interface ProductService {
                               String size, BigDecimal additionalPrice, Integer quantity);
 
     // Variant images
-    com.argaty.entity.VariantImage addVariantImage(Long variantId, String imageUrl, boolean isMain);
+    VariantImage addVariantImage(Long variantId, String imageUrl, boolean isMain);
 
     ProductVariant updateVariant(Long variantId, String name, String color, String colorCode,
                                  String size, BigDecimal additionalPrice, Integer quantity);

@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/admin}"
+>
+  <head>
+    <title>Hồ sơ người dùng</title>
+    <style>
+      /* ... (Giữ nguyên toàn bộ CSS của bạn ở đây) ... */
+      /* Tôi đã rút gọn CSS để tin nhắn không quá dài, bạn giữ nguyên CSS cũ nhé */
+      :root {
+        --bg-dark: #0f1015;
+        --bg-card: #15171c;
+        --primary: #3b82f6;
+        --text-main: #ffffff;
+        --text-sub: #9ca3af;
+        --border-color: #26272f;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+      }
+      .profile-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+      }
+      @media (max-width: 992px) {
+        .dashboard-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .ui-card {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+      .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        background: linear-gradient(145deg, #15171c 0%, #0f1015 100%);
+        position: relative;
+        overflow: hidden;
+      }
+      .user-avatar {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #1f2937;
+      }
+      .status-badge-icon {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        background: var(--success);
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid var(--bg-card);
+        font-size: 14px;
+      }
+      .info-pill {
+        background: #1f2937;
+        padding: 10px 20px;
+        border-radius: 12px;
+        min-width: 120px;
+      }
+      .pill-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: var(--text-sub);
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+      }
+      .pill-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: white;
+      }
+      .pill-highlight {
+        color: var(--success);
+      }
+      .stats-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 24px;
+      }
+      .stat-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: white;
+        margin: 10px 0;
+      }
+      .stat-trend {
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .log-item {
+        display: flex;
+        align-items: center;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .log-item:last-child {
+        border-bottom: none;
+      }
+      .log-icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        margin-right: 16px;
+        flex-shrink: 0;
+      }
+      .bg-icon-blue {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+      }
+      .bg-icon-green {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+      }
+      .bg-icon-orange {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+      }
+      .control-btn {
+        width: 100%;
+        padding: 16px;
+        border-radius: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 12px;
+        text-decoration: none;
+      }
+      .btn-primary-action {
+        background: #2563eb;
+        color: white;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      }
+      .btn-primary-action:hover {
+        background: #1d4ed8;
+        color: white;
+        transform: translateY(-2px);
+      }
+      .btn-outline-warning {
+        background: transparent;
+        border: 1px solid rgba(245, 158, 11, 0.5);
+        color: var(--warning);
+      }
+      .btn-outline-warning:hover {
+        background: rgba(245, 158, 11, 0.1);
+      }
+      .btn-outline-danger {
+        background: transparent;
+        border: 1px solid rgba(239, 68, 68, 0.5);
+        color: var(--danger);
+      }
+      .btn-outline-danger:hover {
+        background: rgba(239, 68, 68, 0.1);
+      }
+      .nav-btn {
+        background: #1f2937;
+        color: var(--text-sub);
+        justify-content: flex-start;
+        padding: 14px 20px;
+      }
+      .nav-btn:hover {
+        background: #374151;
+        color: white;
+      }
+      .nav-btn i {
+        font-size: 18px;
+        margin-right: 8px;
+      }
+      .text-header {
+        font-size: 24px;
+        font-weight: 700;
+        color: white;
+        margin: 0;
+      }
+      .text-white {
+        color: white !important;
+      }
+      .text-muted {
+        color: var(--text-sub) !important;
+      }
+      .mb-4 {
+        margin-bottom: 24px;
+      }
+      .gap-3 {
+        gap: 12px;
+      }
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(5, 5, 10, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+      }
+      .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+      .modal-box {
+        background: var(--bg-card);
+        border-radius: 24px;
+        padding: 30px;
+        max-width: 500px;
+        width: 90%;
+        transform: scale(0.95);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+        border: 1px solid var(--border-color);
+      }
+      .modal-overlay.active .modal-box {
+        transform: scale(1);
+      }
+      .modal-delete {
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        box-shadow: 0 0 40px rgba(239, 68, 68, 0.15);
+      }
+      .delete-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+        background: rgba(239, 68, 68, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--danger);
+        font-size: 32px;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+      }
+      .warning-box {
+        background: rgba(239, 68, 68, 0.05);
+        border: 1px dashed rgba(239, 68, 68, 0.3);
+        padding: 15px;
+        border-radius: 12px;
+        margin: 20px 0;
+        color: #fca5a5;
+        font-size: 13px;
+        display: flex;
+        gap: 10px;
+        align-items: start;
+      }
+      .modal-notification {
+        max-width: 900px;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        background: #0f1015;
+      }
+      .noti-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 30px;
+      }
+      .form-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: var(--text-sub);
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+        display: block;
+        font-weight: 600;
+      }
+      .custom-input,
+      .custom-textarea {
+        width: 100%;
+        background: #1a1d23;
+        border: 1px solid var(--border-color);
+        padding: 12px 16px;
+        border-radius: 10px;
+        color: white;
+        transition: all 0.2s;
+      }
+      .custom-input:focus,
+      .custom-textarea:focus {
+        border-color: var(--primary);
+        outline: none;
+        background: #20232a;
+      }
+      .category-select {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .cat-option {
+        display: none;
+      }
+      .cat-label {
+        padding: 8px 16px;
+        border-radius: 8px;
+        background: #1a1d23;
+        color: var(--text-sub);
+        font-size: 12px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+      }
+      .cat-option:checked + .cat-label {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--primary);
+        border-color: var(--primary);
+      }
+      .phone-mockup {
+        border: 8px solid #2d3039;
+        border-radius: 30px;
+        height: 500px;
+        background: #000;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        padding: 40px 15px;
+      }
+      .phone-notch {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 20px;
+        background: #2d3039;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+      }
+      .noti-preview-card {
+        background: rgba(40, 40, 50, 0.9);
+        border-radius: 12px;
+        padding: 12px;
+        display: flex;
+        gap: 10px;
+        backdrop-filter: blur(10px);
+        margin-top: 20px;
+        animation: slideDown 0.5s ease;
+      }
+      @keyframes slideDown {
+        from {
+          transform: translateY(-20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      .modal-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+      }
+      .btn-cancel {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-sub);
+        padding: 12px 24px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        flex: 1;
+      }
+      .btn-confirm-delete {
+        background: var(--danger);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        flex: 1;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+      }
+      .btn-send {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        width: 100%;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+      }
+    </style>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <div class="profile-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <div class="text-muted small mb-1">
+              Admin / Quản lý User / Chi tiết
+            </div>
+            <h1 class="text-header">Hồ sơ Chi tiết</h1>
+          </div>
+          <span
+            th:if="${user.isActive}"
+            class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded-pill"
+            >ĐANG HOẠT ĐỘNG</span
+          >
+          <span
+            th:unless="${user.isActive}"
+            class="badge bg-danger bg-opacity-10 text-danger border border-danger px-3 py-2 rounded-pill"
+            >ĐÃ KHÓA</span
+          >
+        </div>
+
+        <div class="ui-card profile-header mb-4">
+          <div class="avatar-group">
+            <img
+              th:if="${user.avatar}"
+              th:src="${user.avatar}"
+              class="user-avatar"
+            />
+            <div
+              th:unless="${user.avatar}"
+              class="user-avatar d-flex align-items-center justify-content-center bg-dark text-secondary display-4"
+            >
+              <i class="bx bx-user"></i>
+            </div>
+            <div class="status-badge-icon" th:if="${user.isActive}">
+              <i class="bx bx-check"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1">
+            <h2 class="text-white fw-bold mb-1" th:text="${user.fullName}">
+              Alex Nova
+            </h2>
+            <div class="text-muted mb-4 d-flex align-items-center gap-2">
+              <span th:text="${user.email}">alex@example.com</span>
+              <span>•</span>
+              <span style="color: #60a5fa"
+                >UID: #<span th:text="${user.id}">7892</span></span
+              >
+            </div>
+            <div class="d-flex flex-wrap gap-3">
+              <div class="info-pill">
+                <div class="pill-label">VAI TRÒ</div>
+                <div class="pill-value" th:text="${user.role}">Explorer</div>
+              </div>
+              <div class="info-pill">
+                <div class="pill-label">THAM GIA</div>
+                <div
+                  class="pill-value"
+                  th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy')}"
+                >
+                  12/05/2023
+                </div>
+              </div>
+              <div class="info-pill">
+                <div class="pill-label">ĐIỂM TÍCH LŨY</div>
+                <div class="pill-value pill-highlight">98.4%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div>
+            <div class="stats-row">
+              <div class="ui-card">
+                <div class="text-muted small text-uppercase fw-bold">
+                  Tổng chi tiêu
+                </div>
+                <div
+                  class="stat-value"
+                  th:text="${#numbers.formatDecimal(user.totalSpent ?: 0, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                >
+                  $12,450.00
+                </div>
+                <div class="stat-trend text-success">
+                  <i class="bx bx-trending-up"></i> +12% tháng này
+                </div>
+              </div>
+              <div class="ui-card">
+                <div class="text-muted small text-uppercase fw-bold">
+                  Lần đăng nhập cuối
+                </div>
+                <div class="stat-value">
+                  <span
+                    th:if="${user.lastLoginAt}"
+                    th:text="${#temporals.format(user.lastLoginAt, 'HH:mm')}"
+                    >2 Giờ</span
+                  >
+                  <span th:unless="${user.lastLoginAt}">--</span>
+                </div>
+                <div class="stat-trend text-muted">
+                  <span th:if="${user.lastLoginAt}"
+                    >IP: 192.168.1.1 •
+                    <span
+                      th:text="${#temporals.format(user.lastLoginAt, 'dd/MM')}"
+                    ></span
+                  ></span>
+                  <span th:unless="${user.lastLoginAt}">Chưa đăng nhập</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="ui-card">
+              <div
+                class="d-flex justify-content-between align-items-center mb-4"
+              >
+                <h5 class="text-white fw-bold m-0">Nhật ký hoạt động</h5>
+                <a href="#" class="text-primary text-decoration-none small"
+                  >Xem tất cả</a
+                >
+              </div>
+              <div class="log-item">
+                <div class="log-icon-box bg-icon-blue">
+                  <i class="bx bx-cart"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="text-white fw-bold">Mua tàu 'Star Voyager X'</div>
+                  <div class="small text-muted">
+                    Trạm thanh toán Nebula • 14:20 PM
+                  </div>
+                </div>
+                <div class="fw-bold text-white">- 4,200 ₫</div>
+              </div>
+              <div class="log-item">
+                <div class="log-icon-box bg-icon-green">
+                  <i class="bx bx-log-in"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="text-white fw-bold">Đăng nhập thành công</div>
+                  <div class="small text-muted">
+                    Thiết bị: SpaceX-Comm • 09:12 AM
+                  </div>
+                </div>
+              </div>
+              <div class="log-item">
+                <div class="log-icon-box bg-icon-orange">
+                  <i class="bx bx-shield-quarter"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="text-white fw-bold">Thay đổi mật khẩu</div>
+                  <div class="small text-muted">
+                    Yêu cầu bảo mật • 2 ngày trước
+                  </div>
+                </div>
+                <div><i class="bx bx-chevron-right text-muted"></i></div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="ui-card h-100">
+              <h5 class="text-white fw-bold mb-4">Trung tâm Điều khiển</h5>
+              <div class="text-muted small fw-bold text-uppercase mb-3">
+                Hành động chính
+              </div>
+              <form
+                th:action="@{/admin/users/{id}/toggle-status(id=${user.id})}"
+                method="post"
+              >
+                <button
+                  type="submit"
+                  class="control-btn btn-primary-action"
+                  th:if="${!user.isActive}"
+                >
+                  <i class="bx bx-check-circle fs-4"></i
+                  ><span>Kích hoạt tài khoản</span>
+                </button>
+                <button
+                  type="submit"
+                  class="control-btn btn-outline-warning"
+                  th:if="${user.isActive}"
+                >
+                  <i class="bx bx-block fs-4"></i><span>Ban tài khoản</span>
+                </button>
+              </form>
+              <button
+                type="button"
+                class="control-btn btn-outline-danger"
+                onclick="openModal('deleteModal')"
+              >
+                <i class="bx bx-trash fs-4"></i><span>Xóa tài khoản</span>
+              </button>
+              <hr class="border-secondary border-opacity-25 my-4" />
+              <div class="text-muted small fw-bold text-uppercase mb-3">
+                Quyền hạn & Liên lạc
+              </div>
+              <button
+                type="button"
+                class="control-btn nav-btn"
+                onclick="openModal('notiModal')"
+              >
+                <i class="bx bx-envelope"></i> Gửi thông báo
+              </button>
+              <button class="control-btn nav-btn">
+                <i class="bx bx-edit"></i> Chỉnh sửa hồ sơ
+              </button>
+              <button class="control-btn nav-btn">
+                <i class="bx bx-key"></i> Reset Password
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="deleteModal" class="modal-overlay">
+        <div class="modal-box modal-delete">
+          <div class="text-center">
+            <div class="delete-icon-wrapper"><i class="bx bx-error"></i></div>
+            <h3 class="text-white fw-bold mb-2">Xác nhận Xóa / Ban</h3>
+            <p class="text-muted">
+              Bạn có chắc chắn muốn thực hiện hành động này với người dùng
+              <span class="text-white fw-bold" th:text="'@' + ${user.fullName}"
+                >@User</span
+              >
+              không?
+            </p>
+            <div class="warning-box">
+              <i class="bx bx-info-circle fs-5 mt-1"></i>
+              <span
+                >Hành động này sẽ vô hiệu hóa mọi quyền truy cập ngay lập tức và
+                <b>không thể hoàn tác</b> nếu chọn xóa vĩnh viễn.</span
+              >
+            </div>
+            <form
+              th:action="@{/admin/users/{id}/delete(id=${user.id})}"
+              method="post"
+            >
+              <div class="modal-actions">
+                <button
+                  type="button"
+                  class="btn-cancel"
+                  onclick="closeModal('deleteModal')"
+                >
+                  HỦY BỎ
+                </button>
+                <button type="submit" class="btn-confirm-delete">
+                  XÁC NHẬN XÓA
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div id="notiModal" class="modal-overlay">
+        <div class="modal-box modal-notification">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="text-white fw-bold m-0">Gửi thông báo</h3>
+            <button
+              class="btn text-muted p-0"
+              onclick="closeModal('notiModal')"
+            >
+              <i class="bx bx-x fs-3"></i>
+            </button>
+          </div>
+          <div class="noti-grid">
+            <div>
+              <form
+                id="notificationForm"
+                th:action="@{/admin/notifications/send}"
+                method="post"
+              >
+                <input type="hidden" name="userId" th:value="${user.id}" />
+                <label class="form-label">Tiêu đề thông báo</label>
+                <input
+                  type="text"
+                  class="custom-input mb-3"
+                  id="notiTitle"
+                  name="title"
+                  placeholder="Nhập tiêu đề thu hút sự chú ý..."
+                  oninput="updatePreview()"
+                />
+                <label class="form-label">Phân loại</label>
+                <div class="category-select">
+                  <label
+                    ><input
+                      type="radio"
+                      name="type"
+                      value="SYSTEM"
+                      class="cat-option"
+                      checked
+                    />
+                    <div class="cat-label">
+                      <i class="bx bx-cog"></i> Hệ thống
+                    </div></label
+                  >
+                  <label
+                    ><input
+                      type="radio"
+                      name="type"
+                      value="PROMO"
+                      class="cat-option"
+                    />
+                    <div class="cat-label">
+                      <i class="bx bx-tag"></i> Khuyến mãi
+                    </div></label
+                  >
+                  <label
+                    ><input
+                      type="radio"
+                      name="type"
+                      value="SECURITY"
+                      class="cat-option"
+                    />
+                    <div class="cat-label">
+                      <i class="bx bx-shield"></i> Bảo mật
+                    </div></label
+                  >
+                </div>
+                <label class="form-label">Nội dung chi tiết</label>
+                <textarea
+                  class="custom-textarea mb-3"
+                  id="notiContent"
+                  name="content"
+                  rows="6"
+                  placeholder="Viết nội dung tin nhắn gửi đến người dùng tại đây..."
+                  oninput="updatePreview()"
+                ></textarea>
+                <div
+                  class="d-flex align-items-center justify-content-between mb-4"
+                >
+                  <span class="text-muted small"
+                    >Ký tự: <span id="charCount">0</span>/1000</span
+                  >
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input bg-primary"
+                      type="checkbox"
+                      id="sendEmail"
+                      checked
+                    />
+                    <label
+                      class="form-check-label text-white small"
+                      for="sendEmail"
+                      >Gửi Email kèm theo</label
+                    >
+                  </div>
+                </div>
+                <button type="submit" class="btn-send">
+                  <i class="bx bx-paper-plane me-2"></i> GỬI THÔNG BÁO NGAY
+                </button>
+              </form>
+            </div>
+            <div class="d-none d-md-block">
+              <div class="text-center mb-2 text-muted small fw-bold">
+                <i class="bx bx-show"></i> XEM TRƯỚC HIỂN THỊ
+              </div>
+              <div class="phone-mockup">
+                <div class="phone-notch"></div>
+                <div class="text-white text-end small mb-4 time-display">
+                  9:41
+                </div>
+                <div class="noti-preview-card">
+                  <div
+                    style="
+                      background: #3b82f6;
+                      width: 36px;
+                      height: 36px;
+                      border-radius: 8px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      flex-shrink: 0;
+                    "
+                  >
+                    <i class="bx bx-bell text-white"></i>
+                  </div>
+                  <div>
+                    <div
+                      class="text-white fw-bold small mb-1"
+                      id="previewTitle"
+                    >
+                      Tiêu đề sẽ hiện thị ở đây...
+                    </div>
+                    <div
+                      class="text-muted"
+                      style="font-size: 11px; line-height: 1.4"
+                      id="previewContent"
+                    >
+                      Nội dung chi tiết của bạn sẽ bắt đầu từ đây và có thể hiển
+                      thị tối đa 2 dòng...
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        function openModal(modalId) {
+          document.getElementById(modalId).classList.add("active");
+          document.body.style.overflow = "hidden";
+        }
+        function closeModal(modalId) {
+          document.getElementById(modalId).classList.remove("active");
+          document.body.style.overflow = "";
+        }
+        window.onclick = function (event) {
+          if (event.target.classList.contains("modal-overlay")) {
+            event.target.classList.remove("active");
+            document.body.style.overflow = "";
+          }
+        };
+        function updatePreview() {
+          const titleInput = document.getElementById("notiTitle").value;
+          const contentInput = document.getElementById("notiContent").value;
+          document.getElementById("previewTitle").innerText =
+            titleInput || "Tiêu đề sẽ hiện thị ở đây...";
+          document.getElementById("previewContent").innerText =
+            contentInput || "Nội dung chi tiết của bạn sẽ bắt đầu từ đây...";
+          document.getElementById("charCount").innerText = contentInput.length;
+        }
+      </script>
+    </div>
+  </body>
+</html>

@@ -2,8 +2,12 @@ package com.argaty.service.impl;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,8 +15,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.argaty.dto.request.ProductRequest;
+import com.argaty.dto.request.ProductVariantDTO;
 import com.argaty.entity.Brand;
-import com.argaty.entity.Category;
+import com.argaty.entity.Category; // Cần import DTO này
 import com.argaty.entity.Product;
 import com.argaty.entity.ProductImage;
 import com.argaty.entity.ProductVariant;
@@ -83,7 +89,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public Page<Product> findAll(Pageable pageable) {
-        return productRepository.findAll(pageable);
+        return productRepository.findAllWithCategoryAndBrand(pageable);
     }
 
     @Override
@@ -222,7 +228,7 @@ public class ProductServiceImpl implements ProductService {
     // ========== CREATE & UPDATE ==========
 
     @Override
-    public Product create(String name, String shortDescription, String description,
+    public Product create(String name,String sku, String shortDescription, String description,
                           BigDecimal price, BigDecimal salePrice, Integer discountPercent,
                           Integer quantity, Long categoryId, Long brandId,
                           Boolean isFeatured, Boolean isNew, Boolean isBestSeller,
@@ -276,20 +282,127 @@ public class ProductServiceImpl implements ProductService {
         return savedProduct;
     }
 
-    @Override
-    public Product update(Long id, String name, String shortDescription, String description,
-                          BigDecimal price, BigDecimal salePrice, Integer discountPercent,
-                          Integer quantity, Long categoryId, Long brandId,
-                          Boolean isFeatured, Boolean isNew, Boolean isBestSeller,
-                          String specifications, String metaTitle, String metaDescription,
-                          java.time.LocalDateTime saleStartDate, java.time.LocalDateTime saleEndDate) {
-
+   @Override
+    public Product update(Long id, ProductRequest request) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
 
-        // Cập nhật slug nếu tên thay đổi
-        if (!product.getName().equals(name)) {
-            String slug = SlugUtil.toSlug(name);
+        // 1. Cập nhật thông tin cơ bản (Tên, Giá, Mô tả...)
+        updateBasicInfo(product, request);
+
+        // 2. XỬ LÝ ẢNH SẢN PHẨM (IMAGES)
+        Set<Long> keptImageIds = (request.getExistingImageIds() != null) 
+                ? new HashSet<>(request.getExistingImageIds()) 
+                : new HashSet<>();
+        
+        // A. Xóa ảnh cũ không được giữ lại
+        product.getImages().removeIf(img -> !keptImageIds.contains(img.getId()));
+
+        // B. Cập nhật thứ tự ảnh cũ (Nếu cần chính xác thứ tự từ UI)
+        if (request.getExistingImageIds() != null) {
+            for (int i = 0; i < request.getExistingImageIds().size(); i++) {
+                final Long imgId = request.getExistingImageIds().get(i); // Make imgId effectively final
+                final int displayOrder = i; // Make displayOrder effectively final
+                product.getImages().stream()
+                        .filter(img -> img.getId().equals(imgId))
+                        .findFirst()
+                        .ifPresent(img -> img.setDisplayOrder(displayOrder));
+            }
+        }
+
+        // C. Thêm ảnh mới
+        int startOrder = product.getImages().size();
+        if (request.getImageUrls() != null) {
+            for (String url : request.getImageUrls()) {
+                ProductImage newImg = ProductImage.builder()
+                        .product(product)
+                        .imageUrl(url)
+                        .isMain(false)
+                        .displayOrder(startOrder++)
+                        .build();
+                product.getImages().add(newImg);
+            }
+        }
+        
+        // Đảm bảo có ít nhất 1 ảnh là main
+        if (!product.getImages().isEmpty() && product.getImages().stream().noneMatch(ProductImage::getIsMain)) {
+            product.getImages().iterator().next().setIsMain(true);
+        }
+
+        // 3. XỬ LÝ BIẾN THỂ (VARIANTS)
+        if (request.getVariants() != null) {
+            Set<Long> incomingVariantIds = request.getVariants().stream()
+                    .map(ProductVariantDTO::getId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+
+            // A. Xóa biến thể không còn tồn tại
+            product.getVariants().removeIf(v -> !incomingVariantIds.contains(v.getId()));
+
+            // B. Cập nhật hoặc Thêm mới
+            for (ProductVariantDTO vDto : request.getVariants()) {
+                ProductVariant variantToSave;
+
+                if (vDto.getId() != null) {
+                    // --- CẬP NHẬT BIẾN THỂ CŨ ---
+                    variantToSave = product.getVariants().stream()
+                            .filter(v -> v.getId().equals(vDto.getId()))
+                            .findFirst().orElse(null);
+
+                    if (variantToSave != null) {
+                        variantToSave.setName(vDto.getName());
+                        variantToSave.setSku(vDto.getSku());
+                        variantToSave.setColor(vDto.getColor());
+                        variantToSave.setColorCode(vDto.getColorCode());
+                        variantToSave.setSize(vDto.getSize());
+                        variantToSave.setAdditionalPrice(vDto.getAdditionalPrice());
+                        variantToSave.setQuantity(vDto.getQuantity());
+                    }
+                } else {
+                    // --- TẠO BIẾN THỂ MỚI ---
+                    variantToSave = ProductVariant.builder()
+                            .product(product)
+                            .name(vDto.getName())
+                            .sku(vDto.getSku())
+                            .color(vDto.getColor())
+                            .colorCode(vDto.getColorCode())
+                            .size(vDto.getSize())
+                            .additionalPrice(vDto.getAdditionalPrice())
+                            .quantity(vDto.getQuantity())
+                            .isActive(true)
+                            .displayOrder(product.getVariants().size())
+                            .build();
+                    product.getVariants().add(variantToSave);
+                }
+
+                // ========================================================
+                // [QUAN TRỌNG] CẬP NHẬT ẢNH BIẾN THỂ (PHẦN BẠN ĐANG THIẾU)
+                // ========================================================
+                if (variantToSave != null && vDto.getImageUrls() != null && !vDto.getImageUrls().isEmpty()) {
+                    // 1. Xóa ảnh biến thể cũ (Nếu muốn thay thế hoàn toàn)
+                    variantToSave.getImages().clear();
+
+                    // 2. Thêm ảnh mới từ DTO
+                    for (String url : vDto.getImageUrls()) {
+                        VariantImage vImg = VariantImage.builder()
+                                .variant(variantToSave)
+                                .imageUrl(url)
+                                .isMain(true) // Mặc định ảnh biến thể là main
+                                .build();
+                        variantToSave.getImages().add(vImg);
+                    }
+                }
+            }
+        } else {
+            product.getVariants().clear();
+        }
+
+        return productRepository.save(product);
+    }
+    private void updateBasicInfo(Product product, ProductRequest request) {
+        // Cập nhật Slug nếu tên đổi
+        if (!product.getName().equals(request.getName())) {
+            String slug = SlugUtil.toSlug(request.getName());
             int count = 1;
             String originalSlug = slug;
             while (productRepository.existsBySlug(slug) && !slug.equals(product.getSlug())) {
@@ -298,52 +411,44 @@ public class ProductServiceImpl implements ProductService {
             product.setSlug(slug);
         }
 
-        product.setName(name);
-        product.setShortDescription(shortDescription);
-        product.setDescription(description);
-        product.setPrice(price);
-        product.setSalePrice(salePrice);
-        product.setDiscountPercent(discountPercent);
-        if (quantity != null) {
-            product.setQuantity(quantity);
-        }
-
-        // Cập nhật category
-        if (categoryId != null && !categoryId.equals(product.getCategory().getId())) {
-            Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Category", "id", categoryId));
+        product.setName(request.getName());
+        product.setShortDescription(request.getShortDescription());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setSalePrice(request.getSalePrice());
+        product.setDiscountPercent(request.getDiscountPercent());
+        if(request.getQuantity() != null) product.setQuantity(request.getQuantity());
+        
+        // Update Category
+        if (request.getCategoryId() != null && !request.getCategoryId().equals(product.getCategory().getId())) {
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category", "id", request.getCategoryId()));
             product.setCategory(category);
         }
 
-        // Cập nhật brand
-        if (brandId != null) {
-            Brand brand = brandRepository.findById(brandId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Brand", "id", brandId));
-            product.setBrand(brand);
+        // Update Brand
+        if (request.getBrandId() != null) {
+            // Kiểm tra nếu brandId khác cũ thì mới query update
+            if (product.getBrand() == null || !request.getBrandId().equals(product.getBrand().getId())) {
+                Brand brand = brandRepository.findById(request.getBrandId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Brand", "id", request.getBrandId()));
+                product.setBrand(brand);
+            }
         } else {
             product.setBrand(null);
         }
 
-        if (isFeatured != null) {
-            product.setIsFeatured(isFeatured);
-        }
-        if (isNew != null) {
-            product.setIsNew(isNew);
-        }
-        if (isBestSeller != null) {
-            product.setIsBestSeller(isBestSeller);
-        }
+        if (request.getIsFeatured() != null) product.setIsFeatured(request.getIsFeatured());
+        if (request.getIsNew() != null) product.setIsNew(request.getIsNew());
+        if (request.getIsBestSeller() != null) product.setIsBestSeller(request.getIsBestSeller());
+        if (request.getIsActive() != null) product.setIsActive(request.getIsActive()); // Map thêm cái này
 
-        product.setSpecifications(specifications);
-        product.setMetaTitle(metaTitle);
-        product.setMetaDescription(metaDescription);
-        product.setSaleStartDate(saleStartDate);
-        product.setSaleEndDate(saleEndDate);
-
-        log.info("Updated product: {}", id);
-        return productRepository.save(product);
+        product.setSpecifications(request.getSpecifications());
+        product.setMetaTitle(request.getMetaTitle());
+        product.setMetaDescription(request.getMetaDescription());
+        product.setSaleStartDate(request.getSaleStartDate());
+        product.setSaleEndDate(request.getSaleEndDate());
     }
-
     @Override
     public void toggleActive(Long id) {
         Product product = productRepository.findById(id)
@@ -580,4 +685,13 @@ public class ProductServiceImpl implements ProductService {
     public Long getTotalStock() {
         return productRepository.getTotalStock();
     }
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Product> filterProducts(String keyword, Long categoryId, Long brandId, 
+                                        BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
+        // Xử lý keyword rỗng thành null để query JPA bỏ qua
+        String finalKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+        return productRepository.filterProducts(finalKeyword, categoryId, brandId, minPrice, maxPrice, pageable);
+    }
+     
 }

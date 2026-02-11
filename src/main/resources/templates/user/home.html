@@ -131,11 +131,37 @@
               th:href="@{/products(category=${category.slug})}"
               class="category-card"
             >
-              <div class="category-card__icon">
+              <div
+                class="category-card__icon"
+                style="
+                  position: relative;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
                 <i
-                  th:class="${category.icon != null} ? ${category.icon} : 'bx bx-category'"
+                  th:class="${category.icon != null && category.icon.contains('bx ')} ? ${category.icon} : ('bx ' + ${category.icon})"
+                  style="font-size: 32px; position: absolute; z-index: 1"
                 ></i>
+
+                <img
+                  th:if="${category.image != null && !category.image.isEmpty()}"
+                  th:src="${category.image}"
+                  alt="Category Image"
+                  onerror="this.style.display='none'"
+                  style="
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain;
+                    border-radius: 50%;
+                    position: relative;
+                    z-index: 2;
+                    background: #fff;
+                  "
+                />
               </div>
+
               <h3 class="category-card__name" th:text="${category.name}">
                 Danh mục
               </h3>
@@ -306,10 +332,17 @@
               onmouseout="this.style.opacity='0.6'"
             >
               <img
+                th:if="${brand.logo != null}"
                 th:src="${brand.logo}"
                 th:alt="${brand.name}"
-                style="height: 50px; object-fit: contain"
+                style="height: 50px; object-fit: contain; max-width: 120px"
               />
+              <span
+                th:if="${brand.logo == null}"
+                th:text="${brand.name}"
+                style="font-weight: bold; color: white"
+                >Brand</span
+              >
             </a>
           </div>
         </div>

@@ -1,3 +1,166 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/main}"
+>
+  <head>
+    <title>Sản phẩm yêu thích</title>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <div class="profile-page">
+        <div class="container">
+          <nav class="breadcrumb">
+            <div class="breadcrumb__item">
+              <a th:href="@{/}"><i class="bx bx-home"></i> Trang chủ</a>
+            </div>
+            <span class="breadcrumb__separator"
+              ><i class="bx bx-chevron-right"></i
+            ></span>
+            <div class="breadcrumb__item">
+              <a th:href="@{/profile}">Tài khoản</a>
+            </div>
+            <span class="breadcrumb__separator"
+              ><i class="bx bx-chevron-right"></i
+            ></span>
+            <div class="breadcrumb__item">Yêu thích</div>
+          </nav>
+
+          <div class="profile-layout">
+            <th:block th:replace="~{user/profile/overview :: aside}"></th:block>
+
+            <div class="profile-content">
+              <div class="profile-content__header">
+                <h2 class="profile-content__title">Sản phẩm yêu thích</h2>
+                <span
+                  class="badge badge-secondary"
+                  th:if="${wishlists}"
+                  th:text="${wishlists.size()} + ' sản phẩm'"
+                  >0 sản phẩm</span
+                >
+              </div>
+
+              <div
+                th:if="${wishlists != null && !wishlists.isEmpty()}"
+                class="wishlist-grid"
+                style="
+                  display: grid;
+                  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                  gap: 20px;
+                "
+              >
+                <div
+                  th:each="item : ${wishlists}"
+                  class="card h-100 product-card-hover"
+                  th:id="'wishlist-item-' + ${item.productId}"
+                >
+                  <div class="position-relative">
+                    <a
+                      th:href="@{/products/{slug}(slug=${item.productSlug})}"
+                      class="d-block"
+                      style="
+                        aspect-ratio: 1;
+                        overflow: hidden;
+                        border-radius: 8px 8px 0 0;
+                      "
+                    >
+                      <img
+                        th:src="${item.productImage}"
+                        alt="Product"
+                        class="w-100 h-100 object-fit-cover"
+                      />
+                    </a>
+                    <button
+                      class="btn btn-icon btn-danger btn-sm position-absolute top-0 end-0 m-2 shadow-sm"
+                      th:onclick="'removeFromWishlist(' + ${item.productId} + ')'"
+                      title="Bỏ thích"
+                    >
+                      <i class="bx bxs-trash"></i>
+                    </button>
+                  </div>
+
+                  <div class="card-body p-3 d-flex flex-column">
+                    <a
+                      th:href="@{/products/{slug}(slug=${item.productSlug})}"
+                      class="text-decoration-none text-dark fw-bold mb-1"
+                      style="
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
+                        overflow: hidden;
+                        height: 42px;
+                      "
+                      th:text="${item.productName}"
+                      >Tên sản phẩm</a
+                    >
+
+                    <div class="mt-auto d-flex justify-between align-center">
+                      <span
+                        class="text-primary fw-bold"
+                        th:text="${#numbers.formatDecimal(item.productPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                        >0 ₫</span
+                      >
+                      <button
+                        class="btn btn-outline-primary btn-sm"
+                        th:onclick="'window.location.href=\'/products/' + ${item.productSlug} + '\''"
+                      >
+                        <i class="bx bx-cart"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                th:if="${wishlists == null || wishlists.isEmpty()}"
+                class="empty-state"
+              >
+                <div class="empty-state__icon"><i class="bx bx-heart"></i></div>
+                <h3 class="empty-state__title">Danh sách trống</h3>
+                <p class="empty-state__desc">
+                  Hãy "thả tim" các sản phẩm bạn yêu thích nhé!
+                </p>
+                <a th:href="@{/products}" class="btn btn-primary"
+                  >Khám phá ngay</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+      <script>
+        async function removeFromWishlist(productId) {
+          if (!confirm("Bạn muốn bỏ sản phẩm này khỏi yêu thích?")) return;
+
+          try {
+            const response = await fetch(`/api/wishlist/${productId}`, {
+              method: "DELETE",
+            });
+            const data = await response.json();
+
+            if (data.success) {
+              showToast(
+                "success",
+                "Thành công",
+                "Đã xóa khỏi danh sách yêu thích"
+              );
+              document.getElementById(`wishlist-item-${productId}`).remove();
+              if (
+                document.querySelectorAll(".wishlist-grid .card").length === 0
+              )
+                location.reload();
+            } else {
+              showToast("error", "Lỗi", data.message);
+            }
+          } catch (error) {
+            showToast("error", "Lỗi", "Không thể thực hiện thao tác");
+          }
+        }
+      </script>
+    </th:block>
+  </body>
 </html>

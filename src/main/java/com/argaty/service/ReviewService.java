@@ -1,11 +1,12 @@
 package com.argaty.service;
 
-import com.argaty.entity.Review;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-import java.util.Optional;
+import com.argaty.entity.Review;
 
 /**
  * Service interface cho Review
@@ -52,4 +53,8 @@ public interface ReviewService {
     void toggleVisibility(Long reviewId);
 
     Page<Review> findUnrepliedReviews(Pageable pageable);
+
+    Page<Review> searchReviews(Long productId, String keyword, Integer rating, String status, Pageable pageable);
+void approveReview(Long id);
+void rejectReview(Long id);
 }

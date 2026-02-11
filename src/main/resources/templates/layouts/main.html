@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html
   xmlns:th="http://www.thymeleaf.org"
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -12,6 +12,9 @@
       name="description"
       th:content="${pageDescription != null} ? ${pageDescription} : 'Argaty - Gaming Gear'"
     />
+    <!-- CSRF Token for AJAX requests -->
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
     <title layout:title-pattern="$CONTENT_TITLE | Argaty">
       Argaty - Gaming Gear

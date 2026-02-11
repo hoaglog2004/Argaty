@@ -4,68 +4,254 @@
     <meta charset="UTF-8" />
   </head>
   <body>
-    <!-- Footer Fragment - CÓ th: fragment="footer" -->
     <footer th:fragment="footer" class="footer">
       <div class="container">
-        <div class="footer__grid">
-          <!-- Brand -->
-          <div class="footer__brand">
-            <a th:href="@{/}" class="footer__logo">
-              <div class="footer__logo-icon">
-                <i class="bx bx-planet"></i>
+        <div class="footer__top section">
+          <div class="footer__grid">
+            <div class="footer__brand">
+              <a
+                th:href="@{/}"
+                class="footer__logo mb-3 d-inline-flex align-items-center gap-2 text-decoration-none"
+              >
+                <div
+                  class="footer__logo-icon"
+                  style="
+                    width: 40px;
+                    height: 40px;
+                    background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 24px;
+                    color: white;
+                  "
+                >
+                  <i class="bx bx-planet"></i>
+                </div>
+                <span
+                  class="footer__logo-text"
+                  style="
+                    font-family: 'Orbitron', sans-serif;
+                    font-size: 24px;
+                    font-weight: 800;
+                    background: linear-gradient(to right, #fff, #a78bfa);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                  "
+                  >ARGATY</span
+                >
+              </a>
+              <p class="footer__desc text-muted mb-4" style="line-height: 1.6">
+                Thiên đường Gaming Gear cho game thủ Việt. <br />
+                Chính hãng, giá tốt, giao hàng toàn quốc.
+              </p>
+
+              <div class="footer__social d-flex gap-3">
+                <a href="#" class="social-link facebook"
+                  ><i class="bx bxl-facebook"></i
+                ></a>
+                <a href="#" class="social-link instagram"
+                  ><i class="bx bxl-instagram"></i
+                ></a>
+                <a href="#" class="social-link youtube"
+                  ><i class="bx bxl-youtube"></i
+                ></a>
+                <a href="#" class="social-link discord"
+                  ><i class="bx bxl-discord-alt"></i
+                ></a>
               </div>
-              <span class="footer__logo-text">ARGATY</span>
-            </a>
-            <p class="footer__desc">
-              Thiên đường Gaming Gear cho game thủ Việt. Chính hãng, giá tốt,
-              giao hàng toàn quốc.
-            </p>
-            <div class="footer__social">
-              <a href="#" class="footer__social-link"
-                ><i class="bx bxl-facebook"></i
-              ></a>
-              <a href="#" class="footer__social-link"
-                ><i class="bx bxl-instagram"></i
-              ></a>
-              <a href="#" class="footer__social-link"
-                ><i class="bx bxl-youtube"></i
-              ></a>
             </div>
-          </div>
 
-          <!-- Links -->
-          <div class="footer__links">
-            <h4 class="footer__title">Về chúng tôi</h4>
-            <ul>
-              <li><a th:href="@{/about}">Giới thiệu</a></li>
-              <li><a th:href="@{/contact}">Liên hệ</a></li>
-              <li><a th:href="@{/faq}">FAQ</a></li>
-            </ul>
-          </div>
+            <div class="footer__links">
+              <h4
+                class="footer__title text-white text-uppercase fw-bold mb-4"
+                style="font-size: 16px; letter-spacing: 1px"
+              >
+                Về chúng tôi
+              </h4>
+              <ul class="list-unstyled d-flex flex-column gap-2">
+                <li>
+                  <a th:href="@{/about}" class="footer-link">Giới thiệu</a>
+                </li>
+                <li>
+                  <a th:href="@{/products}" class="footer-link">Sản phẩm</a>
+                </li>
+                <li>
+                  <a th:href="@{/blog}" class="footer-link"
+                    >Tin tức công nghệ</a
+                  >
+                </li>
+                <li>
+                  <a th:href="@{/contact}" class="footer-link"
+                    >Liên hệ hợp tác</a
+                  >
+                </li>
+              </ul>
+            </div>
 
-          <!-- Contact -->
-          <div class="footer__contact">
-            <h4 class="footer__title">Liên hệ</h4>
-            <div class="footer__contact-item">
-              <i class="bx bx-map"></i>
-              <span>123 Đường ABC, Quận XYZ, TP. HCM</span>
+            <div class="footer__links">
+              <h4
+                class="footer__title text-white text-uppercase fw-bold mb-4"
+                style="font-size: 16px; letter-spacing: 1px"
+              >
+                Hỗ trợ khách hàng
+              </h4>
+              <ul class="list-unstyled d-flex flex-column gap-2">
+                <li>
+                  <a th:href="@{/faq}" class="footer-link"
+                    >Câu hỏi thường gặp</a
+                  >
+                </li>
+                <li>
+                  <a th:href="@{/policy/shipping}" class="footer-link"
+                    >Chính sách vận chuyển</a
+                  >
+                </li>
+                <li>
+                  <a th:href="@{/policy/warranty}" class="footer-link"
+                    >Chính sách bảo hành</a
+                  >
+                </li>
+                <li>
+                  <a th:href="@{/policy/return}" class="footer-link"
+                    >Đổi trả hàng</a
+                  >
+                </li>
+              </ul>
             </div>
-            <div class="footer__contact-item">
-              <i class="bx bx-phone"></i>
-              <span>1900 123 456</span>
-            </div>
-            <div class="footer__contact-item">
-              <i class="bx bx-envelope"></i>
-              <span>support@argaty.com</span>
+
+            <div class="footer__contact">
+              <h4
+                class="footer__title text-white text-uppercase fw-bold mb-4"
+                style="font-size: 16px; letter-spacing: 1px"
+              >
+                Liên hệ
+              </h4>
+              <div class="d-flex flex-column gap-3">
+                <div class="contact-item d-flex align-items-start gap-3">
+                  <i class="bx bx-map text-primary fs-5 mt-1"></i>
+                  <span class="text-muted"
+                    >123 Đường ABC, Quận XYZ, TP. HCM</span
+                  >
+                </div>
+                <div class="contact-item d-flex align-items-center gap-3">
+                  <i class="bx bx-phone text-primary fs-5"></i>
+                  <span class="text-white fw-bold">1900 123 456</span>
+                </div>
+                <div class="contact-item d-flex align-items-center gap-3">
+                  <i class="bx bx-envelope text-primary fs-5"></i>
+                  <a
+                    href="mailto:support@argaty.com"
+                    class="text-muted text-decoration-none hover-white"
+                    >support@argaty.com</a
+                  >
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Bottom -->
-        <div class="footer__bottom">
-          <p>&copy; 2024 Argaty. All rights reserved.</p>
+        <div
+          class="footer__bottom py-4 mt-4 border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center flex-wrap gap-3"
+        >
+          <p class="m-0 text-muted small">
+            &copy; 2024 Argaty. All rights reserved.
+          </p>
+
+          <div class="payment-methods d-flex gap-2">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Paypal_2014_logo.png"
+              alt="PayPal"
+              height="20"
+              style="opacity: 0.7"
+            />
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png"
+              alt="Mastercard"
+              height="20"
+              style="opacity: 0.7"
+            />
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png"
+              alt="Visa"
+              height="15"
+              style="opacity: 0.7; margin-top: 2px"
+            />
+          </div>
         </div>
       </div>
+
+      <style>
+        .footer {
+          background-color: #0c0a1d; /* Màu nền tối */
+          border-top: 1px solid #1f1d2e;
+          padding-top: 60px;
+        }
+        .footer__grid {
+          display: grid;
+          grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+          gap: 40px;
+        }
+        .footer-link {
+          color: #9ca3af;
+          text-decoration: none;
+          transition: 0.3s;
+          font-size: 14px;
+        }
+        .footer-link:hover {
+          color: #8b5cf6; /* Màu tím khi hover */
+          padding-left: 5px;
+        }
+        .social-link {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: #1f1d2e;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          text-decoration: none;
+          transition: 0.3s;
+          font-size: 18px;
+        }
+        .social-link:hover {
+          transform: translateY(-3px);
+        }
+        .social-link.facebook:hover {
+          background: #1877f2;
+        }
+        .social-link.instagram:hover {
+          background: #e4405f;
+        }
+        .social-link.youtube:hover {
+          background: #ff0000;
+        }
+        .social-link.discord:hover {
+          background: #5865f2;
+        }
+
+        .hover-white:hover {
+          color: white !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+          .footer__grid {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+        @media (max-width: 576px) {
+          .footer__grid {
+            grid-template-columns: 1fr;
+          }
+          .footer__bottom {
+            justify-content: center;
+            text-align: center;
+          }
+        }
+      </style>
     </footer>
   </body>
 </html>

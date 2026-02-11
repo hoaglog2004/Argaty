@@ -440,7 +440,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initDashboardCharts();
 
   // Form submit validation
-  document.querySelectorAll(". admin-form-card form").forEach((form) => {
+  document.querySelectorAll(".admin-form-card form").forEach((form) => {
     form.addEventListener("submit", function (e) {
       if (!validateAdminForm(this)) {
         e.preventDefault();

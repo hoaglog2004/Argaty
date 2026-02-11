@@ -68,4 +68,19 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query("SELECT r FROM Review r WHERE r.reply IS NULL AND r.isVisible = true ORDER BY r.createdAt ASC")
     List<Review> findUnrepliedReviews(Pageable pageable);
+
+    // Trong ReviewRepository.java
+
+@Query("SELECT r FROM Review r WHERE " +
+       "(:productId IS NULL OR r.product.id = :productId) AND " +
+       "(:keyword IS NULL OR LOWER(r.product.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(r.user.fullName) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
+       "(:rating IS NULL OR r.rating = :rating) AND " +
+       "(:isApproved IS NULL OR r.isApproved = :isApproved) AND " +
+       "(:isRejected IS NULL OR r.isRejected = :isRejected)")
+Page<Review> searchReviews(@Param("productId") Long productId,
+                           @Param("keyword") String keyword,
+                           @Param("rating") Integer rating,
+                           @Param("isApproved") Boolean isApproved,
+                           @Param("isRejected") Boolean isRejected,
+                           Pageable pageable);
 }

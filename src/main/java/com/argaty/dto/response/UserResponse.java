@@ -1,14 +1,15 @@
 package com.argaty.dto.response;
 
+import java.time.LocalDateTime;
+
 import com.argaty.entity.User;
 import com.argaty.enums.Role;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 /**
  * DTO cho response thông tin user
@@ -36,10 +37,12 @@ public class UserResponse {
     private LocalDateTime emailVerifiedAt;
     private LocalDateTime lastLoginAt;
     private LocalDateTime createdAt;
+    private Boolean isActive;
 
     // Thống kê (cho admin)
     private Long orderCount;
     private Long totalSpent;
+
 
     public static UserResponse fromEntity(User user) {
         return UserResponse.builder()
@@ -54,6 +57,7 @@ public class UserResponse {
                 .ward(user.getWard())
                 .role(user.getRole())
                 .isEnabled(user.getIsEnabled())
+                .isActive(user.getIsEnabled())
                 .isBanned(user.getIsBanned())
                 .banReason(user.getBanReason())
                 .emailVerifiedAt(user.getEmailVerifiedAt())

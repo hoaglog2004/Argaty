@@ -18,9 +18,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 
-/**
- * Controller quản lý đánh giá (Admin)
- */
 @Controller
 @RequestMapping("/admin/reviews")
 @RequiredArgsConstructor
@@ -29,35 +26,34 @@ public class AdminReviewController {
     private final ReviewService reviewService;
     private final UserService userService;
 
-    /**
-     * Danh sách đánh giá
-     */
+    // --- 1. SỬA HÀM LIST ĐỂ HỖ TRỢ TÌM KIẾM ---
     @GetMapping
     public String list(
             @RequestParam(required = false) Long productId,
+            @RequestParam(required = false) String keyword, // Thêm tìm kiếm text
+            @RequestParam(required = false) Integer rating, // Thêm lọc sao
+            @RequestParam(required = false) String status,  // Thêm lọc trạng thái
             @RequestParam(defaultValue = "0") int page,
             Model model) {
 
         PageRequest pageRequest = PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        Page<Review> reviews;
-        if (productId != null) {
-            reviews = reviewService.findByProductId(productId, pageRequest);
-            model.addAttribute("productId", productId);
-        } else {
-            // Lấy tất cả reviews - cần thêm method trong service
-            reviews = reviewService.findByProductId(null, pageRequest);
-        }
+        // Gọi hàm search tổng hợp trong Service (Sẽ viết ở Bước 2)
+        Page<Review> reviews = reviewService.searchReviews(productId, keyword, rating, status, pageRequest);
 
         model.addAttribute("reviews", DtoMapper.toReviewPageResponse(reviews));
+        
+        // Giữ lại các giá trị filter để hiển thị trên giao diện
+        model.addAttribute("productId", productId);
+        model.addAttribute("searchKeyword", keyword);
+        model.addAttribute("selectedRating", rating);
+        model.addAttribute("selectedStatus", status);
         model.addAttribute("adminPage", "reviews");
 
         return "admin/reviews/list";
     }
 
-    /**
-     * Chi tiết đánh giá
-     */
+    // ... (Hàm detail giữ nguyên) ...
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
         Review review = reviewService.findById(id)
@@ -70,42 +66,46 @@ public class AdminReviewController {
         return "admin/reviews/detail";
     }
 
-    /**
-     * Phản hồi đánh giá
-     */
+    // ... (Hàm reply giữ nguyên) ...
     @PostMapping("/{id}/reply")
-    public String reply(
-            @PathVariable Long id,
-            @Valid @ModelAttribute ReviewReplyRequest request,
-            Principal principal,
-            RedirectAttributes redirectAttributes) {
-
+    public String reply(@PathVariable Long id, 
+                        @Valid @ModelAttribute ReviewReplyRequest request,
+                        Principal principal, RedirectAttributes redirectAttributes) {
         try {
-            User admin = userService.findByEmail(principal.getName())
-                    .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("User", "email", principal.getName()));
-
+            User admin = userService.findByEmail(principal.getName()).orElseThrow();
             reviewService.replyToReview(id, admin.getId(), request.getReply());
             redirectAttributes.addFlashAttribute("success", "Đã phản hồi đánh giá");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-
         return "redirect:/admin/reviews/" + id;
     }
 
-    /**
-     * Toggle visibility
-     */
-    @PostMapping("/{id}/toggle-visibility")
-    public String toggleVisibility(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        reviewService.toggleVisibility(id);
-        redirectAttributes.addFlashAttribute("success", "Đã cập nhật trạng thái hiển thị");
+    // --- 2. THÊM HÀM APPROVE (DUYỆT) ---
+    @PostMapping("/{id}/approve")
+    public String approve(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            reviewService.approveReview(id);
+            redirectAttributes.addFlashAttribute("success", "Đã duyệt đánh giá");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
+        }
         return "redirect:/admin/reviews";
     }
 
-    /**
-     * Xóa đánh giá
-     */
+    // --- 3. THÊM HÀM REJECT (TỪ CHỐI) ---
+    @PostMapping("/{id}/reject")
+    public String reject(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            reviewService.rejectReview(id);
+            redirectAttributes.addFlashAttribute("success", "Đã từ chối đánh giá");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
+        }
+        return "redirect:/admin/reviews";
+    }
+
+    // ... (Hàm delete giữ nguyên) ...
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {

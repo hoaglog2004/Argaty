@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html
   xmlns:th="http://www.thymeleaf.org"
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -14,20 +14,28 @@
         <h1 class="admin-page-title">Quản lý đánh giá</h1>
       </div>
 
-      <div class="admin-filters">
+      <form
+        id="filterForm"
+        th:action="@{/admin/reviews}"
+        method="get"
+        class="admin-filters mb-4"
+      >
         <div class="admin-search">
           <i class="bx bx-search"></i>
           <input
             type="text"
+            name="keyword"
             class="form-control"
             placeholder="Tìm theo sản phẩm, người dùng..."
             th:value="${searchKeyword}"
+            onchange="this.form.submit()"
           />
         </div>
+
         <select
           class="form-control form-select admin-filter-select"
           name="rating"
-          data-param="rating"
+          onchange="this.form.submit()"
         >
           <option value="">Tất cả đánh giá</option>
           <option value="5" th:selected="${selectedRating == 5}">5 sao</option>
@@ -36,10 +44,11 @@
           <option value="2" th:selected="${selectedRating == 2}">2 sao</option>
           <option value="1" th:selected="${selectedRating == 1}">1 sao</option>
         </select>
+
         <select
           class="form-control form-select admin-filter-select"
           name="status"
-          data-param="status"
+          onchange="this.form.submit()"
         >
           <option value="">Tất cả trạng thái</option>
           <option value="pending" th:selected="${selectedStatus == 'pending'}">
@@ -58,7 +67,15 @@
             Từ chối
           </option>
         </select>
-      </div>
+
+        <a
+          th:href="@{/admin/reviews}"
+          class="btn btn-outline-secondary"
+          title="Xóa bộ lọc"
+        >
+          <i class="bx bx-refresh"></i>
+        </a>
+      </form>
 
       <div class="admin-table-wrapper">
         <table class="admin-table">
@@ -84,10 +101,11 @@
                       border-radius: 8px;
                       overflow: hidden;
                       background: var(--bg-void);
+                      flex-shrink: 0;
                     "
                   >
                     <img
-                      th:src="${review.productImage}"
+                      th:src="${review.productImage != null ? review.productImage : '/images/no-image.png'}"
                       style="width: 100%; height: 100%; object-fit: cover"
                     />
                   </div>
@@ -95,28 +113,32 @@
                     <p
                       class="mb-0 text-truncate"
                       th:text="${review.productName}"
+                      title="${review.productName}"
                     >
                       Sản phẩm
                     </p>
                   </div>
                 </div>
               </td>
+
               <td>
                 <p class="mb-0" th:text="${review.userName}">User</p>
                 <small class="text-muted" th:text="${review.userEmail}"
                   >email</small
                 >
               </td>
+
               <td>
                 <div class="d-flex align-center gap-1">
                   <th:block th:each="i : ${#numbers.sequence(1, 5)}">
                     <i
-                      th:class="${i < = review.rating} ? 'bx bxs-star' : 'bx bx-star'"
-                      style="color: var(--star-gold); font-size: 14px"
+                      th:class="${i <= review.rating} ? 'bx bxs-star' : 'bx bx-star'"
+                      style="color: #f59e0b; font-size: 14px"
                     ></i>
                   </th:block>
                 </div>
               </td>
+
               <td>
                 <p
                   class="mb-0"
@@ -127,15 +149,18 @@
                     text-overflow: ellipsis;
                   "
                   th:text="${review.comment}"
+                  th:title="${review.comment}"
                 >
                   Nội dung...
                 </p>
               </td>
+
               <td
                 th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy')}"
               >
                 01/01/2024
               </td>
+
               <td>
                 <span
                   th:if="${review.isApproved}"
@@ -148,31 +173,28 @@
                   >Từ chối</span
                 >
                 <span
-                  th:if="${! review.isApproved && ! review.isRejected}"
+                  th:if="${!review.isApproved && !review.isRejected}"
                   class="status-badge status-badge--pending"
                   >Chờ duyệt</span
                 >
               </td>
+
               <td>
                 <div class="table-actions">
-                  <button
+                  <a
+                    th:href="@{/admin/reviews/{id}(id=${review.id})}"
                     class="table-action-btn"
                     title="Xem chi tiết"
-                    onclick="viewReview([[${review.id}]])"
                   >
                     <i class="bx bx-show"></i>
-                  </button>
+                  </a>
+
                   <form
                     th:unless="${review.isApproved}"
                     th:action="@{/admin/reviews/{id}/approve(id=${review.id})}"
                     method="post"
                     style="display: inline"
                   >
-                    <input
-                      type="hidden"
-                      th:name="${_csrf.parameterName}"
-                      th:value="${_csrf.token}"
-                    />
                     <button
                       type="submit"
                       class="table-action-btn"
@@ -182,17 +204,13 @@
                       <i class="bx bx-check"></i>
                     </button>
                   </form>
+
                   <form
                     th:unless="${review.isRejected}"
                     th:action="@{/admin/reviews/{id}/reject(id=${review.id})}"
                     method="post"
                     style="display: inline"
                   >
-                    <input
-                      type="hidden"
-                      th:name="${_csrf.parameterName}"
-                      th:value="${_csrf.token}"
-                    />
                     <button
                       type="submit"
                       class="table-action-btn"
@@ -202,21 +220,82 @@
                       <i class="bx bx-x"></i>
                     </button>
                   </form>
+
+                  <form
+                    th:action="@{/admin/reviews/{id}/delete(id=${review.id})}"
+                    method="post"
+                    style="display: inline"
+                    onsubmit="
+                      return confirm('Bạn có chắc muốn xóa đánh giá này?');
+                    "
+                  >
+                    <button
+                      type="submit"
+                      class="table-action-btn delete"
+                      title="Xóa"
+                    >
+                      <i class="bx bx-trash"></i>
+                    </button>
+                  </form>
                 </div>
               </td>
             </tr>
+
             <tr th:if="${reviews.content == null || reviews.content.isEmpty()}">
               <td colspan="7" class="text-center text-muted p-5">
-                Không có đánh giá nào
+                <i
+                  class="bx bx-message-square-dots"
+                  style="font-size: 48px; display: block; margin-bottom: 10px"
+                ></i>
+                Không tìm thấy đánh giá nào phù hợp
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <th:block
-        th:replace="~{fragments/pagination :: pagination(${reviews}, '/admin/reviews')}"
-      ></th:block>
+      <div class="mt-4">
+        <th:block
+          th:replace="~{fragments/pagination :: pagination(${reviews}, '/admin/reviews')}"
+        ></th:block>
+      </div>
     </div>
+
+    <th:block layout:fragment="scripts">
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          // Bắt sự kiện click vào các link phân trang
+          const paginationLinks = document.querySelectorAll(
+            ".pagination a.page-link",
+          );
+
+          paginationLinks.forEach((link) => {
+            link.addEventListener("click", function (e) {
+              e.preventDefault(); // Chặn chuyển trang mặc định
+
+              // Lấy số trang từ href (ví dụ: ?page=1)
+              const url = new URL(this.href, window.location.origin);
+              const page = url.searchParams.get("page") || 0;
+
+              // Tìm form bộ lọc
+              const form = document.getElementById("filterForm");
+
+              // Tạo hoặc cập nhật input hidden cho page
+              let pageInput = form.querySelector("input[name='page']");
+              if (!pageInput) {
+                pageInput = document.createElement("input");
+                pageInput.type = "hidden";
+                pageInput.name = "page";
+                form.appendChild(pageInput);
+              }
+              pageInput.value = page;
+
+              // Submit form để giữ nguyên các bộ lọc khác (rating, status...)
+              form.submit();
+            });
+          });
+        });
+      </script>
+    </th:block>
   </body>
 </html>

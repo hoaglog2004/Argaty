@@ -53,7 +53,10 @@ public class VoucherRequest {
     @Min(value = 1, message = "Giới hạn sử dụng mỗi người phải lớn hơn 0")
     private Integer usageLimitPerUser;
 
+    @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime startDate;
+
+    @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime endDate;
 
     private Boolean isActive;

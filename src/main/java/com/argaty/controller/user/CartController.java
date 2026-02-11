@@ -90,4 +90,10 @@ public class CartController {
         }
         return BigDecimal.valueOf(30000);
     }
+    @GetMapping("/fragment")
+public String getCartFragment(Model model) {
+    // GlobalControllerAdvice sẽ tự động chạy và đổ dữ liệu giỏ hàng mới nhất vào Model/Session
+    // Chúng ta chỉ cần trả về đúng đoạn HTML của giỏ hàng
+    return "fragments/header :: headerCartPanel";
+}
 }

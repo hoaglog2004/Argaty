@@ -55,6 +55,7 @@ public class SecurityConfig {
             // Enable CSRF with cookie-based token repository
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .ignoringRequestMatchers("/api/**")
             )
             
             // Cấu hình authorize requests (cho phép khách xem toàn bộ site)
@@ -85,6 +86,9 @@ public class SecurityConfig {
 
                 // Staff routes - yêu cầu role STAFF hoặc ADMIN
                 .requestMatchers("/staff/**").hasAnyRole("STAFF", "ADMIN")
+
+                // User routes - yêu cầu đăng nhập
+                .requestMatchers("/profile/**", "/checkout/**").authenticated()
 
                 // Các request khác: cho phép tất cả (khách không cần đăng nhập)
                 .anyRequest().permitAll()

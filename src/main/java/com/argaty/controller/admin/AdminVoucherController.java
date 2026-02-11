@@ -73,6 +73,9 @@ public class AdminVoucherController {
             Model model) {
 
         if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(error -> {
+                System.out.println("Voucher Validation Error: " + error.toString());
+            });
             model.addAttribute("adminPage", "vouchers");
             model.addAttribute("pageTitle", "Thêm voucher");
             return "admin/vouchers/form";
@@ -90,7 +93,8 @@ public class AdminVoucherController {
                     request.getUsageLimit(),
                     request.getUsageLimitPerUser(),
                     request.getStartDate(),
-                    request.getEndDate()
+                    request.getEndDate(),
+                    request.getIsActive()
             );
             redirectAttributes.addFlashAttribute("success", "Thêm voucher thành công");
             return "redirect:/admin/vouchers";
@@ -109,7 +113,21 @@ public class AdminVoucherController {
                 .orElseThrow(() -> new com.argaty.exception.ResourceNotFoundException("Voucher", "id", id));
 
         model.addAttribute("voucher", DtoMapper.toVoucherResponse(voucher));
-        model.addAttribute("voucherRequest", new VoucherRequest());
+        VoucherRequest request = new VoucherRequest();
+        request.setCode(voucher.getCode());
+        request.setName(voucher.getName());
+        request.setDescription(voucher.getDescription());
+        request.setDiscountType(voucher.getDiscountType());
+        request.setDiscountValue(voucher.getDiscountValue());
+        request.setMaxDiscount(voucher.getMaxDiscount());
+        request.setMinOrderAmount(voucher.getMinOrderAmount());
+        request.setUsageLimit(voucher.getUsageLimit());
+        request.setUsageLimitPerUser(voucher.getUsageLimitPerUser());
+        request.setStartDate(voucher.getStartDate());
+        request.setEndDate(voucher.getEndDate());
+        request.setIsActive(voucher.getIsActive());
+
+        model.addAttribute("voucherRequest", request);
         model.addAttribute("adminPage", "vouchers");
         model.addAttribute("pageTitle", "Sửa voucher");
         model.addAttribute("isEdit", true);
@@ -146,7 +164,8 @@ public class AdminVoucherController {
                     request.getUsageLimit(),
                     request.getUsageLimitPerUser(),
                     request.getStartDate(),
-                    request.getEndDate()
+                    request.getEndDate(),
+                    request.getIsActive()
             );
             redirectAttributes.addFlashAttribute("success", "Cập nhật voucher thành công");
             return "redirect:/admin/vouchers";

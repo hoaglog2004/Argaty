@@ -26,7 +26,7 @@
 
       <div class="admin-form-card" style="max-width: 600px">
         <form
-          th:action="${isEdit} ? @{/admin/brands/{id}/edit(id=${brand.id})} : @{/admin/brands/create}"
+          th:action="${isEdit} ? @{/admin/brands/{id}/edit(id=${id})} : @{/admin/brands/create}"
           method="post"
           th:object="${brandRequest}"
           enctype="multipart/form-data"
@@ -71,7 +71,8 @@
                   width: 100px;
                   height: 100px;
                   border-radius: 12px;
-                  background: var(--bg-void);
+                  background: rgba(255, 255, 255, 0.05);
+                  border: 1px solid var(--border-color);
                   display: flex;
                   align-items: center;
                   justify-content: center;
@@ -79,18 +80,20 @@
                 "
               >
                 <img
-                  th:if="${brand != null && brand.logo}"
-                  th:src="${brand.logo}"
+                  th:if="*{logo != null}"
+                  th:src="*{logo}"
                   id="logoPreview"
                   style="max-width: 100%; max-height: 100%; object-fit: contain"
                 />
+
                 <i
-                  th:unless="${brand != null && brand.logo}"
+                  th:unless="*{logo != null}"
                   class="bx bx-image"
                   id="logoIcon"
                   style="font-size: 36px; color: var(--text-muted)"
                 ></i>
               </div>
+
               <div>
                 <input
                   type="file"
@@ -100,6 +103,7 @@
                   style="display: none"
                   onchange="previewLogo(this)"
                 />
+
                 <button
                   type="button"
                   class="btn btn-outline btn-sm"
@@ -153,18 +157,20 @@
               let preview = document.getElementById("logoPreview");
               const icon = document.getElementById("logoIcon");
 
+              // Nếu chưa có thẻ img (đang hiện icon), tạo thẻ img mới
               if (!preview) {
                 preview = document.createElement("img");
                 preview.id = "logoPreview";
                 preview.style.cssText =
-                  "max-width:  100%; max-height: 100%; object-fit: contain;";
-                const container = icon.parentElement;
-                container.innerHTML = "";
-                container.appendChild(preview);
-              }
+                  "max-width: 100%; max-height: 100%; object-fit: contain";
 
-              preview.src = e.target.result;
-              if (icon) icon.style.display = "none";
+                // Tìm div cha để chèn ảnh vào
+                const container = icon.parentElement;
+                container.innerHTML = ""; // Xóa icon cũ
+                container.appendChild(preview);
+              } else {
+                preview.src = e.target.result;
+              }
             };
             reader.readAsDataURL(input.files[0]);
           }

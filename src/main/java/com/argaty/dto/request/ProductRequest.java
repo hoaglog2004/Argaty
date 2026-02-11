@@ -73,12 +73,15 @@ public class ProductRequest {
     private String metaTitle;
 
     private String metaDescription;
+    private List<Long> existingImageIds;
 
     // Danh sách ảnh
     private List<String> imageUrls;
 
     // Danh sách variants
-    private List<ProductVariantRequest> variants;
+    // private List<ProductVariantRequest> variants;
+
+    private List<ProductVariantDTO> variants;
 
     @Data
     @Builder

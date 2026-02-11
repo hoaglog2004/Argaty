@@ -53,12 +53,12 @@
               />
               <div id="bannerPreviewContainer">
                 <img
-                  th:if="${banner != null && banner.imageUrl}"
+                  th:if="${banner != null && banner.imageUrl != null}"
                   th:src="${banner.imageUrl}"
                   id="bannerPreview"
                   style="max-width: 100%; max-height: 200px; border-radius: 8px"
                 />
-                <div th:unless="${banner != null && banner.imageUrl}">
+                <div th:unless="${banner != null && banner.imageUrl != null}">
                   <i class="bx bx-cloud-upload image-upload__icon"></i>
                   <p class="image-upload__text">Click để tải ảnh banner</p>
                   <p class="image-upload__hint">

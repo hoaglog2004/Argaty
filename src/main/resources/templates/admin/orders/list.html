@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html
   xmlns:th="http://www.thymeleaf.org"
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -6,200 +6,335 @@
 >
   <head>
     <title>Quản lý đơn hàng</title>
+    <style>
+      /* CSS CHIA CỘT KIỂU MISSION CONTROL */
+      .mission-control-layout {
+        display: grid;
+        grid-template-columns: 400px 1fr; /* Cột trái 400px, Cột phải tự giãn */
+        gap: 24px;
+        height: calc(100vh - 120px); /* Chiều cao full màn hình trừ header */
+        overflow: hidden;
+      }
+
+      /* Cột trái: Danh sách */
+      .order-list-panel {
+        background: #18181b;
+        border: 1px solid #27272a;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .order-list-scroll {
+        overflow-y: auto;
+        flex: 1;
+      }
+
+      .order-item-card {
+        padding: 16px;
+        border-bottom: 1px solid #27272a;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .order-item-card:hover,
+      .order-item-card.active {
+        background: rgba(139, 92, 246, 0.1);
+        border-left: 3px solid var(--primary);
+      }
+
+      /* Cột phải: Chi tiết (Ban đầu trống) */
+      .order-detail-panel {
+        background: #18181b;
+        border: 1px solid #27272a;
+        border-radius: 12px;
+        padding: 24px;
+        overflow-y: auto;
+        position: relative;
+      }
+
+      /* Empty State cho cột phải */
+      .detail-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #71717a;
+      }
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      /* Hiệu ứng mờ dần */
+      @keyframes fadeOut {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+
+      .custom-toast {
+        min-width: 300px;
+        background: #18181b; /* Màu nền tối */
+        border: 1px solid #27272a;
+        border-left: 4px solid; /* Viền màu bên trái */
+        padding: 16px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        animation: slideIn 0.3s ease forwards;
+      }
+
+      .custom-toast.success {
+        border-left-color: #10b981;
+      } /* Xanh lá */
+      .custom-toast.error {
+        border-left-color: #ef4444;
+      } /* Đỏ */
+
+      .custom-toast i {
+        font-size: 24px;
+      }
+      .custom-toast.success i {
+        color: #10b981;
+      }
+      .custom-toast.error i {
+        color: #ef4444;
+      }
+
+      .custom-toast.hiding {
+        animation: fadeOut 0.5s ease forwards;
+      }
+    </style>
   </head>
 
   <body>
     <div layout:fragment="content">
-      <div class="admin-page-header">
-        <h1 class="admin-page-title">Quản lý đơn hàng</h1>
-        <div class="admin-page-actions">
-          <button class="btn btn-outline" onclick="exportOrders()">
-            <i class="bx bx-export"></i> Xuất Excel
-          </button>
-        </div>
+      <div class="admin-page-header mb-3">
+        <h1 class="admin-page-title">Mission Control: Order Tracking</h1>
+        <button class="btn btn-primary">
+          <i class="bx bx-plus"></i> Tạo đơn mới
+        </button>
       </div>
 
-      <!-- Filters -->
-      <div class="admin-filters">
-        <div class="admin-search">
-          <i class="bx bx-search"></i>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Tìm mã đơn, tên KH, SĐT..."
-            th:value="${searchKeyword}"
-          />
-        </div>
-        <select
-          class="form-control form-select admin-filter-select"
-          name="status"
-          data-param="status"
-        >
-          <option value="">Tất cả trạng thái</option>
-          <option value="PENDING" th:selected="${currentStatus == 'PENDING'}">
-            Chờ xác nhận
-          </option>
-          <option
-            value="CONFIRMED"
-            th:selected="${currentStatus == 'CONFIRMED'}"
-          >
-            Đã xác nhận
-          </option>
-          <option value="SHIPPING" th:selected="${currentStatus == 'SHIPPING'}">
-            Đang giao
-          </option>
-          <option
-            value="DELIVERED"
-            th:selected="${currentStatus == 'DELIVERED'}"
-          >
-            Đã giao
-          </option>
-          <option
-            value="COMPLETED"
-            th:selected="${currentStatus == 'COMPLETED'}"
-          >
-            Hoàn thành
-          </option>
-          <option
-            value="CANCELLED"
-            th:selected="${currentStatus == 'CANCELLED'}"
-          >
-            Đã hủy
-          </option>
-        </select>
-        <input
-          type="date"
-          class="form-control"
-          name="fromDate"
-          th:value="${fromDate}"
-          style="width: auto"
-        />
-        <input
-          type="date"
-          class="form-control"
-          name="toDate"
-          th:value="${toDate}"
-          style="width: auto"
-        />
-      </div>
+      <div class="mb-3"></div>
 
-      <!-- Orders Table -->
-      <div class="admin-table-wrapper">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Mã đơn</th>
-              <th>Khách hàng</th>
-              <th>Sản phẩm</th>
-              <th>Tổng tiền</th>
-              <th>Thanh toán</th>
-              <th>Trạng thái</th>
-              <th>Ngày đặt</th>
-              <th>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr th:each="order : ${orders.content}">
-              <td>
-                <a
-                  th:href="@{/admin/orders/{code}(code=${order.orderCode})}"
-                  class="text-cyan"
-                  th:text="${order.orderCode}"
-                  >ARG123</a
-                >
-              </td>
-              <td>
-                <div>
-                  <p class="mb-0" th:text="${order.receiverName}">Tên KH</p>
-                  <small class="text-muted" th:text="${order.receiverPhone}"
-                    >SĐT</small
+      <div class="mission-control-layout">
+        <div class="order-list-panel">
+          <div class="p-3 border-bottom border-dark">
+            <small class="text-muted text-uppercase fw-bold"
+              >Danh sách đơn hàng</small
+            >
+          </div>
+
+          <div class="order-list-scroll">
+            <th:block th:each="order : ${orders.content}">
+              <div
+                class="order-item-card"
+                th:onclick="'loadOrderDetail(' + ${order.id} + ', this)'"
+              >
+                <div class="d-flex justify-content-between mb-1">
+                  <span class="fw-bold text-white" th:text="${order.orderCode}"
+                    >#ORD-001</span
+                  >
+                  <span
+                    class="badge"
+                    th:classappend="${order.statusBadgeClass}"
+                    th:text="${order.statusDisplayName}"
+                    >Pending</span
                   >
                 </div>
-              </td>
-              <td><span th:text="${order.totalItems}">0</span> sản phẩm</td>
-              <td>
-                <strong
-                  class="text-cyan"
-                  th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
-                  >0 ₫</strong
-                >
-              </td>
-              <td>
-                <span th:if="${order.isPaid}" class="text-success"
-                  ><i class="bx bx-check"></i> Đã TT</span
-                >
-                <span th:unless="${order.isPaid}" class="text-warning"
-                  ><i class="bx bx-time"></i> Chưa TT</span
-                >
-                <br />
-                <small
-                  class="text-muted"
-                  th:text="${order.paymentMethodDisplayName}"
-                  >COD</small
-                >
-              </td>
-              <td>
-                <span
-                  class="status-badge"
-                  th:classappend="'status-badge--' + ${order.status.name().toLowerCase()}"
-                  th:text="${order.statusDisplayName}"
-                  >Trạng thái</span
-                >
-              </td>
-              <td>
-                <span
-                  th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy')}"
-                  >01/01/2024</span
-                >
-                <br />
-                <small
-                  class="text-muted"
-                  th:text="${#temporals.format(order.createdAt, 'HH:mm')}"
-                  >12:00</small
-                >
-              </td>
-              <td>
-                <div class="table-actions">
-                  <a
-                    th:href="@{/admin/orders/{code}(code=${order.orderCode})}"
-                    class="table-action-btn"
-                    title="Chi tiết"
-                  >
-                    <i class="bx bx-show"></i>
-                  </a>
-                  <button
-                    class="table-action-btn"
-                    title="In đơn"
-                    onclick="printOrder('[[${order.orderCode}]]')"
-                  >
-                    <i class="bx bx-printer"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr th:if="${orders.content == null || orders.content.isEmpty()}">
-              <td colspan="8" class="text-center text-muted p-5">
-                <i
-                  class="bx bx-package"
-                  style="font-size: 48px; display: block; margin-bottom: 16px"
-                ></i>
-                Không có đơn hàng nào
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
 
-      <!-- Pagination -->
-      <div class="d-flex justify-between align-center mt-4">
-        <p class="text-muted mb-0">
-          Hiển thị <span th:text="${orders.content.size()}">0</span> /
-          <span th:text="${orders.totalElements}">0</span> đơn hàng
-        </p>
-        <th:block
-          th:replace="~{fragments/pagination :: pagination(${orders}, '/admin/orders')}"
-        ></th:block>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div
+                      class="text-white"
+                      style="font-size: 14px"
+                      th:text="${order.receiverName}"
+                    >
+                      Alex Chen
+                    </div>
+                    <small
+                      class="text-muted"
+                      th:text="${#temporals.format(order.createdAt, 'HH:mm')}"
+                      >2 mins ago</small
+                    >
+                  </div>
+                  <div class="text-end">
+                    <div
+                      class="fw-bold text-cyan"
+                      th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                    >
+                      $249.00
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </th:block>
+          </div>
+        </div>
+
+        <div class="order-detail-panel" id="orderDetailContainer">
+          <div class="detail-placeholder">
+            <i
+              class="bx bx-radar"
+              style="font-size: 64px; margin-bottom: 16px"
+            ></i>
+            <h3>Chọn một đơn hàng để xem chi tiết</h3>
+            <p>Thông tin chi tiết và hành động sẽ hiển thị ở đây.</p>
+          </div>
+        </div>
       </div>
     </div>
+    <div
+      id="toast-container"
+      style="position: fixed; top: 20px; right: 20px; z-index: 9999"
+    ></div>
+
+    <th:block layout:fragment="scripts">
+      <script>
+        function loadOrderDetail(orderId, cardElement) {
+          // Highlight card
+          if (cardElement) {
+            document
+              .querySelectorAll(".order-item-card")
+              .forEach((c) => c.classList.remove("active"));
+            cardElement.classList.add("active");
+          }
+
+          const container = document.getElementById("orderDetailContainer");
+
+          // Hiện loading
+          container.innerHTML = `
+                <div class="detail-placeholder">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-3">Đang tải dữ liệu...</p>
+                </div>
+            `;
+
+          // Gọi AJAX
+          fetch(`/admin/orders/quick-view/${orderId}`)
+            .then((response) => {
+              if (!response.ok) throw new Error("Lỗi tải đơn hàng");
+              return response.text();
+            })
+            .then((html) => {
+              // Đổ HTML vào container
+              container.innerHTML = html;
+
+              // --- [QUAN TRỌNG] GÁN LẠI SỰ KIỆN SUBMIT CHO FORM VỪA TẢI VỀ ---
+              // Tìm form cập nhật trạng thái trong nội dung mới
+              const form = container.querySelector("form");
+              if (form) {
+                form.removeAttribute("action"); // Xóa action để chắc chắn không submit thường
+                form.onsubmit = function (event) {
+                  // Gọi hàm xử lý custom của ta
+                  updateOrderStatus(event, this, orderId);
+                };
+              }
+            })
+            .catch((err) => {
+              container.innerHTML = `<div class="text-danger text-center">Lỗi: ${err.message}</div>`;
+            });
+        }
+        // --- HÀM HIỂN THỊ THÔNG BÁO (TOAST) ---
+        function showToast(type, message) {
+          const container = document.getElementById("toast-container");
+
+          // Tạo thẻ div thông báo
+          const toast = document.createElement("div");
+          toast.className = `custom-toast ${type}`;
+
+          // Icon dựa trên loại thông báo
+          const icon =
+            type === "success" ? "bx-check-circle" : "bx-error-circle";
+
+          toast.innerHTML = `
+            <i class='bx ${icon}'></i>
+            <div>
+                <strong style="display:block; font-size:14px; margin-bottom:2px;">
+                    ${type === "success" ? "Thành công" : "Lỗi"}
+                </strong>
+                <span style="font-size:13px; color:#a1a1aa;">${message}</span>
+            </div>
+        `;
+
+          // Thêm vào giao diện
+          container.appendChild(toast);
+
+          // Tự động tắt sau 3 giây
+          setTimeout(() => {
+            toast.classList.add("hiding"); // Thêm class mờ dần
+            toast.addEventListener("animationend", () => {
+              toast.remove(); // Xóa hẳn khỏi DOM sau khi mờ xong
+            });
+          }, 3000);
+        }
+        // 2. Hàm xử lý cập nhật trạng thái (AJAX)
+        function updateOrderStatus(event, form, orderId) {
+          event.preventDefault(); // CHẶN ĐỨNG RELOAD TRANG
+          event.stopPropagation();
+
+          const btn = form.querySelector("button");
+          const spinner = btn.querySelector(".spinner-border");
+          const btnText = btn.querySelector(".btn-text");
+
+          // UI Loading
+          btn.disabled = true;
+          if (spinner) spinner.classList.remove("d-none");
+          if (btnText) btnText.textContent = " Đang lưu...";
+
+          const formData = new FormData(form);
+
+          fetch(`/admin/orders/api/orders/${orderId}/status`, {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                showToast("success", data.message); // Thông báo thành công
+
+                // Refresh lại chi tiết đơn hàng để thấy trạng thái mới
+                // Tìm card đang active để truyền vào (giữ highlight)
+                const activeCard = document.querySelector(
+                  `.order-item-card.active`,
+                );
+                if (activeCard) {
+                  const statusBadge = activeCard.querySelector(".badge");
+                  // (Optional) Bạn có thể cập nhật text badge ở đây nếu muốn nó đổi ngay lập tức
+                  // Nhưng loadOrderDetail sẽ tự làm việc đó khi refresh
+                }
+                loadOrderDetail(orderId, activeCard);
+              } else {
+                showToast("error", data.message);
+              }
+            })
+            .catch((err) => {
+              console.error(err);
+              showToast("error", "Lỗi kết nối server");
+            })
+            .finally(() => {
+              btn.disabled = false;
+              if (spinner) spinner.classList.add("d-none");
+              if (btnText) btnText.textContent = "Cập nhật";
+            });
+        }
+      </script>
+    </th:block>
   </body>
 </html>

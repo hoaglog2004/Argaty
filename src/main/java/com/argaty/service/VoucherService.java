@@ -37,13 +37,13 @@ public interface VoucherService {
                    DiscountType discountType, BigDecimal discountValue,
                    BigDecimal maxDiscount, BigDecimal minOrderAmount,
                    Integer usageLimit, Integer usageLimitPerUser,
-                   LocalDateTime startDate, LocalDateTime endDate);
+                   LocalDateTime startDate, LocalDateTime endDate, Boolean isActive);
 
     Voucher update(Long id, String name, String description,
                    DiscountType discountType, BigDecimal discountValue,
                    BigDecimal maxDiscount, BigDecimal minOrderAmount,
                    Integer usageLimit, Integer usageLimitPerUser,
-                   LocalDateTime startDate, LocalDateTime endDate);
+                   LocalDateTime startDate, LocalDateTime endDate, Boolean isActive);
 
     void toggleActive(Long id);
 

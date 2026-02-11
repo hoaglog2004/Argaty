@@ -1,26 +1,40 @@
 package com.argaty.service.impl;
 
-import com.argaty.entity.*;
-import com.argaty.enums.OrderStatus;
-import com.argaty.enums.PaymentMethod;
-import com.argaty.exception.ResourceNotFoundException;
-import com.argaty.exception.BadRequestException;
-import com.argaty.repository.*;
-import com.argaty.service.*;
-import com.argaty.util.OrderCodeGenerator;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
+import com.argaty.entity.Cart;
+import com.argaty.entity.CartItem;
+import com.argaty.entity.Order;
+import com.argaty.entity.OrderItem;
+import com.argaty.entity.User;
+import com.argaty.entity.Voucher;
+import com.argaty.enums.OrderStatus;
+import com.argaty.enums.PaymentMethod;
+import com.argaty.exception.BadRequestException;
+import com.argaty.exception.ResourceNotFoundException;
+import com.argaty.repository.CartItemRepository;
+import com.argaty.repository.CartRepository;
+import com.argaty.repository.OrderItemRepository;
+import com.argaty.repository.OrderRepository;
+import com.argaty.repository.UserRepository;
+import com.argaty.service.NotificationService;
+import com.argaty.service.OrderService;
+import com.argaty.service.ProductService;
+import com.argaty.service.VoucherService;
+import com.argaty.util.OrderCodeGenerator;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Implementation của OrderService
@@ -76,7 +90,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public Page<Order> findByUserId(Long userId, Pageable pageable) {
-        return orderRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
+        return orderRepository.findByUserId(userId, pageable);
     }
 
     @Override

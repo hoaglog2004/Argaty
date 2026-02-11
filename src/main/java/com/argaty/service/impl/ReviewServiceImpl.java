@@ -1,22 +1,31 @@
 package com.argaty.service.impl;
 
-import com.argaty.entity.*;
-import com.argaty.exception.ResourceNotFoundException;
-import com.argaty.exception.BadRequestException;
-import com.argaty.repository.*;
-import com.argaty.service.ProductService;
-import com.argaty.service.ReviewService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import com.argaty.entity.OrderItem;
+import com.argaty.entity.Product;
+import com.argaty.entity.Review;
+import com.argaty.entity.ReviewImage;
+import com.argaty.entity.User;
+import com.argaty.exception.BadRequestException;
+import com.argaty.exception.ResourceNotFoundException;
+import com.argaty.repository.OrderItemRepository;
+import com.argaty.repository.ProductRepository;
+import com.argaty.repository.ReviewImageRepository;
+import com.argaty.repository.ReviewRepository;
+import com.argaty.repository.UserRepository;
+import com.argaty.service.ProductService;
+import com.argaty.service.ReviewService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Implementation của ReviewService
@@ -252,5 +261,41 @@ public class ReviewServiceImpl implements ReviewService {
     public Page<Review> findUnrepliedReviews(Pageable pageable) {
         List<Review> reviews = reviewRepository.findUnrepliedReviews(pageable);
         return new org.springframework.data.domain.PageImpl<>(reviews, pageable, reviews.size());
+    }
+    @Override
+    public Page<Review> searchReviews(Long productId, String keyword, Integer rating, String status, Pageable pageable) {
+        // Xử lý status string thành boolean để query
+        Boolean isApproved = null;
+        Boolean isRejected = null;
+        
+        if ("approved".equals(status)) {
+            isApproved = true;
+        } else if ("rejected".equals(status)) {
+            isRejected = true;
+        } else if ("pending".equals(status)) {
+            isApproved = false; // Hoặc logic tùy theo quy ước pending của bạn (thường là approved=false và rejected=false)
+            isRejected = false;
+        }
+
+        // Gọi Repository (sẽ viết ở Bước 3)
+        return reviewRepository.searchReviews(productId, keyword, rating, isApproved, isRejected, pageable);
+    }
+
+    @Override
+    public void approveReview(Long id) {
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Review", "id", id));
+        review.setIsApproved(true);
+        review.setIsRejected(false); // Đảm bảo không bị conflict
+        reviewRepository.save(review);
+    }
+
+    @Override
+    public void rejectReview(Long id) {
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Review", "id", id));
+        review.setIsApproved(false);
+        review.setIsRejected(true);
+        reviewRepository.save(review);
     }
 }

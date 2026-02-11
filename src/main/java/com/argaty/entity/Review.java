@@ -1,11 +1,22 @@
 package com.argaty.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Entity Review - Đánh giá sản phẩm
@@ -41,6 +52,16 @@ public class Review extends BaseEntity {
     @Column(name = "is_visible", nullable = false)
     @Builder.Default
     private Boolean isVisible = true;
+
+    // --- [QUAN TRỌNG] THÊM 2 TRƯỜNG NÀY ĐỂ KHỚP VỚI CONTROLLER ---
+    
+    @Column(name = "is_approved", nullable = false)
+    @Builder.Default
+    private Boolean isApproved = false; // Mặc định chưa duyệt
+
+    @Column(name = "is_rejected", nullable = false)
+    @Builder.Default
+    private Boolean isRejected = false; // Mặc định không bị từ chối
 
     // ========== RELATIONSHIPS ==========
 

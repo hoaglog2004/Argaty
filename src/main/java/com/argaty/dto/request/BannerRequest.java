@@ -1,7 +1,6 @@
 package com.argaty.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Size; // Bỏ import NotBlank nếu không dùng ở đâu khác
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,9 +23,13 @@ public class BannerRequest {
     @Size(max = 300, message = "Tiêu đề phụ không được vượt quá 300 ký tự")
     private String subtitle;
 
-    @NotBlank(message = "URL hình ảnh không được để trống")
+    // --- SỬA Ở ĐÂY: Xóa bỏ @NotBlank ---
+    // Vì khi tạo mới, chúng ta upload file ảnh để lấy URL sau, 
+    // nên lúc submit form thì trường này được phép null.
+    // Việc kiểm tra "phải có ảnh" đã được xử lý trong Controller (kiểm tra MultipartFile).
+    
     @Size(max = 500, message = "URL hình ảnh không được vượt quá 500 ký tự")
-    private String imageUrl;
+    private String imageUrl; 
 
     @Size(max = 500, message = "Đường dẫn không được vượt quá 500 ký tự")
     private String link;

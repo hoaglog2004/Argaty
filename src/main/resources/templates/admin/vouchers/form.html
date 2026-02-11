@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html
   xmlns:th="http://www.thymeleaf.org"
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -6,27 +6,110 @@
 >
   <head>
     <title th:text="${isEdit} ? 'Sửa voucher' : 'Thêm voucher'">Voucher</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://npmcdn.com/flatpickr/dist/themes/dark.css"
+    />
+    <style>
+      :root {
+        --bg-card: #121212;
+        --bg-input: #1e1e24;
+        --border-color: #2a2a35;
+        --text-main: #ffffff;
+        --primary: #8b5cf6;
+      }
+      .admin-form-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+      .section-title {
+        color: var(--primary);
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .section-title::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border-color);
+      }
+      .form-control,
+      .form-select {
+        background-color: var(--bg-input) !important;
+        border: 1px solid var(--border-color) !important;
+        color: #fff !important;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.9rem;
+      }
+      .form-control:focus,
+      .form-select:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+      }
+      .form-label {
+        font-size: 0.85rem;
+        color: #a1a1aa;
+        margin-bottom: 0.4rem;
+      }
+      .input-group-text {
+        background-color: var(--bg-input);
+        border-color: var(--border-color);
+        color: #71717a;
+      }
+    </style>
   </head>
 
   <body>
     <div layout:fragment="content">
-      <div class="admin-page-header">
-        <h1
-          class="admin-page-title"
-          th:text="${isEdit} ?  'Sửa voucher' : 'Thêm voucher mới'"
+      <!-- Title & Back Button -->
+      <div
+        class="d-flex justify-content-between align-items-center mb-4 container"
+        style="max-width: 800px"
+      >
+        <h4
+          class="fw-bold mb-0 text-white"
+          th:text="${isEdit} ? 'CẬP NHẬT VOUCHER' : 'TẠO VOUCHER MỚI'"
+        ></h4>
+        <a
+          th:href="@{/admin/vouchers}"
+          class="btn btn-outline-secondary btn-sm"
         >
-          Voucher
-        </h1>
-        <a th:href="@{/admin/vouchers}" class="btn btn-ghost"
-          ><i class="bx bx-arrow-back"></i> Quay lại</a
-        >
+          <i class="bx bx-arrow-back"></i> Quay lại
+        </a>
       </div>
 
-      <div class="admin-form-card" style="max-width: 700px">
+      <div class="container" style="max-width: 800px">
+        <!-- Flash Error (from redirect) -->
+        <div
+          th:if="${error}"
+          class="alert alert-danger mb-4 d-flex align-items-center"
+          role="alert"
+        >
+          <i class="bx bx-error-circle fs-4 me-2"></i>
+          <div><strong th:text="${error}">Error message</strong></div>
+        </div>
+
         <form
           th:action="${isEdit} ? @{/admin/vouchers/{id}/edit(id=${voucher.id})} : @{/admin/vouchers/create}"
           method="post"
           th:object="${voucherRequest}"
+          class="admin-form-card"
         >
           <input
             type="hidden"
@@ -34,63 +117,85 @@
             th:value="${_csrf.token}"
           />
 
-          <div class="admin-form-grid">
-            <div class="form-group">
+          <!-- Validation Errors (MUST be inside form with th:object) -->
+          <div
+            th:if="${#fields.hasAnyErrors()}"
+            class="alert alert-danger mb-4"
+            role="alert"
+          >
+            <div class="d-flex align-items-center mb-1">
+              <i class="bx bx-error-circle fs-4 me-2"></i>
+              <strong>Vui lòng kiểm tra lại dữ liệu nhập:</strong>
+            </div>
+            <ul class="mb-0 ps-3">
+              <li
+                th:each="err : ${#fields.allErrors()}"
+                th:text="${err}"
+                style="font-size: 0.9em"
+              ></li>
+            </ul>
+          </div>
+
+          <!-- SECT 1: GENERAL INFO -->
+          <div class="section-title">
+            <i class="bx bx-info-circle"></i> Thông tin chung
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
               <label class="form-label"
-                >Mã voucher <span class="text-danger">*</span></label
+                >Mã Voucher <span class="text-danger">*</span></label
               >
               <input
                 type="text"
                 th:field="*{code}"
-                class="form-control"
-                th:classappend="${#fields.hasErrors('code')} ? 'is-invalid' : ''"
-                placeholder="VD: SALE50"
+                class="form-control text-uppercase fw-bold text-primary"
+                placeholder="VD: SALE2024"
                 required
-                style="text-transform: uppercase"
               />
-              <div th:if="${#fields.hasErrors('code')}" class="form-error">
-                <i class="bx bx-error"></i> <span th:errors="*{code}"></span>
-              </div>
+              <small
+                class="text-danger"
+                th:if="${#fields.hasErrors('code')}"
+                th:errors="*{code}"
+              ></small>
             </div>
-            <div class="form-group">
+            <div class="col-md-8">
               <label class="form-label"
-                >Tên voucher <span class="text-danger">*</span></label
+                >Tên chương trình <span class="text-danger">*</span></label
               >
               <input
                 type="text"
                 th:field="*{name}"
                 class="form-control"
-                placeholder="VD: Giảm 50% đơn hàng"
+                placeholder="VD: Siêu khuyến mãi mùa hè"
                 required
               />
             </div>
+            <div class="col-12">
+              <label class="form-label">Mô tả</label>
+              <textarea
+                th:field="*{description}"
+                class="form-control"
+                rows="2"
+                placeholder="Mô tả ngắn gọn về điều kiện voucher..."
+              ></textarea>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Mô tả</label>
-            <textarea
-              th:field="*{description}"
-              class="form-control"
-              rows="2"
-              placeholder="Mô tả chi tiết voucher"
-            ></textarea>
+          <!-- SECT 2: DISCOUNT SETTINGS -->
+          <div class="section-title">
+            <i class="bx bx-purchase-tag-alt"></i> Mức giảm & Điều kiện
           </div>
 
-          <div class="admin-form-grid">
-            <div class="form-group">
-              <label class="form-label"
-                >Loại giảm giá <span class="text-danger">*</span></label
-              >
-              <select
-                th:field="*{discountType}"
-                class="form-control form-select"
-                required
-              >
-                <option value="PERCENTAGE">Phần trăm (%)</option>
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <label class="form-label">Loại giảm giá</label>
+              <select th:field="*{discountType}" class="form-select">
+                <option value="PERCENTAGE">Theo phần trăm (%)</option>
                 <option value="FIXED_AMOUNT">Số tiền cố định (VNĐ)</option>
               </select>
             </div>
-            <div class="form-group">
+            <div class="col-md-4">
               <label class="form-label"
                 >Giá trị giảm <span class="text-danger">*</span></label
               >
@@ -98,108 +203,128 @@
                 type="number"
                 th:field="*{discountValue}"
                 class="form-control"
-                min="0"
                 required
-                placeholder="VD: 50 hoặc 100000"
               />
             </div>
-          </div>
-
-          <div class="admin-form-grid">
-            <div class="form-group">
+            <div class="col-md-4">
               <label class="form-label">Giảm tối đa (VNĐ)</label>
               <input
                 type="number"
                 th:field="*{maxDiscount}"
                 class="form-control"
-                min="0"
-                placeholder="Để trống nếu không giới hạn"
-              />
-              <p class="text-muted" style="font-size: 12px">
-                Áp dụng cho loại phần trăm
-              </p>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Đơn hàng tối thiểu (VNĐ)</label>
-              <input
-                type="number"
-                th:field="*{minOrderAmount}"
-                class="form-control"
-                min="0"
-                placeholder="Để trống nếu không yêu cầu"
+                placeholder="Không giới hạn"
               />
             </div>
-          </div>
-
-          <div class="admin-form-grid">
-            <div class="form-group">
-              <label class="form-label"
-                >Ngày bắt đầu <span class="text-danger">*</span></label
-              >
-              <input
-                type="datetime-local"
-                th:field="*{startDate}"
-                class="form-control"
-                required
-              />
+            <div class="col-md-4">
+              <label class="form-label">Đơn tối thiểu (VNĐ)</label>
+              <div class="input-group">
+                <span class="input-group-text">≥</span>
+                <input
+                  type="number"
+                  th:field="*{minOrderAmount}"
+                  class="form-control"
+                  value="0"
+                />
+              </div>
             </div>
-            <div class="form-group">
-              <label class="form-label"
-                >Ngày kết thúc <span class="text-danger">*</span></label
-              >
-              <input
-                type="datetime-local"
-                th:field="*{endDate}"
-                class="form-control"
-                required
-              />
-            </div>
-          </div>
-
-          <div class="admin-form-grid">
-            <div class="form-group">
-              <label class="form-label">Giới hạn sử dụng</label>
+            <div class="col-md-4">
+              <label class="form-label">Lượt dùng tối đa</label>
               <input
                 type="number"
                 th:field="*{usageLimit}"
                 class="form-control"
-                min="0"
-                placeholder="Để trống nếu không giới hạn"
+                placeholder="∞"
               />
             </div>
-            <div class="form-group">
-              <label class="form-label">Giới hạn/người dùng</label>
+            <div class="col-md-4">
+              <label class="form-label">Lượt dùng/Người</label>
               <input
                 type="number"
                 th:field="*{usageLimitPerUser}"
                 class="form-control"
-                min="0"
                 value="1"
-                placeholder="Mặc định:  1"
               />
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-check">
-              <input
-                type="checkbox"
-                th:field="*{isActive}"
-                class="form-check-input"
-              />
-              <span class="form-check-label">Kích hoạt voucher</span>
-            </label>
+          <!-- SECT 3: TIME & STATUS -->
+          <div class="section-title">
+            <i class="bx bx-time"></i> Thời gian & Trạng thái
           </div>
 
-          <div class="d-flex gap-3">
-            <button type="submit" class="btn btn-primary">
-              <i class="bx bx-save"></i>
-              <span th:text="${isEdit} ? 'Cập nhật' : 'Tạo voucher'">Lưu</span>
+          <div class="row g-3">
+            <div class="col-md-5">
+              <label class="form-label"
+                >Bắt đầu <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                th:field="*{startDate}"
+                class="form-control datetime-input"
+                required
+                placeholder="Chọn ngày"
+              />
+            </div>
+            <div class="col-md-5">
+              <label class="form-label"
+                >Kết thúc <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                th:field="*{endDate}"
+                class="form-control datetime-input"
+                required
+                placeholder="Chọn ngày"
+              />
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+              <div
+                class="form-check form-switch w-100 p-2 rounded border border-secondary"
+                style="background: rgba(255, 255, 255, 0.02)"
+              >
+                <input
+                  class="form-check-input ms-0 me-2"
+                  type="checkbox"
+                  th:field="*{isActive}"
+                  id="activeSwitch"
+                />
+                <label
+                  class="form-check-label text-white small"
+                  for="activeSwitch"
+                  >Kích hoạt</label
+                >
+              </div>
+            </div>
+          </div>
+
+          <hr class="border-secondary my-4" />
+
+          <div class="d-flex justify-content-end gap-3">
+            <a
+              th:href="@{/admin/vouchers}"
+              class="btn btn-outline-secondary px-4"
+              >Hủy bỏ</a
+            >
+            <button type="submit" class="btn btn-primary px-5">
+              <i class="bx bx-save"></i> Lưu Voucher
             </button>
-            <a th:href="@{/admin/vouchers}" class="btn btn-ghost">Hủy</a>
           </div>
         </form>
       </div>
     </div>
+
+    <th:block layout:fragment="scripts">
+      <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+      <script>
+        flatpickr(".datetime-input", {
+          enableTime: true,
+          dateFormat: "Y-m-d\\TH:i",
+          time_24hr: true,
+          altInput: true,
+          altFormat: "d/m/Y H:i",
+          locale: { firstDayOfWeek: 1 },
+        });
+      </script>
+    </th:block>
   </body>
 </html>
