@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 /**
- * DTO for system settings response
+ * DTO cho response cài đặt hệ thống
  */
 @Data
 @Builder

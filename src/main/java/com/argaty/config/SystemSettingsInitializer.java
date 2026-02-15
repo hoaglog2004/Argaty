@@ -83,7 +83,9 @@ public class SystemSettingsInitializer implements CommandLineRunner {
 
         if (!defaultSettings.isEmpty()) {
             defaultSettings.forEach((key, value) -> {
-                String group = key.substring(0, key.indexOf('.'));
+                // Extract group from key (e.g., "store.name" -> "store")
+                int dotIndex = key.indexOf('.');
+                String group = dotIndex > 0 ? key.substring(0, dotIndex) : "general";
                 settingsService.setSetting(key, value, group);
             });
             log.info("Initialized {} default settings", defaultSettings.size());
