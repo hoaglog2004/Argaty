@@ -102,14 +102,11 @@ public class AdminOrderController {
     }
 
     // --- MARK PAID (ĐÁNH DẤU ĐÃ THANH TOÁN) ---
-    // Controller cũ bạn thiếu cái này nhưng HTML lại gọi, nên tôi thêm vào để tránh lỗi 404/405
     @PostMapping("/{id}/mark-paid")
     public String markPaid(@PathVariable Long id, Principal principal, RedirectAttributes redirectAttributes) {
         try {
-            // Giả sử bạn có hàm này trong Service, nếu chưa thì cần thêm vào OrderService
-            // orderService.markAsPaid(id); 
-            // Tạm thời comment để không lỗi biên dịch, bạn cần implement logic này
-             redirectAttributes.addFlashAttribute("info", "Tính năng đang phát triển");
+            orderService.updatePaymentStatus(id, true, null);
+            redirectAttributes.addFlashAttribute("success", "Đã đánh dấu đơn hàng đã thanh toán");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
