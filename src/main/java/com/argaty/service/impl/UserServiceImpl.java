@@ -8,6 +8,7 @@ import com.argaty.exception.BadRequestException;
 import com.argaty.repository.PasswordResetTokenRepository;
 import com.argaty.repository.UserRepository;
 import com.argaty.service.EmailService;
+import com.argaty.service.NotificationService;
 import com.argaty.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final NotificationService notificationService;
 
     // ========== CRUD ==========
 
@@ -135,6 +137,17 @@ public class UserServiceImpl implements UserService {
     public void updatePassword(Long userId, String newPassword) {
         userRepository.updatePassword(userId, passwordEncoder.encode(newPassword));
         log.info("Updated password for user: {}", userId);
+        
+        // Send notification to user about password change
+        try {
+            notificationService.sendSystemNotification(
+                userId,
+                "Mật khẩu đã được thay đổi",
+                "Mật khẩu của bạn đã được thay đổi thành công. Nếu bạn không thực hiện thao tác này, vui lòng liên hệ với chúng tôi ngay."
+            );
+        } catch (Exception e) {
+            log.error("Failed to send password change notification: {}", e.getMessage());
+        }
     }
 
     @Override
