@@ -30,6 +30,7 @@ import com.argaty.repository.UserRepository;
 import com.argaty.service.NotificationService;
 import com.argaty.service.OrderService;
 import com.argaty.service.ProductService;
+import com.argaty.service.ShippingFeeService;
 import com.argaty.service.VoucherService;
 import com.argaty.util.OrderCodeGenerator;
 
@@ -53,6 +54,7 @@ public class OrderServiceImpl implements OrderService {
     private final ProductService productService;
     private final VoucherService voucherService;
     private final NotificationService notificationService;
+    private final ShippingFeeService shippingFeeService;
 
     // ========== CRUD ==========
 
@@ -168,7 +170,14 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // Tính phí ship
-        BigDecimal shippingFee = calculateShippingFee(subtotal, city);
+        BigDecimal shippingFee = shippingFeeService.calculateFee(
+            subtotal,
+            city,
+            district,
+            ward,
+            shippingAddress,
+            cartItems.size()
+        );
 
         // Áp dụng voucher nếu có
         BigDecimal discountAmount = BigDecimal.ZERO;
@@ -252,16 +261,6 @@ public class OrderServiceImpl implements OrderService {
 
         log.info("Created order: {} for user: {}", savedOrder.getOrderCode(), user.getId());
         return savedOrder;
-    }
-
-    private BigDecimal calculateShippingFee(BigDecimal subtotal, String city) {
-        // Miễn phí ship cho đơn từ 500k
-        if (subtotal.compareTo(BigDecimal.valueOf(500000)) >= 0) {
-            return BigDecimal.ZERO;
-        }
-
-        // Phí ship cơ bản
-        return BigDecimal.valueOf(30000);
     }
 
     // ========== ORDER STATUS ==========

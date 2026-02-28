@@ -20,4 +20,8 @@ public interface EmailService {
     void sendOrderStatusUpdateEmail(Order order);
 
     void sendWelcomeEmail(String to, String fullName);
+
+    void sendNewsletterSubscriptionEmail(String to);
+
+    void sendContactMessageEmail(String name, String email, String phone, String subject, String message);
 }

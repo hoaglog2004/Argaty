@@ -154,10 +154,28 @@ public class Voucher extends BaseEntity {
     /**
      * Lấy số lượt sử dụng còn lại
      */
+    /**
+     * Lấy số lượt sử dụng còn lại
+     */
     public Integer getRemainingUsage() {
         if (usageLimit == null) {
             return null;
         }
         return Math.max(0, usageLimit - usedCount);
+    }
+
+    public boolean isScheduled() {
+        if (startDate == null) return false;
+        return LocalDateTime.now().isBefore(startDate);
+    }
+
+    public boolean isExpired() {
+        if (endDate == null) return false;
+        return LocalDateTime.now().isAfter(endDate);
+    }
+
+    public boolean isOutOfStock() {
+        if (usageLimit == null) return false;
+        return usedCount >= usageLimit;
     }
 }

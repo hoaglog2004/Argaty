@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html
+  lang="vi"
   xmlns:th="http://www.thymeleaf.org"
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
   layout:decorate="~{layouts/main}"
 >
   <head>
+    <meta charset="UTF-8" />
     <title>Sổ địa chỉ</title>
   </head>
 
@@ -46,51 +48,44 @@
 
               <div
                 th:if="${addresses != null && !addresses.isEmpty()}"
-                class="address-grid"
-                style="
-                  display: grid;
-                  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-                  gap: 20px;
-                "
+                class="address-list"
               >
                 <div
                   th:each="addr : ${addresses}"
-                  class="address-card card p-4"
+                  class="address-card"
+                  th:classappend="${addr.isDefault} ? 'selected' : ''"
+                  th:data-address-id="${addr.id}"
+                  onclick="selectAddressCard(this)"
                 >
+                  <input
+                    type="radio"
+                    name="defaultAddressId"
+                    class="address-card__radio"
+                    th:checked="${addr.isDefault}"
+                  />
                   <div class="d-flex justify-between align-center mb-3">
-                    <h4 class="mb-0" th:text="${addr.receiverName}">Tên</h4>
-                    <span th:if="${addr.isDefault}" class="badge badge-new"
+                    <div class="address-card__name" th:text="${addr.receiverName}">Tên</div>
+                    <span th:if="${addr.isDefault}" class="address-card__default-badge"
                       >Mặc định</span
                     >
                   </div>
 
-                  <p class="text-cyan mb-2" th:text="${addr.phone}">SĐT</p>
-                  <p
-                    class="text-muted mb-3"
-                    style="line-height: 1.6"
-                    th:text="${addr.fullAddress}"
-                  >
+                  <div class="address-card__phone" th:text="${addr.phone}">SĐT</div>
+                  <div class="address-card__detail mb-3" th:text="${addr.fullAddress}">
                     Địa chỉ
-                  </p>
+                  </div>
 
                   <div class="d-flex gap-2 flex-wrap">
                     <button
                       class="btn btn-ghost btn-sm"
-                      th:onclick="'editAddress(' + ${addr.id} + ')'"
+                      th:onclick="'event.stopPropagation(); editAddress(' + ${addr.id} + ')'"
                     >
                       <i class="bx bx-edit"></i> Sửa
                     </button>
                     <button
                       th:unless="${addr.isDefault}"
-                      class="btn btn-ghost btn-sm"
-                      th:onclick="'setDefaultAddress(' + ${addr.id} + ')'"
-                    >
-                      <i class="bx bx-check"></i> Đặt mặc định
-                    </button>
-                    <button
-                      th:unless="${addr.isDefault}"
                       class="btn btn-ghost btn-sm text-danger"
-                      th:onclick="'deleteAddress(' + ${addr.id} + ')'"
+                      th:onclick="'event.stopPropagation(); deleteAddress(' + ${addr.id} + ')'"
                     >
                       <i class="bx bx-trash"></i> Xóa
                     </button>
@@ -119,7 +114,7 @@
       </div>
 
       <div class="modal-overlay" id="addressModal">
-        <div class="modal" style="max-width: 550px">
+        <div class="modal profile-address-modal">
           <div class="modal-header">
             <h3 class="modal-title" id="addressModalTitle">Thêm địa chỉ mới</h3>
             <button class="modal-close" onclick="closeModal('addressModal')">
@@ -130,9 +125,7 @@
             <div class="modal-body">
               <input type="hidden" id="addressId" />
 
-              <div
-                style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px"
-              >
+              <div class="address-form-grid-2">
                 <div class="form-group">
                   <label class="form-label">Họ tên người nhận *</label>
                   <input
@@ -153,13 +146,7 @@
                 </div>
               </div>
 
-              <div
-                style="
-                  display: grid;
-                  grid-template-columns: 1fr 1fr 1fr;
-                  gap: 16px;
-                "
-              >
+              <div class="address-form-grid-3">
                 <div class="form-group">
                   <label class="form-label">Tỉnh/Thành phố *</label>
                   <select id="city" class="form-control form-select" required>
@@ -225,27 +212,129 @@
 
     <th:block layout:fragment="scripts">
       <script>
+        const citySelect = document.getElementById("city");
+        const districtSelect = document.getElementById("district");
+        const wardSelect = document.getElementById("ward");
+        let dataLocation = [];
+        let pendingAddress = null;
+
+        function resetDistrictAndWard() {
+          districtSelect.length = 1;
+          wardSelect.length = 1;
+        }
+
+        function resetWard() {
+          wardSelect.length = 1;
+        }
+
+        function populateDistricts(cityId, selectedDistrict = "", selectedWard = "") {
+          resetDistrictAndWard();
+          if (!cityId) return;
+
+          const cityData = dataLocation.find((item) => item.Id === cityId);
+          if (!cityData) return;
+
+          let selectedDistrictId = null;
+          for (const district of cityData.Districts) {
+            districtSelect.options[districtSelect.options.length] = new Option(
+              district.Name,
+              district.Name
+            );
+            const option = districtSelect.options[districtSelect.options.length - 1];
+            option.setAttribute("data-id", district.Id);
+            if (selectedDistrict && district.Name === selectedDistrict) {
+              option.selected = true;
+              selectedDistrictId = district.Id;
+            }
+          }
+
+          if (selectedDistrictId) {
+            populateWards(cityId, selectedDistrictId, selectedWard);
+          }
+        }
+
+        function populateWards(cityId, districtId, selectedWard = "") {
+          resetWard();
+          if (!cityId || !districtId) return;
+
+          const cityData = dataLocation.find((item) => item.Id === cityId);
+          if (!cityData) return;
+
+          const districtData = cityData.Districts.find((item) => item.Id === districtId);
+          if (!districtData) return;
+
+          for (const ward of districtData.Wards) {
+            wardSelect.options[wardSelect.options.length] = new Option(
+              ward.Name,
+              ward.Name
+            );
+            if (selectedWard && ward.Name === selectedWard) {
+              wardSelect.options[wardSelect.options.length - 1].selected = true;
+            }
+          }
+        }
+
+        function applyAddressLocation(address) {
+          if (!address || dataLocation.length === 0) return;
+
+          citySelect.value = address.city || "";
+          const cityOption = citySelect.options[citySelect.selectedIndex];
+          const cityId = cityOption?.getAttribute("data-id");
+          populateDistricts(cityId, address.district || "", address.ward || "");
+        }
+
+        function renderCity(data) {
+          for (const city of data) {
+            citySelect.options[citySelect.options.length] = new Option(
+              city.Name,
+              city.Name
+            );
+            citySelect.options[citySelect.options.length - 1].setAttribute(
+              "data-id",
+              city.Id
+            );
+          }
+
+          citySelect.onchange = function () {
+            const cityOption = this.options[this.selectedIndex];
+            const cityId = cityOption?.getAttribute("data-id");
+            populateDistricts(cityId);
+          };
+
+          districtSelect.onchange = function () {
+            const cityOption = citySelect.options[citySelect.selectedIndex];
+            const cityId = cityOption?.getAttribute("data-id");
+            const districtOption = this.options[this.selectedIndex];
+            const districtId = districtOption?.getAttribute("data-id");
+            populateWards(cityId, districtId);
+          };
+
+          if (pendingAddress) {
+            applyAddressLocation(pendingAddress);
+            pendingAddress = null;
+          }
+        }
+
         function openAddressModal(address = null) {
           document.getElementById("addressModalTitle").textContent = address
             ? "Sửa địa chỉ"
             : "Thêm địa chỉ mới";
           document.getElementById("addressForm").reset();
           document.getElementById("addressId").value = address?.id || "";
+          resetDistrictAndWard();
 
           if (address) {
             document.getElementById("receiverName").value =
               address.receiverName;
             document.getElementById("receiverPhone").value = address.phone;
-            document.getElementById("city").value = address.city;
-            // Cần logic load quận/huyện tương ứng (đơn giản hóa ở đây)
-            document.getElementById(
-              "district"
-            ).innerHTML = `<option value="${address.district}">${address.district}</option>`;
-            document.getElementById(
-              "ward"
-            ).innerHTML = `<option value="${address.ward}">${address.ward}</option>`;
             document.getElementById("addressDetail").value = address.address;
             document.getElementById("isDefault").checked = address.isDefault;
+
+            if (dataLocation.length > 0) {
+              applyAddressLocation(address);
+            } else {
+              pendingAddress = address;
+            }
           }
 
           openModal("addressModal");
@@ -329,6 +418,16 @@
           }
         }
 
+        async function selectAddressCard(card) {
+          const id = card?.dataset?.addressId;
+          if (!id) return;
+
+          const radio = card.querySelector('input[type="radio"]');
+          if (radio?.checked) return;
+
+          await setDefaultAddress(id);
+        }
+
         async function deleteAddress(id) {
           if (!confirm("Bạn có chắc muốn xóa địa chỉ này?")) return;
 
@@ -350,37 +449,30 @@
           }
         }
 
-        // Load provinces on page load (Demo data)
+        // Load provinces on page load (Checkout-like data source)
         document.addEventListener("DOMContentLoaded", function () {
-          const cities = [
-            "Hà Nội",
-            "TP. Hồ Chí Minh",
-            "Đà Nẵng",
-            "Hải Phòng",
-            "Cần Thơ",
-            "Bình Dương",
-            "Đồng Nai",
-            "Khánh Hòa",
-            "Bà Rịa - Vũng Tàu",
-          ];
-          const citySelect = document.getElementById("city");
-          cities.forEach((city) => {
-            citySelect.add(new Option(city, city));
-          });
-
-          // Demo populate district when city changes
-          citySelect.addEventListener("change", function () {
-            const districtSelect = document.getElementById("district");
-            districtSelect.innerHTML =
-              '<option value="">Chọn Quận/Huyện</option>';
-            if (this.value) {
-              ["Quận 1", "Quận 2", "Quận 3", "Thủ Đức"].forEach((d) =>
-                districtSelect.add(new Option(d, d))
+          axios
+            .get(
+              "https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json"
+            )
+            .then(function (result) {
+              dataLocation = result.data;
+              renderCity(dataLocation);
+            })
+            .catch(function (error) {
+              console.error("Lỗi tải dữ liệu hành chính:", error);
+              showToast(
+                "error",
+                "Lỗi",
+                "Không thể tải danh sách tỉnh thành"
               );
-            }
-          });
+            });
         });
       </script>
+
+      <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
+      ></script>
     </th:block>
   </body>
 </html>

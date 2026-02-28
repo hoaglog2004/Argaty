@@ -25,6 +25,7 @@ import com.argaty.enums.PaymentMethod;
 import com.argaty.exception.BadRequestException;
 import com.argaty.service.CartService;
 import com.argaty.service.OrderService;
+import com.argaty.service.ShippingFeeService;
 import com.argaty.service.UserAddressService;
 import com.argaty.service.UserService;
 import com.argaty.service.VoucherService;
@@ -43,6 +44,7 @@ public class CheckoutController {
     private final UserService userService;
     private final UserAddressService userAddressService;
     private final VoucherService voucherService;
+    private final ShippingFeeService shippingFeeService;
 
     // --- 1. TRANG THANH TOÁN ---
     @GetMapping
@@ -77,7 +79,14 @@ public class CheckoutController {
         model.addAttribute("availableVouchers", DtoMapper.toVoucherResponseList(vouchers));
         model.addAttribute("paymentMethods", PaymentMethod.values());
 
-        BigDecimal shippingFee = calculateShippingFee(cartTotal);
+        BigDecimal shippingFee = shippingFeeService.calculateFee(
+            cartTotal,
+            defaultAddress != null ? defaultAddress.getCity() : null,
+            defaultAddress != null ? defaultAddress.getDistrict() : null,
+            defaultAddress != null ? defaultAddress.getWard() : null,
+            defaultAddress != null ? defaultAddress.getAddress() : null,
+            cart.getSelectedItemCount()
+        );
         model.addAttribute("shippingFee", shippingFee);
         model.addAttribute("subtotal", cartTotal);
         model.addAttribute("totalAmount", cartTotal.add(shippingFee));
@@ -225,7 +234,14 @@ public class CheckoutController {
         model.addAttribute("checkoutRequest", checkoutRequest);
 
         BigDecimal cartTotal = cart.getTotalAmount();
-        BigDecimal shippingFee = calculateShippingFee(cartTotal);
+        BigDecimal shippingFee = shippingFeeService.calculateFee(
+            cartTotal,
+            checkoutRequest.getCity(),
+            checkoutRequest.getDistrict(),
+            checkoutRequest.getWard(),
+            checkoutRequest.getShippingAddress(),
+            cart.getSelectedItemCount()
+        );
         BigDecimal discount = BigDecimal.ZERO;
         
         // --- RELOAD VOUCHER IF APPLIED ---
@@ -249,10 +265,4 @@ public class CheckoutController {
         return "user/checkout";
     }
 
-    private BigDecimal calculateShippingFee(BigDecimal subtotal) {
-        if (subtotal.compareTo(BigDecimal.valueOf(500000)) >= 0) {
-            return BigDecimal.ZERO;
-        }
-        return BigDecimal.valueOf(30000);
-    }
 }   

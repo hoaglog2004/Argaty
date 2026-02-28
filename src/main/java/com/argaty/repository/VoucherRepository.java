@@ -29,7 +29,7 @@ public interface VoucherRepository extends JpaRepository<Voucher, Long> {
     // ========== FIND VALID VOUCHERS ==========
 
     @Query("SELECT v FROM Voucher v WHERE v.isActive = true AND " +
-           "(v.startDate IS NULL OR v.startDate <= : now) AND " +
+           "(v.startDate IS NULL OR v.startDate <= :now) AND " +
            "(v.endDate IS NULL OR v.endDate >= :now) AND " +
            "(v.usageLimit IS NULL OR v.usedCount < v.usageLimit)")
     List<Voucher> findValidVouchers(@Param("now") LocalDateTime now);
@@ -58,7 +58,7 @@ public interface VoucherRepository extends JpaRepository<Voucher, Long> {
     // ========== UPDATE ==========
 
     @Modifying
-    @Query("UPDATE Voucher v SET v.usedCount = v.usedCount + 1 WHERE v.id = : voucherId")
+    @Query("UPDATE Voucher v SET v.usedCount = v.usedCount + 1 WHERE v.id = :voucherId")
     void incrementUsedCount(@Param("voucherId") Long voucherId);
 
     @Modifying

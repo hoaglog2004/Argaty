@@ -28,6 +28,8 @@ public class ProductDetailResponse {
     private String name;
     private String slug;
     private String sku;
+    private String tier1Name;
+    private String tier2Name;
     private String shortDescription;
     private String description;
     private BigDecimal price;
@@ -102,6 +104,8 @@ public class ProductDetailResponse {
                 .name(product.getName())
                 .slug(product.getSlug())
                 .sku(product.getSku())
+                .tier1Name(product.getTier1Name())
+                .tier2Name(product.getTier2Name())
                 .shortDescription(product.getShortDescription())
                 .description(product.getDescription())
                 .price(product.getPrice())

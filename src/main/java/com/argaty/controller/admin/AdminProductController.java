@@ -117,7 +117,8 @@ public class AdminProductController {
                     request.getQuantity(), request.getCategoryId(), request.getBrandId(),
                     request.getIsFeatured(), request.getIsNew(), request.getIsBestSeller(),
                     request.getSpecifications(), request.getMetaTitle(), request.getMetaDescription(),
-                    request.getSaleStartDate(), request.getSaleEndDate()
+                    request.getSaleStartDate(), request.getSaleEndDate(),
+                    request.getTier1Name(), request.getTier2Name()
             );
 
             // Xử lý ảnh và variants (Code cũ của bạn ok, chỉ cần sửa kiểu dữ liệu vòng lặp)
@@ -129,8 +130,15 @@ public class AdminProductController {
 
             if (request.getVariants() != null) {
                 for (ProductVariantDTO v : request.getVariants()) { // <-- Dùng DTO mới
+                    if (v == null ||
+                            (v.getName() == null || v.getName().trim().isEmpty()) &&
+                            (v.getColor() == null || v.getColor().trim().isEmpty()) &&
+                            (v.getSize() == null || v.getSize().trim().isEmpty())) {
+                        continue;
+                    }
+
                     var savedVariant = productService.addVariant(
-                            product.getId(), v.getName(), v.getColor(), v.getColorCode(),
+                            product.getId(), v.getName(), v.getSku(), v.getColor(), v.getColorCode(),
                             v.getSize(), v.getAdditionalPrice(), v.getQuantity()
                     );
                     if (v.getImageUrls() != null) {
@@ -204,7 +212,31 @@ public class AdminProductController {
         redirectAttributes.addFlashAttribute("success", "Đã cập nhật trạng thái");
         return "redirect:/admin/products";
     }
-    // ... toggleFeatured, toggleNew, delete ... (Giữ nguyên)
+
+    @PostMapping("/{id}/toggle-featured")
+    public String toggleFeatured(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        productService.toggleFeatured(id);
+        redirectAttributes.addFlashAttribute("success", "Đã cập nhật trạng thái nổi bật");
+        return "redirect:/admin/products";
+    }
+
+    @PostMapping("/{id}/toggle-new")
+    public String toggleNew(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        productService.toggleNew(id);
+        redirectAttributes.addFlashAttribute("success", "Đã cập nhật trạng thái sản phẩm mới");
+        return "redirect:/admin/products";
+    }
+
+    @PostMapping("/{id}/delete")
+    public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            productService.deleteById(id);
+            redirectAttributes.addFlashAttribute("success", "Đã xử lý xóa sản phẩm");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa sản phẩm: " + e.getMessage());
+        }
+        return "redirect:/admin/products";
+    }
 
     // --- HELPER METHODS ---
     private void loadCommonAttributes(Model model) {
@@ -236,6 +268,8 @@ public class AdminProductController {
                 .name(product.getName())
                 .slug(product.getSlug())
                 .sku(product.getSku())
+                .tier1Name(product.getTier1Name())
+                .tier2Name(product.getTier2Name())
                 .shortDescription(product.getShortDescription())
                 .description(product.getDescription())
                 .price(product.getPrice())

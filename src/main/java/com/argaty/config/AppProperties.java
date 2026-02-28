@@ -40,6 +40,27 @@ public class AppProperties {
     public static class Shipping {
         private long defaultFee = 30000;
         private long freeThreshold = 500000;
+        private Jnt jnt = new Jnt();
+
+        @Data
+        public static class Jnt {
+            private boolean enabled = false;
+            private String rateEndpoint;
+            private String uatRateEndpoint;
+            private String productionRateEndpoint;
+            private boolean useProduction = false;
+            private String apiKeyHeader = "X-API-Key";
+            private String apiKey;
+            private String apiAccount;
+            private String privateKey;
+            private String customerCode;
+            private String originCity = "Ho Chi Minh";
+            private String originDistrict = "Quan 1";
+            private int defaultWeightGram = 1000;
+            private int connectTimeoutMs = 5000;
+            private int readTimeoutMs = 7000;
+            private boolean fallbackOnError = true;
+        }
     }
 
     @Data

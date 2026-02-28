@@ -8,6 +8,7 @@ import com.argaty.enums.OrderStatus;
 import com.argaty.exception.ResourceNotFoundException;
 import com.argaty.repository.NotificationRepository;
 import com.argaty.repository.UserRepository;
+import com.argaty.service.EmailService;
 import com.argaty.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     @Override
     public Notification save(Notification notification) {
@@ -96,6 +98,16 @@ public class NotificationServiceImpl implements NotificationService {
 
         notificationRepository.save(notification);
         log.info("Sent notification to user {}: {}", userId, title);
+
+        try {
+            StringBuilder emailContent = new StringBuilder(message);
+            if (link != null && !link.isBlank()) {
+                emailContent.append("\n\nXem chi tiết: ").append(link);
+            }
+            emailService.sendEmail(user.getEmail(), "[Argaty] " + title, emailContent.toString());
+        } catch (Exception e) {
+            log.error("Failed to send notification email to user {}: {}", userId, e.getMessage());
+        }
     }
 
         @Override

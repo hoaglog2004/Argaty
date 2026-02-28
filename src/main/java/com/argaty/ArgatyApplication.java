@@ -2,6 +2,7 @@ package com.argaty;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * Argaty - Gaming Gear E-commerce Application
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @version 1.0.0
  */
 @SpringBootApplication
+@EnableAsync
 public class ArgatyApplication {
 
     public static void main(String[] args) {

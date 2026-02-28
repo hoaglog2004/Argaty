@@ -173,6 +173,11 @@
         flex-wrap: wrap;
         gap: 12px;
       }
+      .variant-groups {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
       .color-btn {
         width: 36px;
         height: 36px;
@@ -322,6 +327,30 @@
         margin-bottom: 50px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
       }
+      .product-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+      .product-tab-btn {
+        border: 1px solid var(--border);
+        background: #18181b;
+        color: var(--text-sub);
+        padding: 10px 18px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .product-tab-btn.active {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+      .product-tab-panel {
+        display: none;
+      }
+      .product-tab-panel.active {
+        display: block;
+      }
       /* Đảm bảo ảnh trong bài viết không bị tràn */
       .description-box img {
         max-width: 100%;
@@ -459,10 +488,7 @@
               </div>
             </div>
 
-            <div
-              class="thumb-list"
-              th:if="${product.images != null && product.images.size() > 1}"
-            >
+            <div class="thumb-list" id="thumbList">
               <div
                 th:each="image, stat : ${product.images}"
                 class="thumb-item"
@@ -509,29 +535,7 @@
               class="product-variants"
               th:if="${product.variants != null && !product.variants.isEmpty()}"
             >
-              <!-- Color Options -->
-              <div
-                id="color-section"
-                class="variant-section"
-                style="display: none"
-              >
-                <div class="variant-title">
-                  MÀU SẮC: <span id="lbl-color" class="text-white"></span>
-                </div>
-                <div class="variant-grid" id="color-container"></div>
-              </div>
-
-              <!-- Size Options -->
-              <div
-                id="size-section"
-                class="variant-section"
-                style="display: none"
-              >
-                <div class="variant-title">
-                  KÍCH THƯỚC: <span id="lbl-size" class="text-white"></span>
-                </div>
-                <div class="variant-grid" id="size-container"></div>
-              </div>
+              <div class="variant-groups" id="variantGroups"></div>
             </div>
 
             <div class="variant-section">
@@ -631,57 +635,62 @@
         </div>
 
         <div class="product-content-wrapper">
-          <h3 class="section-heading">
-            <i class="bx bx-list-ul"></i> Thông số kỹ thuật
-          </h3>
+          <div class="product-tabs">
+            <button class="product-tab-btn active" data-tab="specsTab">
+              <i class="bx bx-list-ul"></i> Thông số kỹ thuật
+            </button>
+            <button class="product-tab-btn" data-tab="descriptionTab">
+              <i class="bx bx-detail"></i> Mô tả sản phẩm
+            </button>
+          </div>
 
-          <div
-            class="specs-grid-cards"
-            th:if="${product.specifications != null && !product.specifications.isEmpty()}"
-          >
-            <th:block
-              th:each="line : ${#strings.arraySplit(product.specifications, '
-')}"
+          <div id="specsTab" class="product-tab-panel active">
+            <div
+              class="specs-grid-cards"
+              th:if="${product.specifications != null && !product.specifications.isEmpty()}"
             >
-              <div
-                class="spec-card-item"
-                th:if="${#strings.contains(line, ':')}"
+              <th:block
+                th:each="line : ${#strings.arraySplit(product.specifications, '
+')}"
               >
                 <div
-                  class="spec-card-key"
-                  th:text="${#strings.arraySplit(line, ':')[0]}"
+                  class="spec-card-item"
+                  th:if="${#strings.contains(line, ':')}"
                 >
-                  Label
+                  <div
+                    class="spec-card-key"
+                    th:text="${#strings.arraySplit(line, ':')[0]}"
+                  >
+                    Label
+                  </div>
+                  <div
+                    class="spec-card-value"
+                    th:text="${#strings.substringAfter(line, ':')}"
+                  >
+                    Value
+                  </div>
                 </div>
-                <div
-                  class="spec-card-value"
-                  th:text="${#strings.substringAfter(line, ':')}"
-                >
-                  Value
-                </div>
-              </div>
-            </th:block>
-          </div>
-          <div
-            th:unless="${product.specifications}"
-            class="text-muted fst-italic mb-5"
-          >
-            Chưa có thông số kỹ thuật.
-          </div>
-
-          <h3 class="section-heading">
-            <i class="bx bx-detail"></i> Chi tiết sản phẩm
-          </h3>
-
-          <div class="description-box">
+              </th:block>
+            </div>
             <div
-              th:if="${product.description}"
-              th:utext="${product.description}"
-            ></div>
+              th:unless="${product.specifications}"
+              class="text-muted fst-italic mb-5"
+            >
+              Chưa có thông số kỹ thuật.
+            </div>
+          </div>
 
-            <p th:unless="${product.description}" class="text-muted fst-italic">
-              Thông tin chi tiết đang cập nhật...
-            </p>
+          <div id="descriptionTab" class="product-tab-panel">
+            <div class="description-box">
+              <div
+                th:if="${product.description}"
+                th:utext="${product.description}"
+              ></div>
+
+              <p th:unless="${product.description}" class="text-muted fst-italic">
+                Thông tin chi tiết đang cập nhật...
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -699,134 +708,239 @@
 
         // Variants Data
         const allVariants = /*[[${product.variants}]]*/ [];
+        const tier1Name = /*[[${product.tier1Name}]]*/ null;
+        const tier2Name = /*[[${product.tier2Name}]]*/ null;
 
-        // State
-        let state = {
-          color: null,
-          size: null,
-          variantId: null,
+        const hasColor = allVariants.some(
+          (variant) => (variant.color || "").trim().length > 0,
+        );
+        const hasSize = allVariants.some(
+          (variant) => (variant.size || "").trim().length > 0,
+        );
+
+        const getTier1Value = (variant) => {
+          if (hasColor) return (variant.color || "").trim();
+          if (hasSize) return (variant.size || "").trim();
+          return (variant.name || `Biến thể ${variant.id}`).trim();
         };
+
+        const getTier2Value = (variant) => {
+          if (hasColor && hasSize) return (variant.size || "").trim();
+          return "";
+        };
+
+        const tier1Label =
+          (hasColor ? tier1Name : tier2Name || tier1Name || "Phân loại") ||
+          "Phân loại";
+        const tier2Label = tier2Name || "Phân loại 2";
+
+        const uniqueValues = (items) =>
+          items.filter(Boolean).filter((item, index, arr) => arr.indexOf(item) === index);
+
+        const tier1Options = uniqueValues(allVariants.map(getTier1Value));
+        const tier2Options = hasColor && hasSize
+          ? uniqueValues(allVariants.map(getTier2Value))
+          : [];
+
+        let state = {
+          variantId: null,
+          tier1: null,
+          tier2: null,
+        };
+
+        let defaultGalleryImages = [];
 
         // --- INIT ---
         document.addEventListener("DOMContentLoaded", () => {
+          defaultGalleryImages = Array.from(
+            document.querySelectorAll("#thumbList .thumb-item"),
+          )
+            .map((thumb) => thumb.getAttribute("data-image"))
+            .filter(Boolean);
+
+          if (defaultGalleryImages.length === 0) {
+            const mainSrc = document
+              .getElementById("mainProductImage")
+              ?.getAttribute("src");
+            if (mainSrc) defaultGalleryImages = [mainSrc];
+          }
+
+          renderThumbList(defaultGalleryImages);
           renderVariantsUI();
         });
+
+        function renderThumbList(images) {
+          const thumbList = document.getElementById("thumbList");
+          if (!thumbList) return;
+
+          const safeImages = (images || []).filter(Boolean);
+          thumbList.innerHTML = "";
+
+          if (safeImages.length <= 1) {
+            thumbList.style.display = "none";
+            return;
+          }
+
+          thumbList.style.display = "flex";
+          safeImages.forEach((imageUrl, index) => {
+            const item = document.createElement("div");
+            item.className = `thumb-item ${index === 0 ? "active" : ""}`;
+            item.setAttribute("data-image", imageUrl);
+            item.setAttribute("onclick", "changeMainImage(this)");
+            item.innerHTML = `<img src="${imageUrl}" alt="thumb" />`;
+            thumbList.appendChild(item);
+          });
+        }
 
         // --- RENDER LOGIC ---
         function renderVariantsUI() {
           if (!allVariants || allVariants.length === 0) return;
+          const groupsContainer = document.getElementById("variantGroups");
+          groupsContainer.innerHTML = "";
 
-          // 1. Get Distinct Colors & Sizes
-          const colors = [
-            ...new Set(allVariants.map((v) => v.color).filter((c) => c)),
-          ];
-          const sizes = [
-            ...new Set(allVariants.map((v) => v.size).filter((s) => s)),
-          ];
-
-          const colorContainer = document.getElementById("color-container");
-          const sizeContainer = document.getElementById("size-container");
-          const colorSection = document.getElementById("color-section");
-          const sizeSection = document.getElementById("size-section");
-
-          // 2. Render Colors
-          if (colors.length > 0) {
-            colorSection.style.display = "block";
-            colorContainer.innerHTML = "";
-            colors.forEach((c) => {
-              const btn = document.createElement("div");
-              btn.className = `shopee-option ${state.color === c ? "selected" : ""}`;
-              // Check availability based on current Size selection
-              if (state.size && !checkAvailability(c, state.size)) {
-                btn.classList.add("disabled");
+          renderOptionGroup({
+            container: groupsContainer,
+            label: tier1Label,
+            options: tier1Options,
+            selectedValue: state.tier1,
+            isDisabled: (option) => isTier1Disabled(option),
+            onClick: (option) => {
+              if (isTier1Disabled(option)) return;
+              state.tier1 = state.tier1 === option ? null : option;
+              if (
+                state.tier2 &&
+                !allVariants.some(
+                  (variant) =>
+                    getTier1Value(variant) === state.tier1 &&
+                    getTier2Value(variant) === state.tier2,
+                )
+              ) {
+                state.tier2 = null;
               }
+              resolveSelectedVariant();
+              renderVariantsUI();
+            },
+          });
 
-              btn.innerHTML = c;
-              btn.onclick = () => handleColorClick(c);
-              colorContainer.appendChild(btn);
+          if (tier2Options.length > 0) {
+            renderOptionGroup({
+              container: groupsContainer,
+              label: tier2Label,
+              options: tier2Options,
+              selectedValue: state.tier2,
+              isDisabled: (option) => isTier2Disabled(option),
+              onClick: (option) => {
+                if (isTier2Disabled(option)) return;
+                state.tier2 = state.tier2 === option ? null : option;
+                resolveSelectedVariant();
+                renderVariantsUI();
+              },
             });
           }
 
-          // 3. Render Sizes
-          if (sizes.length > 0) {
-            sizeSection.style.display = "block";
-            sizeContainer.innerHTML = "";
-            sizes.forEach((s) => {
-              const btn = document.createElement("div");
-              btn.className = `shopee-option ${state.size === s ? "selected" : ""}`;
-              // Check availability based on current Color selection
-              if (state.color && !checkAvailability(state.color, s)) {
-                btn.classList.add("disabled");
-              }
-
-              btn.innerHTML = s;
-              btn.onclick = () => handleSizeClick(s);
-              sizeContainer.appendChild(btn);
-            });
-          }
-
-          // 4. Update Result
           updateProductInfo();
         }
 
-        // --- HANDLERS ---
-        function handleColorClick(color) {
-          // Toggle Logic
-          if (state.color === color) {
-            state.color = null; // Deselect
-          } else {
-            state.color = color;
-            // If current size is invalid with new color, reset size?
-            // Creating a better UX: Reset size if combination doesn't exist.
-            if (state.size && !checkAvailability(color, state.size)) {
-              state.size = null;
-            }
-          }
-          renderVariantsUI();
+        function renderOptionGroup({
+          container,
+          label,
+          options,
+          selectedValue,
+          isDisabled,
+          onClick,
+        }) {
+          const section = document.createElement("div");
+          section.className = "variant-section";
+
+          const title = document.createElement("div");
+          title.className = "variant-title";
+          title.textContent = `${(label || "Phân loại").toUpperCase()}: `;
+
+          const selectedLabel = document.createElement("span");
+          selectedLabel.className = "text-white";
+          selectedLabel.textContent = selectedValue || "";
+          title.appendChild(selectedLabel);
+
+          const grid = document.createElement("div");
+          grid.className = "variant-grid";
+
+          options.forEach((option) => {
+            const btn = document.createElement("div");
+            const disabled = isDisabled(option);
+            btn.className = `shopee-option ${selectedValue === option ? "selected" : ""}`;
+            if (disabled) btn.classList.add("disabled");
+            btn.textContent = option;
+            btn.onclick = () => onClick(option);
+            grid.appendChild(btn);
+          });
+
+          section.appendChild(title);
+          section.appendChild(grid);
+          container.appendChild(section);
         }
 
-        function handleSizeClick(size) {
-          if (state.size === size) {
-            state.size = null;
-          } else {
-            state.size = size;
-            if (state.color && !checkAvailability(state.color, size)) {
-              state.color = null;
-            }
+        function isTier1Disabled(option) {
+          const candidates = allVariants.filter(
+            (variant) => getTier1Value(variant) === option,
+          );
+          if (!state.tier2) {
+            return !candidates.some((variant) => variant.quantity > 0);
           }
-          renderVariantsUI();
-        }
-
-        // --- HELPERS ---
-        function checkAvailability(color, size) {
-          return allVariants.some(
-            (v) => (!color || v.color === color) && (!size || v.size === size),
+          return !candidates.some(
+            (variant) =>
+              getTier2Value(variant) === state.tier2 && variant.quantity > 0,
           );
         }
 
-        function updateProductInfo() {
-          // Find logic
-          let matchedVariant = null;
+        function isTier2Disabled(option) {
+          const candidates = allVariants.filter(
+            (variant) => getTier2Value(variant) === option,
+          );
+          if (!state.tier1) {
+            return !candidates.some((variant) => variant.quantity > 0);
+          }
+          return !candidates.some(
+            (variant) =>
+              getTier1Value(variant) === state.tier1 && variant.quantity > 0,
+          );
+        }
 
-          // Strict matching: Only if both selected (or if product only has one attribute)
-          const hasColors = allVariants.some((v) => v.color);
-          const hasSizes = allVariants.some((v) => v.size);
+        function resolveSelectedVariant() {
+          if (!state.tier1) {
+            state.variantId = null;
+            return;
+          }
 
-          if ((!hasColors || state.color) && (!hasSizes || state.size)) {
-            matchedVariant = allVariants.find(
-              (v) =>
-                (!hasColors || v.color === state.color) &&
-                (!hasSizes || v.size === state.size),
+          let matched = allVariants.filter(
+            (variant) => getTier1Value(variant) === state.tier1,
+          );
+
+          if (tier2Options.length > 0) {
+            if (!state.tier2) {
+              state.variantId = null;
+              return;
+            }
+            matched = matched.filter(
+              (variant) => getTier2Value(variant) === state.tier2,
             );
           }
 
-          // Update UI Labels using state
-          document.getElementById("lbl-color").textContent = state.color || "";
-          document.getElementById("lbl-size").textContent = state.size || "";
+          const exact = matched.find((variant) => variant.quantity > 0) || matched[0];
+          state.variantId = exact ? exact.id : null;
+        }
+
+        function updateProductInfo() {
+          const matchedVariant = allVariants.find(
+            (variant) => variant.id === state.variantId,
+          );
 
           const priceEl = document.querySelector(".current-price");
           const stockEl = document.getElementById("stockCount");
           const mainImg = document.getElementById("mainProductImage");
+
+          const hasVariants = allVariants.length > 0;
+          const shouldRequireCompleteSelection =
+            hasVariants && !!state.tier1 && (tier2Options.length === 0 || !!state.tier2);
 
           if (matchedVariant) {
             state.variantId = matchedVariant.id;
@@ -839,17 +953,16 @@
             document.getElementById("quantity").max = matchedVariant.quantity;
             document.getElementById("quantity").value = 1; // Reset qty
 
-            // Update Image
-            if (matchedVariant.imageUrl && matchedVariant.imageUrl !== "null") {
-              // Check if it's array string
-              let url = matchedVariant.imageUrl;
-              if (url.startsWith("[")) {
-                url = url
-                  .replace("[", "")
-                  .replace("]", "")
-                  .split(",")[0]
-                  .trim();
-              }
+            const variantImages =
+              matchedVariant.images && matchedVariant.images.length > 0
+                ? matchedVariant.images
+                : matchedVariant.imageUrl
+                  ? [matchedVariant.imageUrl]
+                  : [];
+
+            if (variantImages.length > 0) {
+              renderThumbList(variantImages);
+              const url = variantImages[0];
               if (mainImg.src !== url) {
                 mainImg.style.opacity = 0.5;
                 setTimeout(() => {
@@ -861,28 +974,26 @@
 
             document.getElementById("addToCartBtn").disabled =
               matchedVariant.quantity <= 0;
+            if (document.getElementById("buyNowBtn")) {
+              document.getElementById("buyNowBtn").disabled =
+                matchedVariant.quantity <= 0;
+            }
           } else {
-            // Reset to Base
             state.variantId = null;
             priceEl.textContent = formatPrice(basePrice);
             stockEl.textContent = baseStock;
             document.getElementById("quantity").max = baseStock;
 
-            // Disable Add to Cart if we require selection but none selected?
-            // Actually usually if "variant selection required" we disable cart.
-            // But here let's assume if user hasn't selected, they add "base product"?
-            // Usually not. If variants exist, you MUST select.
-            // The check `(!hasColors || state.color) ...` helps.
+            renderThumbList(defaultGalleryImages);
+            if (defaultGalleryImages.length > 0) {
+              mainImg.src = defaultGalleryImages[0];
+            }
 
-            // If we are pending selection (Variants exist but not fully picked)
-            if ((hasColors && !state.color) || (hasSizes && !state.size)) {
-              // Maybe keep button enabled but it will fail validation?
-              // Or disable it.
-              // Let's disable it visually to prompt user.
-              // But existing code didn't force it explicitly in UI state (just backend validation).
-              // Use logic: if variants exist, selectedVariantId is null -> User can't buy.
-              // Let's keep button enabled but maybe Toast error?
-              // Just set selectedVariantId = null.
+            const disablePurchase =
+              hasVariants ? !shouldRequireCompleteSelection : baseStock <= 0;
+            document.getElementById("addToCartBtn").disabled = disablePurchase;
+            if (document.getElementById("buyNowBtn")) {
+              document.getElementById("buyNowBtn").disabled = disablePurchase;
             }
           }
         }
@@ -915,18 +1026,11 @@
           thumb.classList.add("active");
         }
 
-        // --- OLD FUNCTIONS REPLACEMENT END ---
-        // We merged selectVariant logic into handleColor/SizeClick.
-        // We removed selectVariant function.
-
-        let selectedVariantId = null; // Compatibility proxy if needed, but we use state.variantId
-
-        // Replace addToCart listener to use state.variantId
         document
           .getElementById("addToCartBtn")
           .addEventListener("click", function () {
             if (allVariants.length > 0 && !state.variantId) {
-              showToast("error", "Lỗi", "Vui lòng chọn phân loại hàng");
+              showToast("warning", "Chọn phân loại", "Vui lòng chọn phân loại hợp lệ trước khi thêm giỏ");
               return;
             }
             const qty = parseInt(document.getElementById("quantity").value);
@@ -937,9 +1041,27 @@
         document
           .getElementById("buyNowBtn")
           ?.addEventListener("click", function () {
+            if (allVariants.length > 0 && !state.variantId) {
+              showToast("warning", "Chọn phân loại", "Vui lòng chọn phân loại hợp lệ trước khi mua");
+              return;
+            }
             const qty = parseInt(document.getElementById("quantity").value);
-            addToCart(productId, selectedVariantId, qty, true);
+            addToCart(productId, state.variantId, qty, true);
           });
+
+        document.querySelectorAll(".product-tab-btn").forEach((button) => {
+          button.addEventListener("click", function () {
+            const tabId = this.dataset.tab;
+            document
+              .querySelectorAll(".product-tab-btn")
+              .forEach((btn) => btn.classList.remove("active"));
+            document
+              .querySelectorAll(".product-tab-panel")
+              .forEach((panel) => panel.classList.remove("active"));
+            this.classList.add("active");
+            document.getElementById(tabId)?.classList.add("active");
+          });
+        });
 
         // Hàm gọi API (Giữ nguyên logic cũ của bạn)
         async function addToCart(

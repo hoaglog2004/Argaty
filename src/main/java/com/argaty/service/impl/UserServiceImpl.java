@@ -124,6 +124,22 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(user);
         log.info("Registered new user: {}", email);
 
+        try {
+            emailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getFullName());
+        } catch (Exception e) {
+            log.error("Failed to send welcome email to {}: {}", savedUser.getEmail(), e.getMessage());
+        }
+
+        try {
+            notificationService.sendSystemNotification(
+                savedUser.getId(),
+                "Tạo tài khoản thành công",
+                "Chào mừng bạn đến với Argaty. Tài khoản của bạn đã được tạo thành công."
+            );
+        } catch (Exception e) {
+            log.error("Failed to send registration notification for user {}: {}", savedUser.getId(), e.getMessage());
+        }
+
         return savedUser;
     }
 

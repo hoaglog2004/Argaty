@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xác nhận đơn hàng Argaty</title>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background: #eef2f7;
+      font-family: Arial, sans-serif;
+      color: #1f2937;
+    "
+  >
+    <table
+      role="presentation"
+      width="100%"
+      cellspacing="0"
+      cellpadding="0"
+      style="padding: 24px 12px; background: #eef2f7"
+    >
+      <tr>
+        <td align="center">
+          <table
+            role="presentation"
+            width="100%"
+            cellspacing="0"
+            cellpadding="0"
+            style="
+              max-width: 660px;
+              background: #ffffff;
+              border-radius: 14px;
+              overflow: hidden;
+              box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            "
+          >
+            <tr>
+              <td
+                style="
+                  padding: 30px;
+                  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+                  color: #ffffff;
+                "
+              >
+                <h1 style="margin: 0; font-size: 25px; line-height: 1.3">
+                  Đặt hàng thành công ✅
+                </h1>
+                <p style="margin: 8px 0 0; font-size: 14px; opacity: 0.95">
+                  Argaty đã ghi nhận đơn hàng của bạn
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 30px">
+                <h2 style="margin: 0 0 14px; font-size: 22px; color: #0f172a">
+                  Cảm ơn <span th:text="${receiverName}">bạn</span>!
+                </h2>
+                <p
+                  style="
+                    margin: 0 0 16px;
+                    font-size: 15px;
+                    line-height: 1.75;
+                    color: #374151;
+                  "
+                >
+                  Đơn hàng đã được tạo thành công. Dưới đây là thông tin thanh
+                  toán và theo dõi:
+                </p>
+
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellspacing="0"
+                  cellpadding="0"
+                  style="
+                    border: 1px solid #dbeafe;
+                    border-radius: 10px;
+                    overflow: hidden;
+                  "
+                >
+                  <tr>
+                    <td
+                      style="
+                        padding: 11px 14px;
+                        background: #eff6ff;
+                        font-size: 13px;
+                        color: #1e40af;
+                        width: 40%;
+                      "
+                    >
+                      Mã đơn hàng
+                    </td>
+                    <td
+                      style="
+                        padding: 11px 14px;
+                        font-size: 13px;
+                        font-weight: 700;
+                        color: #0f172a;
+                      "
+                      th:text="${orderCode}"
+                    >
+                      ARG123
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      style="
+                        padding: 11px 14px;
+                        background: #eff6ff;
+                        font-size: 13px;
+                        color: #1e40af;
+                      "
+                    >
+                      Tổng tiền
+                    </td>
+                    <td
+                      style="
+                        padding: 11px 14px;
+                        font-size: 13px;
+                        color: #0f172a;
+                      "
+                      th:text="${totalAmount} + ' VNĐ'"
+                    >
+                      0 VNĐ
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      style="
+                        padding: 11px 14px;
+                        background: #eff6ff;
+                        font-size: 13px;
+                        color: #1e40af;
+                      "
+                    >
+                      Phương thức thanh toán
+                    </td>
+                    <td
+                      style="
+                        padding: 11px 14px;
+                        font-size: 13px;
+                        color: #0f172a;
+                      "
+                      th:text="${paymentMethod}"
+                    >
+                      COD
+                    </td>
+                  </tr>
+                </table>
+
+                <a
+                  th:href="${orderUrl}"
+                  href="#"
+                  style="
+                    margin-top: 22px;
+                    display: inline-block;
+                    background: #1d4ed8;
+                    color: #ffffff;
+                    text-decoration: none;
+                    padding: 12px 22px;
+                    border-radius: 9px;
+                    font-size: 14px;
+                    font-weight: 700;
+                  "
+                  >Theo dõi đơn hàng</a
+                >
+              </td>
+            </tr>
+            <tr>
+              <td
+                style="
+                  padding: 14px 30px;
+                  background: #f8fafc;
+                  font-size: 12px;
+                  color: #6b7280;
+                "
+              >
+                © <span th:text="${year}">2026</span> Argaty. All rights
+                reserved.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

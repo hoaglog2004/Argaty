@@ -53,9 +53,11 @@ public class VoucherRequest {
     @Min(value = 1, message = "Giới hạn sử dụng mỗi người phải lớn hơn 0")
     private Integer usageLimitPerUser;
 
+    @NotNull(message = "Ngày bắt đầu không được để trống")
     @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime startDate;
 
+    @NotNull(message = "Ngày kết thúc không được để trống")
     @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime endDate;
 

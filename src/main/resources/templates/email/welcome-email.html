@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chào mừng đến với Argaty</title>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background: #eef2f7;
+      font-family: Arial, sans-serif;
+      color: #1f2937;
+    "
+  >
+    <table
+      role="presentation"
+      width="100%"
+      cellspacing="0"
+      cellpadding="0"
+      style="padding: 24px 12px; background: #eef2f7"
+    >
+      <tr>
+        <td align="center">
+          <table
+            role="presentation"
+            width="100%"
+            cellspacing="0"
+            cellpadding="0"
+            style="
+              max-width: 660px;
+              background: #ffffff;
+              border-radius: 14px;
+              overflow: hidden;
+              box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            "
+          >
+            <tr>
+              <td
+                style="
+                  padding: 30px;
+                  background: linear-gradient(135deg, #0f172a, #2563eb);
+                  color: #ffffff;
+                "
+              >
+                <h1 style="margin: 0; font-size: 26px; line-height: 1.3">
+                  Chào mừng đến với Argaty 🎮
+                </h1>
+                <p style="margin: 8px 0 0; font-size: 14px; opacity: 0.95">
+                  Gaming Gear E-commerce Platform
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 30px">
+                <h2 style="margin: 0 0 14px; font-size: 22px; color: #0f172a">
+                  Xin chào <span th:text="${fullName}">bạn</span>,
+                </h2>
+                <p
+                  style="
+                    margin: 0 0 12px;
+                    font-size: 15px;
+                    line-height: 1.75;
+                    color: #374151;
+                  "
+                >
+                  Tài khoản của bạn đã được tạo thành công. Cảm ơn bạn đã gia
+                  nhập cộng đồng yêu công nghệ tại Argaty.
+                </p>
+                <p
+                  style="
+                    margin: 0 0 18px;
+                    font-size: 15px;
+                    line-height: 1.75;
+                    color: #374151;
+                  "
+                >
+                  Bạn có thể bắt đầu mua sắm ngay với các danh mục gaming gear,
+                  phụ kiện và ưu đãi đang diễn ra.
+                </p>
+
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellspacing="0"
+                  cellpadding="0"
+                  style="
+                    border: 1px solid #e5e7eb;
+                    border-radius: 10px;
+                    margin: 0 0 20px;
+                  "
+                >
+                  <tr>
+                    <td
+                      style="
+                        padding: 12px 14px;
+                        background: #f8fafc;
+                        font-size: 13px;
+                        color: #475569;
+                      "
+                    >
+                      ✅ Tài khoản
+                    </td>
+                    <td
+                      style="
+                        padding: 12px 14px;
+                        font-size: 13px;
+                        color: #0f172a;
+                        font-weight: 700;
+                      "
+                    >
+                      Đã kích hoạt
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      style="
+                        padding: 12px 14px;
+                        background: #f8fafc;
+                        font-size: 13px;
+                        color: #475569;
+                      "
+                    >
+                      🎁 Ưu đãi
+                    </td>
+                    <td
+                      style="
+                        padding: 12px 14px;
+                        font-size: 13px;
+                        color: #0f172a;
+                      "
+                    >
+                      Sẵn sàng nhận khuyến mãi mới
+                    </td>
+                  </tr>
+                </table>
+
+                <a
+                  th:href="${homeUrl}"
+                  href="#"
+                  style="
+                    display: inline-block;
+                    background: #2563eb;
+                    color: #ffffff;
+                    text-decoration: none;
+                    padding: 12px 22px;
+                    border-radius: 9px;
+                    font-size: 14px;
+                    font-weight: 700;
+                  "
+                  >Bắt đầu mua sắm</a
+                >
+
+                <p
+                  style="
+                    margin: 22px 0 0;
+                    font-size: 12px;
+                    line-height: 1.7;
+                    color: #6b7280;
+                  "
+                >
+                  Nếu bạn không phải người tạo tài khoản này, hãy liên hệ hỗ trợ
+                  Argaty ngay để được bảo vệ tài khoản.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td
+                style="
+                  padding: 14px 30px;
+                  background: #f8fafc;
+                  font-size: 12px;
+                  color: #6b7280;
+                "
+              >
+                © <span th:text="${year}">2026</span> Argaty. All rights
+                reserved.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

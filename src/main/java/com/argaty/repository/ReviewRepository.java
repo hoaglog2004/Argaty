@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -83,4 +84,8 @@ Page<Review> searchReviews(@Param("productId") Long productId,
                            @Param("isApproved") Boolean isApproved,
                            @Param("isRejected") Boolean isRejected,
                            Pageable pageable);
+
+       @Modifying
+       @Query("DELETE FROM Review r WHERE r.product.id = :productId")
+       void deleteByProductId(@Param("productId") Long productId);
 }

@@ -34,6 +34,7 @@ import com.argaty.entity.ProductVariant;
 import com.argaty.entity.Review;
 import com.argaty.entity.User;
 import com.argaty.entity.UserAddress;
+import com.argaty.entity.VariantImage;
 import com.argaty.entity.Voucher;
 import com.argaty.entity.Wishlist;
 
@@ -111,6 +112,8 @@ public class DtoMapper {
                 .name(product.getName())
                 .slug(product.getSlug())
                 .sku(product.getSku())
+                .tier1Name(product.getTier1Name())
+                .tier2Name(product.getTier2Name())
                 .shortDescription(product.getShortDescription())
                 .description(product.getDescription())
                 .price(product.getPrice())
@@ -181,6 +184,9 @@ public class DtoMapper {
                                 .quantity(v.getQuantity())
                                 .isActive(v.getIsActive())
                                 .isInStock(v.isInStock())
+                            .images(v.getImages() != null
+                                ? v.getImages().stream().map(VariantImage::getImageUrl).collect(Collectors.toList())
+                                : null)
                                 .imageUrl(variantImg) // Gán ảnh vào DTO để JS xử lý đổi ảnh
                                 .build();
                     })

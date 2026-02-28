@@ -405,6 +405,58 @@
                   <i class="bx bx-plus"></i> Thêm biến thể
                 </button>
               </div>
+              <p class="text-muted mb-3" style="font-size: 13px">
+                Thiết lập nhóm phân loại, nhập danh sách giá trị rồi tạo tổ hợp SKU tự động.
+              </p>
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Nhóm phân loại 1</label>
+                  <input
+                    type="text"
+                    th:field="*{tier1Name}"
+                    id="tier1Name"
+                    class="form-control"
+                    placeholder="VD: Màu sắc"
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Nhóm phân loại 2 (tuỳ chọn)</label>
+                  <input
+                    type="text"
+                    th:field="*{tier2Name}"
+                    id="tier2Name"
+                    class="form-control"
+                    placeholder="VD: Loại switch"
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Giá trị nhóm 1 (phân tách bằng dấu phẩy)</label>
+                  <input
+                    type="text"
+                    id="tier1ValuesInput"
+                    class="form-control"
+                    placeholder="Đen, Trắng"
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Giá trị nhóm 2 (tuỳ chọn)</label>
+                  <input
+                    type="text"
+                    id="tier2ValuesInput"
+                    class="form-control"
+                    placeholder="Blue, Red"
+                  />
+                </div>
+                <div class="col-12 d-flex gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary btn-sm"
+                    onclick="generateVariantCombinations()"
+                  >
+                    <i class="bx bx-grid-alt"></i> Tạo tổ hợp
+                  </button>
+                </div>
+              </div>
               <div id="variantsContainer">
                 <th:block
                   th:if="${product != null && product.variants != null}"
@@ -412,7 +464,7 @@
                   <div
                     th:each="variant, stat : ${product.variants}"
                     class="variant-item card p-3 mb-3"
-                    th:attr="data-variant-index=${stat.index}"
+                    th:attr="data-variant-index=${stat.index},data-tier1=${variant.color},data-tier2=${variant.size}"
                   >
                     <div class="d-flex justify-between align-center mb-3">
                       <strong class="text-primary"
@@ -424,7 +476,7 @@
                       <button
                         type="button"
                         class="btn btn-outline-danger btn-sm"
-                        onclick="this.closest('.variant-item').remove()"
+                        onclick="removeVariantItem(this)"
                       >
                         <i class="bx bx-trash"></i> Xóa
                       </button>
@@ -470,46 +522,27 @@
                       </div>
 
                       <div class="col-md-6">
-                        <label class="form-label" style="font-size: 13px"
-                          >MÀU SẮC</label
+                        <label class="form-label tier1-label" style="font-size: 13px"
+                          >PHÂN LOẠI 1</label
                         >
-                        <div class="input-group">
-                          <span
-                            class="input-group-text p-1"
-                            style="
-                              border-right: none;
-                              background: var(--bg-input);
-                            "
-                          >
-                            <input
-                              type="color"
-                              th:name="'variants[' + ${stat.index} + '].colorCode'"
-                              th:value="${variant.colorCode ?: '#000000'}"
-                              class="form-control form-control-color border-0 p-0"
-                              title="Chọn mã màu"
-                              style="width: 30px; height: 30px"
-                            />
-                          </span>
-                          <input
-                            type="text"
-                            th:name="'variants[' + ${stat.index} + '].color'"
-                            th:value="${variant.color}"
-                            class="form-control"
-                            placeholder="Tên màu (VD: Trắng)"
-                            style="border-left: none"
-                          />
-                        </div>
+                        <input
+                          type="text"
+                          th:name="'variants[' + ${stat.index} + '].color'"
+                          th:value="${variant.color}"
+                          class="form-control tier1-value"
+                          placeholder="VD: Kết nối, Loại switch"
+                        />
                       </div>
                       <div class="col-md-6">
-                        <label class="form-label" style="font-size: 13px"
-                          >PHIÊN BẢN / SIZE</label
+                        <label class="form-label tier2-label" style="font-size: 13px"
+                          >PHÂN LOẠI 2</label
                         >
                         <input
                           type="text"
                           th:name="'variants[' + ${stat.index} + '].size'"
                           th:value="${variant.size}"
-                          class="form-control"
-                          placeholder="VD: Kit, Red Switch..."
+                          class="form-control tier2-value"
+                          placeholder="VD: Có dây, Không dây, Red Switch"
                         />
                       </div>
                       <div class="col-md-12">
@@ -549,6 +582,7 @@
                               type="file"
                               th:id="'variantImageInput-' + ${stat.index}"
                               accept="image/*"
+                              multiple
                               style="display: none"
                               onchange="handleVariantImageUpload(this)"
                             />
@@ -886,66 +920,217 @@
         // VARIANT LOGIC
         let variantIndex = /*[[${(product != null and product.variants != null) ? #lists.size(product.variants) : 0}]]*/ 0;
 
-        function addVariant() {
-          document.getElementById("noVariantsText")?.remove();
-          const container = document.getElementById("variantsContainer");
-          const html = `
-                <div class="variant-item card p-3 mb-3" data-variant-index="${variantIndex}">
+        const normalizeOptionValues = (raw) =>
+          (raw || "")
+            .split(",")
+            .map((value) => value.trim())
+            .filter((value) => value.length > 0)
+            .filter((value, index, arr) => arr.indexOf(value) === index);
+
+        function removeVariantItem(btn) {
+          btn.closest(".variant-item")?.remove();
+          if (!document.querySelector("#variantsContainer .variant-item")) {
+            const container = document.getElementById("variantsContainer");
+            container.insertAdjacentHTML(
+              "afterend",
+              '<p id="noVariantsText" class="text-muted text-center p-4">Chưa có biến thể.</p>',
+            );
+          }
+        }
+
+        function syncVariantGroupLabels() {
+          const tier1Name =
+            document.getElementById("tier1Name")?.value?.trim() || "Phân loại 1";
+          const tier2Name =
+            document.getElementById("tier2Name")?.value?.trim() || "Phân loại 2";
+
+          document
+            .querySelectorAll(".variant-item .tier1-label")
+            .forEach((label) => (label.textContent = tier1Name.toUpperCase()));
+          document
+            .querySelectorAll(".variant-item .tier2-label")
+            .forEach((label) => (label.textContent = tier2Name.toUpperCase()));
+        }
+
+        function buildVariantRow({
+          index,
+          id = "",
+          name = "",
+          sku = "",
+          quantity = 0,
+          color = "",
+          size = "",
+          additionalPrice = "",
+        }) {
+          const tier1Label =
+            document.getElementById("tier1Name")?.value?.trim() || "Phân loại 1";
+          const tier2Label =
+            document.getElementById("tier2Name")?.value?.trim() || "Phân loại 2";
+
+          return `
+                <div class="variant-item card p-3 mb-3" data-variant-index="${index}" data-tier1="${color}" data-tier2="${size}">
                     <div class="d-flex justify-between align-center mb-3">
-                        <strong class="text-primary"><i class='bx bx-cube'></i> Biến thể mới</strong>
-                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest('.variant-item').remove()"><i class='bx bx-trash'></i></button>
+                        <strong class="text-primary"><i class='bx bx-cube'></i> Biến thể #${index + 1}</strong>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeVariantItem(this)"><i class='bx bx-trash'></i></button>
                     </div>
+                    <input type="hidden" name="variants[${index}].id" value="${id}" />
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label">Tên hiển thị <span class="text-danger">*</span></label>
-                            <input type="text" name="variants[${variantIndex}].name" class="form-control" required placeholder="VD: Trắng - Kit" />
+                            <input type="text" name="variants[${index}].name" class="form-control" required value="${name}" placeholder="VD: Đen - Blue" />
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">SKU</label>
-                            <input type="text" name="variants[${variantIndex}].sku" class="form-control" />
+                            <input type="text" name="variants[${index}].sku" class="form-control" value="${sku}" />
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Tồn kho <span class="text-danger">*</span></label>
-                            <input type="number" name="variants[${variantIndex}].quantity" class="form-control" required value="0" />
-                        </div>
-                        
-                        <!-- Color & Size Side-by-Side -->
-                        <div class="col-md-6">
-                            <label class="form-label" style="font-size: 13px;">MÀU SẮC</label>
-                            <div class="input-group">
-                                <span class="input-group-text p-1" style="border-right: none; background: var(--bg-input);">
-                                    <input type="color" name="variants[${variantIndex}].colorCode" value="#000000" class="form-control form-control-color border-0 p-0" title="Chọn mã màu" style="width: 30px; height: 30px;" />
-                                </span>
-                                <input type="text" name="variants[${variantIndex}].color" class="form-control" placeholder="Tên màu (VD: Trắng)" style="border-left: none;" />
-                            </div>
+                            <input type="number" name="variants[${index}].quantity" class="form-control" required value="${quantity || 0}" min="0" />
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label" style="font-size: 13px;">PHIÊN BẢN / SIZE</label>
-                            <input type="text" name="variants[${variantIndex}].size" class="form-control" placeholder="VD: Kit, Full phím..." />
+                          <label class="form-label tier1-label" style="font-size: 13px;">${tier1Label.toUpperCase()}</label>
+                          <input type="text" name="variants[${index}].color" class="form-control tier1-value" value="${color}" placeholder="Giá trị nhóm 1" />
                         </div>
-
+                        <div class="col-md-6">
+                          <label class="form-label tier2-label" style="font-size: 13px;">${tier2Label.toUpperCase()}</label>
+                          <input type="text" name="variants[${index}].size" class="form-control tier2-value" value="${size}" placeholder="Giá trị nhóm 2" />
+                        </div>
                         <div class="col-md-12">
                             <label class="form-label">Giá chênh lệch (+/-)</label>
-                            <input type="number" name="variants[${variantIndex}].additionalPrice" class="form-control" placeholder="0" step="1000" />
+                            <input type="number" name="variants[${index}].additionalPrice" class="form-control" value="${additionalPrice ?? ""}" placeholder="0" step="1000" />
                         </div>
                     </div>
 
-                    <!-- Custom Image Upload -->
                     <div class="mt-3 pt-3 border-top" style="border-color: var(--border-color)!important;">
                         <label class="form-label mb-2"><i class='bx bx-image'></i> Ảnh biến thể</label>
                         <div class="d-flex align-items-center gap-3">
                             <label class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" style="cursor: pointer; height: 40px; border-style: dashed;">
                                 <i class='bx bx-cloud-upload fs-5'></i> Chọn ảnh
-                                <input type="file" accept="image/*" style="display: none;" onchange="handleVariantImageUpload(this, ${variantIndex})" />
+                                <input type="file" accept="image/*" multiple style="display: none;" onchange="handleVariantImageUpload(this, ${index})" />
                             </label>
-                            <div class="variant-images-preview d-flex gap-2 flex-wrap" id="variantImages-${variantIndex}"></div>
-                            <div class="variant-image-urls" id="variantImageUrls-${variantIndex}" style="display:none"></div>
+                            <div class="variant-images-preview d-flex gap-2 flex-wrap" id="variantImages-${index}"></div>
+                            <div class="variant-image-urls" id="variantImageUrls-${index}" style="display:none"></div>
                         </div>
                     </div>
                 </div>`;
+        }
+
+        function addVariant() {
+          document.getElementById("noVariantsText")?.remove();
+          const container = document.getElementById("variantsContainer");
+          const html = buildVariantRow({ index: variantIndex });
           container.insertAdjacentHTML("beforeend", html);
           variantIndex++;
+          syncVariantGroupLabels();
         }
+
+        function generateVariantCombinations() {
+          const tier1Values = normalizeOptionValues(
+            document.getElementById("tier1ValuesInput")?.value,
+          );
+          const tier2Values = normalizeOptionValues(
+            document.getElementById("tier2ValuesInput")?.value,
+          );
+
+          if (tier1Values.length === 0) {
+            showToast("warning", "Thiếu dữ liệu", "Vui lòng nhập giá trị cho nhóm phân loại 1");
+            return;
+          }
+
+          const container = document.getElementById("variantsContainer");
+          const currentRows = Array.from(container.querySelectorAll(".variant-item"));
+          const existingMap = new Map();
+
+          currentRows.forEach((row) => {
+            const currentTier1 =
+              row.querySelector("input[name$='.color']")?.value?.trim() ||
+              row.getAttribute("data-tier1") ||
+              "";
+            const currentTier2 =
+              row.querySelector("input[name$='.size']")?.value?.trim() ||
+              row.getAttribute("data-tier2") ||
+              "";
+            const key = `${currentTier1}||${currentTier2}`;
+            existingMap.set(key, {
+              id: row.querySelector("input[name$='.id']")?.value || "",
+              name: row.querySelector("input[name$='.name']")?.value || "",
+              sku: row.querySelector("input[name$='.sku']")?.value || "",
+              quantity: row.querySelector("input[name$='.quantity']")?.value || 0,
+              additionalPrice:
+                row.querySelector("input[name$='.additionalPrice']")?.value || "",
+            });
+          });
+
+          const combos = [];
+          if (tier2Values.length > 0) {
+            tier1Values.forEach((tier1) => {
+              tier2Values.forEach((tier2) => combos.push({ tier1, tier2 }));
+            });
+          } else {
+            tier1Values.forEach((tier1) => combos.push({ tier1, tier2: "" }));
+          }
+
+          container.innerHTML = "";
+          document.getElementById("noVariantsText")?.remove();
+
+          combos.forEach((combo, index) => {
+            const key = `${combo.tier1}||${combo.tier2}`;
+            const existed = existingMap.get(key) || {};
+            const displayName = combo.tier2
+              ? `${combo.tier1} - ${combo.tier2}`
+              : combo.tier1;
+
+            container.insertAdjacentHTML(
+              "beforeend",
+              buildVariantRow({
+                index,
+                id: existed.id || "",
+                name: existed.name || displayName,
+                sku: existed.sku || "",
+                quantity: existed.quantity || 0,
+                color: combo.tier1,
+                size: combo.tier2,
+                additionalPrice: existed.additionalPrice || "",
+              }),
+            );
+          });
+
+          variantIndex = combos.length;
+          syncVariantGroupLabels();
+        }
+
+        function reindexVariantInputs() {
+          const items = document.querySelectorAll("#variantsContainer .variant-item");
+          items.forEach((item, index) => {
+            item.setAttribute("data-variant-index", index);
+            item.querySelectorAll("input[name^='variants[']").forEach((input) => {
+              input.name = input.name.replace(/variants\[\d+\]/, `variants[${index}]`);
+            });
+            item
+              .querySelectorAll("input[type='file'][onchange*='handleVariantImageUpload']")
+              .forEach(
+                (input) =>
+                  (input.setAttribute(
+                    "onchange",
+                    `handleVariantImageUpload(this, ${index})`,
+                  )),
+              );
+            const preview = item.querySelector(".variant-images-preview");
+            if (preview) preview.id = `variantImages-${index}`;
+            const hiddenWrap = item.querySelector(".variant-image-urls");
+            if (hiddenWrap) hiddenWrap.id = `variantImageUrls-${index}`;
+          });
+          variantIndex = items.length;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+          syncVariantGroupLabels();
+          document.getElementById("tier1Name")?.addEventListener("input", syncVariantGroupLabels);
+          document.getElementById("tier2Name")?.addEventListener("input", syncVariantGroupLabels);
+          document
+            .querySelector("form")
+            ?.addEventListener("submit", () => reindexVariantInputs());
+        });
 
         async function handleVariantImageUpload(input, index) {
           if (index === undefined) {
@@ -957,15 +1142,15 @@
           const previewContainer = document.getElementById(
             `variantImages-${index}`,
           );
-          const urlsContainer = document.getElementById(
-            `variantImageUrls-${index}`,
-          );
-          previewContainer.innerHTML =
-            '<span class="text-muted text-xs">Đang tải...</span>';
-          urlsContainer.innerHTML = "";
+          const loading = document.createElement("span");
+          loading.className = "text-muted text-xs";
+          loading.textContent = "Đang tải...";
+          previewContainer.appendChild(loading);
+
           const formData = new FormData();
-          formData.append("files", files[0]);
+          files.forEach((file) => formData.append("files", file));
           formData.append("directory", "variants");
+
           try {
             const res = await fetch("/api/files/upload-multiple", {
               method: "POST",
@@ -973,24 +1158,20 @@
               body: formData,
             });
             const data = await res.json();
+
             if (data.success && data.data.urls.length > 0) {
-              const url = data.data.urls[0];
-              previewContainer.innerHTML = "";
-              const imgDiv = document.createElement("div");
-              imgDiv.style.cssText =
-                "position:relative; width:60px; height:60px; border-radius:6px; overflow:hidden; border:1px solid #444;";
-              imgDiv.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;" /><button type="button" onclick="this.parentElement.remove(); document.getElementById('hidden-${index}').remove();" style="position:absolute;top:0;right:0;background:red;color:white;width:20px;height:20px;border:none;cursor:pointer;">×</button>`;
-              previewContainer.appendChild(imgDiv);
-              const hidden = document.createElement("input");
-              hidden.type = "hidden";
-              hidden.id = `hidden-${index}`;
-              hidden.name = `variants[${index}].imageUrls`;
-              hidden.value = url;
-              urlsContainer.appendChild(hidden);
+              data.data.urls.forEach((url) => {
+                const imgDiv = document.createElement("div");
+                imgDiv.style.cssText =
+                  "position:relative; width:60px; height:60px; border-radius:6px; overflow:hidden; border:1px solid #444;";
+                imgDiv.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;" /><button type="button" onclick="this.parentElement.remove();" style="position:absolute;top:0;right:0;background:red;color:white;width:20px;height:20px;border:none;cursor:pointer;">×</button><input type="hidden" name="variants[${index}].imageUrls" value="${url}" />`;
+                previewContainer.appendChild(imgDiv);
+              });
             }
           } catch (e) {
             alert("Lỗi");
-            previewContainer.innerHTML = "";
+          } finally {
+            loading.remove();
           }
           input.value = "";
         }

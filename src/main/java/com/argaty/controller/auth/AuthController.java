@@ -18,7 +18,6 @@ import com.argaty.dto.request.RegisterRequest;
 import com.argaty.entity.User;
 import com.argaty.exception.BadRequestException;
 import com.argaty.service.CartService;
-import com.argaty.service.EmailService;
 import com.argaty.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
@@ -35,7 +34,6 @@ public class AuthController {
 
     private final UserService userService;
     private final CartService cartService;
-    private final EmailService emailService;
 
     /**
      * Trang đăng nhập
@@ -124,9 +122,6 @@ public class AuthController {
                 cartService.mergeGuestCartToUser(sessionId, user.getId());
                 session.removeAttribute("CART_SESSION_ID");
             }
-
-            // Gửi email chào mừng
-            emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
 
             redirectAttributes.addFlashAttribute("success", 
                     "Đăng ký thành công!  Vui lòng đăng nhập.");

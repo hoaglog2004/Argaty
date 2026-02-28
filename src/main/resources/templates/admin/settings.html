@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html
+  lang="vi"
   xmlns:th="http://www.thymeleaf.org"
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
   layout:decorate="~{layouts/admin}"
 >
   <head>
+    <meta charset="UTF-8" />
     <title>Cài đặt hệ thống</title>
   </head>
 
@@ -12,6 +14,16 @@
     <div layout:fragment="content">
       <div class="admin-page-header">
         <h1 class="admin-page-title">Cài đặt hệ thống</h1>
+      </div>
+
+      <div th:if="${success}" class="alert alert-success mb-4">
+        <i class="bx bx-check-circle"></i>
+        <span th:text="${success}"></span>
+      </div>
+
+      <div th:if="${error}" class="alert alert-danger mb-4">
+        <i class="bx bx-error-circle"></i>
+        <span th:text="${error}"></span>
       </div>
 
       <div class="tabs mb-4">
@@ -138,6 +150,17 @@
               </p>
             </div>
 
+            <div class="form-group">
+              <label class="form-label">Thời gian giao hàng dự kiến (ngày)</label>
+              <input
+                type="number"
+                name="estimatedDeliveryDays"
+                class="form-control"
+                th:value="${settings.estimatedDeliveryDays}"
+                min="1"
+              />
+            </div>
+
             <button type="submit" class="btn btn-primary">
               <i class="bx bx-save"></i> Lưu cài đặt
             </button>
@@ -179,46 +202,11 @@
               <label class="form-check">
                 <input
                   type="checkbox"
-                  name="bankTransferEnabled"
+                  name="onlinePaymentEnabled"
                   class="form-check-input"
-                  th:checked="${settings.bankTransferEnabled}"
+                  th:checked="${settings.onlinePaymentEnabled}"
                 />
-                <span class="form-check-label">Chuyển khoản ngân hàng</span>
-              </label>
-            </div>
-
-            <div class="form-group" id="bankInfo">
-              <label class="form-label">Thông tin ngân hàng</label>
-              <textarea
-                name="bankInfo"
-                class="form-control"
-                rows="4"
-                th:text="${settings.bankInfo}"
-                placeholder="Ngân hàng:  ... &#10;Số TK: ... &#10;Chủ TK: ..."
-              ></textarea>
-            </div>
-
-            <div class="form-group">
-              <label class="form-check">
-                <input
-                  type="checkbox"
-                  name="vnpayEnabled"
-                  class="form-check-input"
-                  th:checked="${settings.vnpayEnabled}"
-                />
-                <span class="form-check-label">VNPay</span>
-              </label>
-            </div>
-
-            <div class="form-group">
-              <label class="form-check">
-                <input
-                  type="checkbox"
-                  name="momoEnabled"
-                  class="form-check-input"
-                  th:checked="${settings.momoEnabled}"
-                />
-                <span class="form-check-label">Ví MoMo</span>
+                <span class="form-check-label">Bật thanh toán online</span>
               </label>
             </div>
 
@@ -258,8 +246,13 @@
               </div>
               <div class="form-group">
                 <label class="form-label">SMTP Port</label>
-                <input type="number" name="smtpPort" class="form-control" th:
-                value="${settings.smtpPort}" placeholder="587">
+                <input
+                  type="number"
+                  name="smtpPort"
+                  class="form-control"
+                  th:value="${settings.smtpPort}"
+                  placeholder="587"
+                />
               </div>
             </div>
 
@@ -282,6 +275,18 @@
                   placeholder="••••••••"
                 />
               </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-check">
+                <input
+                  type="checkbox"
+                  name="smtpTls"
+                  class="form-check-input"
+                  th:checked="${settings.smtpTls}"
+                />
+                <span class="form-check-label">Bật TLS</span>
+              </label>
             </div>
 
             <div class="d-flex gap-3">

@@ -6,6 +6,7 @@ import com.argaty.enums.Role;
 import com.argaty.service.OrderService;
 import com.argaty.service.UserService;
 import com.argaty.util.DtoMapper;
+import org.springframework.dao.DataIntegrityViolationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -120,5 +121,19 @@ public class AdminUserController {
             redirectAttributes.addFlashAttribute("success", "Đã kích hoạt tài khoản");
         }
         return "redirect:/admin/users/" + id;
+    }
+
+    @PostMapping("/{id}/delete")
+    public String deleteUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            userService.deleteById(id);
+            redirectAttributes.addFlashAttribute("success", "Đã xóa tài khoản người dùng");
+        } catch (DataIntegrityViolationException e) {
+            userService.disableUser(id);
+            redirectAttributes.addFlashAttribute("error", "Tài khoản đang có dữ liệu liên quan, đã chuyển sang vô hiệu hóa.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa tài khoản: " + e.getMessage());
+        }
+        return "redirect:/admin/users";
     }
 }

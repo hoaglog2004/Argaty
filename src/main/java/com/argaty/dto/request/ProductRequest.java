@@ -32,6 +32,12 @@ public class ProductRequest {
 
     private String sku;
 
+    @Size(max = 100, message = "Tên nhóm phân loại 1 tối đa 100 ký tự")
+    private String tier1Name;
+
+    @Size(max = 100, message = "Tên nhóm phân loại 2 tối đa 100 ký tự")
+    private String tier2Name;
+
     @Size(max = 500, message = "Mô tả ngắn tối đa 500 ký tự")
     private String shortDescription;
 
@@ -82,6 +88,22 @@ public class ProductRequest {
     // private List<ProductVariantRequest> variants;
 
     private List<ProductVariantDTO> variants;
+
+    public String getTier1Name() {
+        return tier1Name;
+    }
+
+    public void setTier1Name(String tier1Name) {
+        this.tier1Name = tier1Name;
+    }
+
+    public String getTier2Name() {
+        return tier2Name;
+    }
+
+    public void setTier2Name(String tier2Name) {
+        this.tier2Name = tier2Name;
+    }
 
     @Data
     @Builder

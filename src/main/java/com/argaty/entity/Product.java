@@ -44,6 +44,12 @@ public class Product extends BaseEntity {
     @Column(name = "sku", unique = true, length = 50)
     private String sku;
 
+    @Column(name = "tier1_name", length = 100)
+    private String tier1Name;
+
+    @Column(name = "tier2_name", length = 100)
+    private String tier2Name;
+
     @Column(name = "short_description", length = 500)
     private String shortDescription;
 

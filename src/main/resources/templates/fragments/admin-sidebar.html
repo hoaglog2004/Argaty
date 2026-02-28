@@ -80,10 +80,10 @@
         </a>
         
         <!-- Reviews -->
-        <a th:href="@{/admin/reviews}" class="admin-nav__item" th:classappend="${adminPage == 'reviews'} ? 'active' : ''">
+        <!-- <a th:href="@{/admin/reviews}" class="admin-nav__item" th:classappend="${adminPage == 'reviews'} ? 'active' : ''">
             <i class='bx bxs-star'></i>
             <span>Đánh giá</span>
-        </a>
+        </a> -->
         
         <!-- Separator (Admin Only) -->
         <div class="admin-nav__separator" sec:authorize="hasRole('ADMIN')">

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html
+  lang="vi"
   xmlns:th="http://www.thymeleaf.org"
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
   layout:decorate="~{layouts/main}"
@@ -188,12 +189,35 @@
             </p>
           </div>
 
-          <div class="products-grid">
-            <th:block th:each="product : ${featuredProducts}">
-              <th:block
-                th:replace="~{fragments/product-card :: productCard(${product})}"
-              ></th:block>
-            </th:block>
+          <div class="products-carousel" data-infinite-slider>
+            <button
+              type="button"
+              class="products-carousel__nav products-carousel__nav--prev"
+              aria-label="Sản phẩm trước"
+            >
+              <i class="bx bx-chevron-left"></i>
+            </button>
+
+            <div class="products-carousel__viewport">
+              <div class="products-carousel__track">
+                <div
+                  class="products-carousel__item"
+                  th:each="product : ${featuredProducts}"
+                >
+                  <th:block
+                    th:replace="~{fragments/product-card :: productCard(${product})}"
+                  ></th:block>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="products-carousel__nav products-carousel__nav--next"
+              aria-label="Sản phẩm tiếp theo"
+            >
+              <i class="bx bx-chevron-right"></i>
+            </button>
           </div>
 
           <div class="text-center mt-5">
@@ -218,12 +242,32 @@
             </p>
           </div>
 
-          <div class="products-grid">
-            <th:block th:each="product : ${newProducts}">
-              <th:block
-                th:replace="~{fragments/product-card :: productCard(${product})}"
-              ></th:block>
-            </th:block>
+          <div class="products-carousel" data-infinite-slider>
+            <button
+              type="button"
+              class="products-carousel__nav products-carousel__nav--prev"
+              aria-label="Sản phẩm trước"
+            >
+              <i class="bx bx-chevron-left"></i>
+            </button>
+
+            <div class="products-carousel__viewport">
+              <div class="products-carousel__track">
+                <div class="products-carousel__item" th:each="product : ${newProducts}">
+                  <th:block
+                    th:replace="~{fragments/product-card :: productCard(${product})}"
+                  ></th:block>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="products-carousel__nav products-carousel__nav--next"
+              aria-label="Sản phẩm tiếp theo"
+            >
+              <i class="bx bx-chevron-right"></i>
+            </button>
           </div>
         </div>
       </section>
@@ -241,12 +285,35 @@
             </p>
           </div>
 
-          <div class="products-grid">
-            <th:block th:each="product : ${bestSellerProducts}">
-              <th:block
-                th:replace="~{fragments/product-card :: productCard(${product})}"
-              ></th:block>
-            </th:block>
+          <div class="products-carousel" data-infinite-slider>
+            <button
+              type="button"
+              class="products-carousel__nav products-carousel__nav--prev"
+              aria-label="Sản phẩm trước"
+            >
+              <i class="bx bx-chevron-left"></i>
+            </button>
+
+            <div class="products-carousel__viewport">
+              <div class="products-carousel__track">
+                <div
+                  class="products-carousel__item"
+                  th:each="product : ${bestSellerProducts}"
+                >
+                  <th:block
+                    th:replace="~{fragments/product-card :: productCard(${product})}"
+                  ></th:block>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="products-carousel__nav products-carousel__nav--next"
+              aria-label="Sản phẩm tiếp theo"
+            >
+              <i class="bx bx-chevron-right"></i>
+            </button>
           </div>
         </div>
       </section>
@@ -385,41 +452,194 @@
 
     <th:block layout:fragment="scripts">
       <script>
-        // Home Slider
         document.addEventListener("DOMContentLoaded", function () {
           const slider = document.getElementById("homeSlider");
-          if (!slider) return;
+          if (slider) {
+            const track = slider.querySelector(".slider__track");
+            const slides = slider.querySelectorAll(".slider__slide");
+            const dots = slider.querySelectorAll(".slider__dot");
+            const prevBtn = slider.querySelector(".slider__nav--prev");
+            const nextBtn = slider.querySelector(".slider__nav--next");
 
-          const track = slider.querySelector(".slider__track");
-          const slides = slider.querySelectorAll(".slider__slide");
-          const dots = slider.querySelectorAll(".slider__dot");
-          const prevBtn = slider.querySelector(".slider__nav--prev");
-          const nextBtn = slider.querySelector(".slider__nav--next");
+            let currentIndex = 0;
+            const totalSlides = slides.length;
 
-          let currentIndex = 0;
-          const totalSlides = slides.length;
+            function goToSlide(index) {
+              if (index < 0) index = totalSlides - 1;
+              if (index >= totalSlides) index = 0;
 
-          function goToSlide(index) {
-            if (index < 0) index = totalSlides - 1;
-            if (index >= totalSlides) index = 0;
+              currentIndex = index;
+              track.style.transform = `translateX(-${currentIndex * 100}%)`;
 
-            currentIndex = index;
-            track.style.transform = `translateX(-${currentIndex * 100}%)`;
+              dots.forEach((dot, i) => {
+                dot.classList.toggle("active", i === currentIndex);
+              });
+            }
+
+            prevBtn?.addEventListener("click", () => goToSlide(currentIndex - 1));
+            nextBtn?.addEventListener("click", () => goToSlide(currentIndex + 1));
 
             dots.forEach((dot, i) => {
-              dot.classList.toggle("active", i === currentIndex);
+              dot.addEventListener("click", () => goToSlide(i));
             });
+
+            setInterval(() => goToSlide(currentIndex + 1), 5000);
           }
 
-          prevBtn?.addEventListener("click", () => goToSlide(currentIndex - 1));
-          nextBtn?.addEventListener("click", () => goToSlide(currentIndex + 1));
+          document.querySelectorAll("[data-infinite-slider]").forEach((carousel) => {
+            const viewport = carousel.querySelector(".products-carousel__viewport");
+            const track = carousel.querySelector(".products-carousel__track");
+            const prevBtn = carousel.querySelector(".products-carousel__nav--prev");
+            const nextBtn = carousel.querySelector(".products-carousel__nav--next");
 
-          dots.forEach((dot, i) => {
-            dot.addEventListener("click", () => goToSlide(i));
+            if (!viewport || !track || !prevBtn || !nextBtn) return;
+
+            const originalItems = Array.from(track.querySelectorAll(":scope > .products-carousel__item"));
+            const originalCount = originalItems.length;
+            if (!originalCount) return;
+
+            if (originalCount === 1) {
+              carousel.classList.add("is-static");
+              return;
+            }
+
+            const getGap = () => parseFloat(getComputedStyle(track).gap || "24");
+            const getItemStep = (items) => {
+              const first = items?.[0];
+              if (!first) return viewport.clientWidth;
+              return first.getBoundingClientRect().width + getGap();
+            };
+
+            const getVisibleCount = () => {
+              const step = getItemStep(originalItems);
+              if (step <= 0) return 1;
+              return Math.max(1, Math.floor((viewport.clientWidth + getGap()) / step));
+            };
+
+            const stripClones = () => {
+              track
+                .querySelectorAll(":scope > .products-carousel__item[data-clone='true']")
+                .forEach((node) => node.remove());
+            };
+
+            const setTrackPosition = (index, withAnimation) => {
+              const items = track.querySelectorAll(":scope > .products-carousel__item");
+              const step = getItemStep(items);
+              track.style.transition = withAnimation
+                ? "transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1)"
+                : "none";
+              track.style.transform = `translate3d(-${index * step}px, 0, 0)`;
+            };
+
+            let cloneCount = 0;
+            let currentIndex = 0;
+            let logicalIndex = 0;
+            let isAnimating = false;
+            let touchStartX = 0;
+            let touchCurrentX = 0;
+
+            const build = () => {
+              const previousLogical = logicalIndex;
+
+              stripClones();
+              originalItems.forEach((item) => track.appendChild(item));
+
+              cloneCount = Math.max(getVisibleCount() + 1, 2);
+
+              const prepend = [];
+              const append = [];
+              for (let i = 0; i < cloneCount; i++) {
+                const prevSource = originalItems[(originalCount - cloneCount + i + originalCount) % originalCount];
+                const nextSource = originalItems[i % originalCount];
+
+                const prevClone = prevSource.cloneNode(true);
+                prevClone.dataset.clone = "true";
+                prepend.push(prevClone);
+
+                const nextClone = nextSource.cloneNode(true);
+                nextClone.dataset.clone = "true";
+                append.push(nextClone);
+              }
+
+              prepend.forEach((clone) => track.insertBefore(clone, track.firstChild));
+              append.forEach((clone) => track.appendChild(clone));
+
+              logicalIndex = ((previousLogical % originalCount) + originalCount) % originalCount;
+              currentIndex = cloneCount + logicalIndex;
+
+              requestAnimationFrame(() => {
+                setTrackPosition(currentIndex, false);
+              });
+            };
+
+            const move = (direction) => {
+              if (isAnimating) return;
+              isAnimating = true;
+
+              currentIndex += direction;
+              logicalIndex = ((logicalIndex + direction) % originalCount + originalCount) % originalCount;
+              setTrackPosition(currentIndex, true);
+            };
+
+            prevBtn.addEventListener("click", () => {
+              move(-1);
+            });
+
+            nextBtn.addEventListener("click", () => {
+              move(1);
+            });
+
+            track.addEventListener("transitionend", () => {
+              if (!isAnimating) return;
+
+              if (currentIndex < cloneCount) {
+                currentIndex += originalCount;
+                setTrackPosition(currentIndex, false);
+              } else if (currentIndex >= cloneCount + originalCount) {
+                currentIndex -= originalCount;
+                setTrackPosition(currentIndex, false);
+              }
+
+              requestAnimationFrame(() => {
+                isAnimating = false;
+              });
+            });
+
+            viewport.addEventListener(
+              "touchstart",
+              (e) => {
+                touchStartX = e.touches[0].clientX;
+                touchCurrentX = touchStartX;
+              },
+              { passive: true }
+            );
+
+            viewport.addEventListener(
+              "touchmove",
+              (e) => {
+                touchCurrentX = e.touches[0].clientX;
+              },
+              { passive: true }
+            );
+
+            viewport.addEventListener("touchend", () => {
+              const delta = touchCurrentX - touchStartX;
+              if (Math.abs(delta) < 40) return;
+              if (delta < 0) {
+                move(1);
+              } else {
+                move(-1);
+              }
+            });
+
+            let resizeTimer = null;
+            window.addEventListener("resize", () => {
+              clearTimeout(resizeTimer);
+              resizeTimer = setTimeout(build, 120);
+            });
+
+            build();
           });
-
-          // Auto slide
-          setInterval(() => goToSlide(currentIndex + 1), 5000);
         });
       </script>
     </th:block>

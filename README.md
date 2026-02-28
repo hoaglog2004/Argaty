@@ -109,8 +109,19 @@ For password reset functionality, configure SMTP settings:
 ```properties
 spring.mail.host=smtp.gmail.com
 spring.mail.port=587
-spring.mail.username=your-email@gmail.com
-spring.mail.password=your-app-password
+spring.mail.username=${MAIL_USERNAME:}
+spring.mail.password=${MAIL_PASSWORD:}
+app.mail.from=${MAIL_FROM:${spring.mail.username:noreply@argaty.com}}
+app.base-url=${APP_BASE_URL:http://localhost:8080}
+```
+
+Example (PowerShell):
+
+```powershell
+$env:MAIL_USERNAME="your-email@gmail.com"
+$env:MAIL_PASSWORD="your-app-password"
+$env:MAIL_FROM="Argaty <your-email@gmail.com>"
+$env:APP_BASE_URL="http://localhost:8080"
 ```
 
 ### 4. Build the Application

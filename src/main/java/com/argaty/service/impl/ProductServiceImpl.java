@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.argaty.dto.request.ProductRequest;
@@ -54,6 +55,7 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
     private final ReviewRepository reviewRepository;
+    private final ProductDeletionTxService productDeletionTxService;
 
     // ========== CRUD ==========
 
@@ -93,12 +95,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void deleteById(Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
+        if (!productRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Product", "id", id);
+        }
 
-        productRepository.delete(product);
-        log.info("Deleted product: {}", id);
+        productDeletionTxService.hardDelete(id);
     }
 
     @Override
@@ -233,7 +236,8 @@ public class ProductServiceImpl implements ProductService {
                           Integer quantity, Long categoryId, Long brandId,
                           Boolean isFeatured, Boolean isNew, Boolean isBestSeller,
                           String specifications, String metaTitle, String metaDescription,
-                          java.time.LocalDateTime saleStartDate, java.time.LocalDateTime saleEndDate) {
+                          java.time.LocalDateTime saleStartDate, java.time.LocalDateTime saleEndDate,
+                          String tier1Name, String tier2Name) {
 
         // Tạo slug
         String slug = SlugUtil.toSlug(name);
@@ -257,6 +261,9 @@ public class ProductServiceImpl implements ProductService {
         Product product = Product.builder()
                 .name(name)
                 .slug(slug)
+            .sku(sku)
+            .tier1Name(tier1Name)
+            .tier2Name(tier2Name)
                 .shortDescription(shortDescription)
                 .description(description)
                 .price(price)
@@ -332,6 +339,7 @@ public class ProductServiceImpl implements ProductService {
         // 3. XỬ LÝ BIẾN THỂ (VARIANTS)
         if (request.getVariants() != null) {
             Set<Long> incomingVariantIds = request.getVariants().stream()
+                    .filter(Objects::nonNull)
                     .map(ProductVariantDTO::getId)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toSet());
@@ -341,6 +349,13 @@ public class ProductServiceImpl implements ProductService {
 
             // B. Cập nhật hoặc Thêm mới
             for (ProductVariantDTO vDto : request.getVariants()) {
+                if (vDto == null ||
+                        (vDto.getName() == null || vDto.getName().trim().isEmpty()) &&
+                        (vDto.getColor() == null || vDto.getColor().trim().isEmpty()) &&
+                        (vDto.getSize() == null || vDto.getSize().trim().isEmpty())) {
+                    continue;
+                }
+
                 ProductVariant variantToSave;
 
                 if (vDto.getId() != null) {
@@ -355,8 +370,8 @@ public class ProductServiceImpl implements ProductService {
                         variantToSave.setColor(vDto.getColor());
                         variantToSave.setColorCode(vDto.getColorCode());
                         variantToSave.setSize(vDto.getSize());
-                        variantToSave.setAdditionalPrice(vDto.getAdditionalPrice());
-                        variantToSave.setQuantity(vDto.getQuantity());
+                        variantToSave.setAdditionalPrice(vDto.getAdditionalPrice() != null ? vDto.getAdditionalPrice() : BigDecimal.ZERO);
+                        variantToSave.setQuantity(vDto.getQuantity() != null ? vDto.getQuantity() : Integer.valueOf(0));
                     }
                 } else {
                     // --- TẠO BIẾN THỂ MỚI ---
@@ -367,8 +382,8 @@ public class ProductServiceImpl implements ProductService {
                             .color(vDto.getColor())
                             .colorCode(vDto.getColorCode())
                             .size(vDto.getSize())
-                            .additionalPrice(vDto.getAdditionalPrice())
-                            .quantity(vDto.getQuantity())
+                            .additionalPrice(vDto.getAdditionalPrice() != null ? vDto.getAdditionalPrice() : BigDecimal.ZERO)
+                            .quantity(vDto.getQuantity() != null ? vDto.getQuantity() : Integer.valueOf(0))
                             .isActive(true)
                             .displayOrder(product.getVariants().size())
                             .build();
@@ -397,6 +412,16 @@ public class ProductServiceImpl implements ProductService {
             product.getVariants().clear();
         }
 
+        if (product.getVariants() != null && !product.getVariants().isEmpty()) {
+            int totalVariantStock = product.getVariants().stream()
+                    .filter(ProductVariant::getIsActive)
+                    .map(ProductVariant::getQuantity)
+                    .filter(Objects::nonNull)
+                    .mapToInt(Integer::intValue)
+                    .sum();
+            product.setQuantity(totalVariantStock);
+        }
+
         return productRepository.save(product);
     }
     private void updateBasicInfo(Product product, ProductRequest request) {
@@ -412,6 +437,9 @@ public class ProductServiceImpl implements ProductService {
         }
 
         product.setName(request.getName());
+        product.setSku(request.getSku());
+        product.setTier1Name(request.getTier1Name());
+        product.setTier2Name(request.getTier2Name());
         product.setShortDescription(request.getShortDescription());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
@@ -537,7 +565,7 @@ public class ProductServiceImpl implements ProductService {
     // ========== VARIANTS ==========
 
     @Override
-    public ProductVariant addVariant(Long productId, String name, String color, String colorCode,
+    public ProductVariant addVariant(Long productId, String name, String sku, String color, String colorCode,
                                      String size, BigDecimal additionalPrice, Integer quantity) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
@@ -545,6 +573,7 @@ public class ProductServiceImpl implements ProductService {
         ProductVariant variant = ProductVariant.builder()
                 .product(product)
                 .name(name)
+                .sku(sku)
                 .color(color)
                 .colorCode(colorCode)
                 .size(size)
@@ -582,12 +611,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductVariant updateVariant(Long variantId, String name, String color, String colorCode,
+    public ProductVariant updateVariant(Long variantId, String name, String sku, String color, String colorCode,
                                         String size, BigDecimal additionalPrice, Integer quantity) {
         ProductVariant variant = productVariantRepository.findById(variantId)
                 .orElseThrow(() -> new ResourceNotFoundException("ProductVariant", "id", variantId));
 
         variant.setName(name);
+        variant.setSku(sku);
         variant.setColor(color);
         variant.setColorCode(colorCode);
         variant.setSize(size);

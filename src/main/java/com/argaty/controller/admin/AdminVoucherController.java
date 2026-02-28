@@ -72,6 +72,15 @@ public class AdminVoucherController {
             RedirectAttributes redirectAttributes,
             Model model) {
 
+        // Custom validation: endDate phải sau startDate
+        if (request.getStartDate() != null && request.getEndDate() != null) {
+            if (request.getEndDate().isBefore(request.getStartDate()) ||
+                request.getEndDate().isEqual(request.getStartDate())) {
+                bindingResult.rejectValue("endDate", "error.endDate",
+                    "Ngày kết thúc phải sau ngày bắt đầu");
+            }
+        }
+
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> {
                 System.out.println("Voucher Validation Error: " + error.toString());
@@ -145,6 +154,15 @@ public class AdminVoucherController {
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
             Model model) {
+
+        // Custom validation: endDate phải sau startDate
+        if (request.getStartDate() != null && request.getEndDate() != null) {
+            if (request.getEndDate().isBefore(request.getStartDate()) ||
+                request.getEndDate().isEqual(request.getStartDate())) {
+                bindingResult.rejectValue("endDate", "error.endDate",
+                    "Ngày kết thúc phải sau ngày bắt đầu");
+            }
+        }
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("adminPage", "vouchers");

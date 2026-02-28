@@ -36,6 +36,10 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
     @Query("UPDATE OrderItem oi SET oi.isReviewed = true WHERE oi.id = :itemId")
     void markAsReviewed(@Param("itemId") Long itemId);
 
+       @Modifying
+       @Query("DELETE FROM OrderItem oi WHERE oi.product.id = :productId")
+       void deleteByProductId(@Param("productId") Long productId);
+
     // ========== STATISTICS ==========
 
     @Query("SELECT oi.product.id, oi.productName, SUM(oi.quantity) as totalSold " +

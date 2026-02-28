@@ -146,10 +146,10 @@
                 <!-- Products Content -->
                 <div class="products-content">
                     <!-- Sort & View Options -->
-                    <div class="products-toolbar card p-3 mb-4" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                    <div class="products-toolbar card p-3 mb-4">
                         <div class="toolbar-left d-flex align-center gap-3">
-                            <span class="text-muted">Sắp xếp:</span>
-                            <select class="form-select" style="width: auto;" id="sortSelect" onchange="changeSort(this.value)">
+                            <span class="text-muted sort-label">Sắp xếp:</span>
+                            <select class="form-control form-select products-sort-select" id="sortSelect" onchange="changeSort(this.value)">
                                 <option value="newest" th:selected="${currentSort == 'newest'}">Mới nhất</option>
                                 <option value="price-asc" th:selected="${currentSort == 'price-asc'}">Giá tăng dần</option>
                                 <option value="price-desc" th:selected="${currentSort == 'price-desc'}">Giá giảm dần</option>
@@ -268,6 +268,41 @@ document.getElementById('listView')?.addEventListener('click', function() {
 .quick-price-options .btn {
     flex: 1;
     min-width: calc(50% - 4px);
+}
+
+.products-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.sort-label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.products-sort-select {
+    min-width: 170px;
+    height: 40px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+    background-color: rgba(10, 10, 20, 0.75);
+    border-color: rgba(139, 92, 246, 0.35);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.products-sort-select:focus {
+    border-color: var(--primary);
+}
+
+.products-sort-select option {
+    background: #0f1020;
+    color: var(--text-primary);
 }
 </style>
 </th:block>

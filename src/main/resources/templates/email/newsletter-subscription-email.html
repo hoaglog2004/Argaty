@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng ký nhận tin Argaty</title>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background: #eef2f7;
+      font-family: Arial, sans-serif;
+      color: #111827;
+    "
+  >
+    <table
+      role="presentation"
+      width="100%"
+      cellspacing="0"
+      cellpadding="0"
+      style="padding: 24px 12px; background: #eef2f7"
+    >
+      <tr>
+        <td align="center">
+          <table
+            role="presentation"
+            width="100%"
+            cellspacing="0"
+            cellpadding="0"
+            style="
+              max-width: 660px;
+              background: #ffffff;
+              border-radius: 14px;
+              overflow: hidden;
+              box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            "
+          >
+            <tr>
+              <td
+                style="
+                  padding: 28px;
+                  background: linear-gradient(135deg, #0f172a, #1d4ed8);
+                  color: #fff;
+                "
+              >
+                <h1 style="margin: 0; font-size: 24px; line-height: 1.3">
+                  Argaty Newsletter
+                </h1>
+                <p style="margin: 8px 0 0; font-size: 14px; opacity: 0.95">
+                  Cập nhật ưu đãi gaming gear mỗi tuần
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 30px">
+                <h2 style="margin: 0 0 14px; font-size: 22px; color: #0f172a">
+                  Đăng ký thành công 🎉
+                </h2>
+                <p
+                  style="
+                    margin: 0 0 12px;
+                    font-size: 15px;
+                    line-height: 1.75;
+                    color: #374151;
+                  "
+                >
+                  Bạn đã tham gia danh sách nhận tin của Argaty. Từ bây giờ bạn
+                  sẽ nhận được:
+                </p>
+                <ul
+                  style="
+                    margin: 0 0 18px;
+                    padding-left: 18px;
+                    color: #374151;
+                    font-size: 14px;
+                    line-height: 1.8;
+                  "
+                >
+                  <li>Thông báo flash sale và voucher mới</li>
+                  <li>Gợi ý sản phẩm theo xu hướng gaming</li>
+                  <li>Tin tức và cập nhật phiên bản mới</li>
+                </ul>
+
+                <a
+                  th:href="${homeUrl}"
+                  href="#"
+                  style="
+                    display: inline-block;
+                    background: #1d4ed8;
+                    color: #ffffff;
+                    text-decoration: none;
+                    padding: 12px 22px;
+                    border-radius: 9px;
+                    font-size: 14px;
+                    font-weight: 700;
+                  "
+                  >Khám phá sản phẩm ngay</a
+                >
+
+                <p
+                  style="
+                    margin: 22px 0 0;
+                    font-size: 12px;
+                    line-height: 1.7;
+                    color: #6b7280;
+                  "
+                >
+                  Bạn có thể hủy đăng ký nhận tin bất kỳ lúc nào trong email
+                  sau.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td
+                style="
+                  padding: 14px 30px;
+                  background: #f8fafc;
+                  font-size: 12px;
+                  color: #6b7280;
+                "
+              >
+                © <span th:text="${year}">2026</span> Argaty. All rights
+                reserved.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

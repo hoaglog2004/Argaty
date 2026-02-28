@@ -84,7 +84,8 @@ public interface ProductService {
                    Integer quantity, Long categoryId, Long brandId,
                    Boolean isFeatured, Boolean isNew, Boolean isBestSeller,
                    String specifications, String metaTitle, String metaDescription,
-                   java.time.LocalDateTime saleStartDate, java.time.LocalDateTime saleEndDate);
+                   java.time.LocalDateTime saleStartDate, java.time.LocalDateTime saleEndDate,
+                   String tier1Name, String tier2Name);
 
     // [CẬP NHẬT] Đổi tham số thành DTO ProductRequest
     Product update(Long id, ProductRequest request);
@@ -105,13 +106,13 @@ public interface ProductService {
 
     // ========== VARIANTS ==========
 
-    ProductVariant addVariant(Long productId, String name, String color, String colorCode,
+    ProductVariant addVariant(Long productId, String name, String sku, String color, String colorCode,
                               String size, BigDecimal additionalPrice, Integer quantity);
 
     // Variant images
     VariantImage addVariantImage(Long variantId, String imageUrl, boolean isMain);
 
-    ProductVariant updateVariant(Long variantId, String name, String color, String colorCode,
+    ProductVariant updateVariant(Long variantId, String name, String sku, String color, String colorCode,
                                  String size, BigDecimal additionalPrice, Integer quantity);
 
     void removeVariant(Long variantId);
