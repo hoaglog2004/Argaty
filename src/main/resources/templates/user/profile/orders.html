@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html
   xmlns:th="http://www.thymeleaf.org"
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -30,11 +30,7 @@
 
           <div class="profile-layout">
             <!-- Sidebar (same as overview) -->
-            <aside class="profile-sidebar">
-              <th:block
-                th:replace="~{user/profile/overview :: aside}"
-              ></th:block>
-            </aside>
+            <th:block th:replace="~{user/profile/overview :: aside}"></th:block>
 
             <!-- Content -->
             <div class="profile-content">

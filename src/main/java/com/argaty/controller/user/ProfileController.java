@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.argaty.dto.request.ChangePasswordRequest;
@@ -29,6 +30,7 @@ import com.argaty.enums.OrderStatus;
 import com.argaty.exception.BadRequestException;
 import com.argaty.exception.ResourceNotFoundException;
 import com.argaty.exception.UnauthorizedException;
+import com.argaty.service.FileStorageService;
 import com.argaty.service.NotificationService;
 import com.argaty.service.OrderService;
 import com.argaty.service.ReviewService;
@@ -51,6 +53,7 @@ public class ProfileController {
     private final WishlistService wishlistService;
     private final NotificationService notificationService;
     private final UserAddressService userAddressService;
+    private final FileStorageService fileStorageService;
 
     private User getCurrentUser(Principal principal) {
         if (principal == null) throw new UnauthorizedException("Vui lòng đăng nhập");
@@ -85,6 +88,7 @@ public class ProfileController {
         UpdateProfileRequest request = new UpdateProfileRequest();
         request.setFullName(user.getFullName());
         request.setPhone(user.getPhone());
+        request.setAvatar(user.getAvatar());
         // ... map thêm các field khác nếu cần
         
         model.addAttribute("updateProfileRequest", request);
@@ -95,7 +99,11 @@ public class ProfileController {
 
     @PostMapping("/edit")
     public String updateProfile(@Valid @ModelAttribute UpdateProfileRequest request,
-                                BindingResult bindingResult, Principal principal, RedirectAttributes redirectAttributes, Model model) {
+                                BindingResult bindingResult,
+                                @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
+                                Principal principal,
+                                RedirectAttributes redirectAttributes,
+                                Model model) {
         User user = getCurrentUser(principal);
         if (bindingResult.hasErrors()) {
             model.addAttribute("user", DtoMapper.toUserResponse(user)); // Reload user info
@@ -104,7 +112,12 @@ public class ProfileController {
             return "user/profile/edit";
         }
         try {
-            userService.updateProfile(user.getId(), request.getFullName(), request.getPhone(), request.getAvatar());
+            String avatarPath = request.getAvatar();
+            if (avatarFile != null && !avatarFile.isEmpty()) {
+                avatarPath = fileStorageService.uploadFile(avatarFile, "avatars/");
+            }
+
+            userService.updateProfile(user.getId(), request.getFullName(), request.getPhone(), avatarPath);
             // Xử lý update address riêng hoặc gộp tùy logic service của bạn
             redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công");
         } catch (BadRequestException e) {

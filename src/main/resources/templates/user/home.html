@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html
   lang="vi"
   xmlns:th="http://www.thymeleaf.org"
@@ -150,7 +150,7 @@
                   th:if="${category.image != null && !category.image.isEmpty()}"
                   th:src="${category.image}"
                   alt="Category Image"
-                  onerror="this.style.display='none'"
+                  onerror="this.style.display = 'none'"
                   style="
                     width: 100%;
                     height: 100%;
@@ -253,7 +253,10 @@
 
             <div class="products-carousel__viewport">
               <div class="products-carousel__track">
-                <div class="products-carousel__item" th:each="product : ${newProducts}">
+                <div
+                  class="products-carousel__item"
+                  th:each="product : ${newProducts}"
+                >
                   <th:block
                     th:replace="~{fragments/product-card :: productCard(${product})}"
                   ></th:block>
@@ -395,8 +398,8 @@
               th:href="@{/products(brand=${brand.slug})}"
               class="brand-item hover-scale"
               style="opacity: 0.6; transition: opacity 0.3s"
-              onmouseover="this.style. opacity='1'"
-              onmouseout="this.style.opacity='0.6'"
+              onmouseover="this.style.opacity = '1'"
+              onmouseout="this.style.opacity = '0.6'"
             >
               <img
                 th:if="${brand.logo != null}"
@@ -476,8 +479,12 @@
               });
             }
 
-            prevBtn?.addEventListener("click", () => goToSlide(currentIndex - 1));
-            nextBtn?.addEventListener("click", () => goToSlide(currentIndex + 1));
+            prevBtn?.addEventListener("click", () =>
+              goToSlide(currentIndex - 1),
+            );
+            nextBtn?.addEventListener("click", () =>
+              goToSlide(currentIndex + 1),
+            );
 
             dots.forEach((dot, i) => {
               dot.addEventListener("click", () => goToSlide(i));
@@ -486,160 +493,189 @@
             setInterval(() => goToSlide(currentIndex + 1), 5000);
           }
 
-          document.querySelectorAll("[data-infinite-slider]").forEach((carousel) => {
-            const viewport = carousel.querySelector(".products-carousel__viewport");
-            const track = carousel.querySelector(".products-carousel__track");
-            const prevBtn = carousel.querySelector(".products-carousel__nav--prev");
-            const nextBtn = carousel.querySelector(".products-carousel__nav--next");
+          document
+            .querySelectorAll("[data-infinite-slider]")
+            .forEach((carousel) => {
+              const viewport = carousel.querySelector(
+                ".products-carousel__viewport",
+              );
+              const track = carousel.querySelector(".products-carousel__track");
+              const prevBtn = carousel.querySelector(
+                ".products-carousel__nav--prev",
+              );
+              const nextBtn = carousel.querySelector(
+                ".products-carousel__nav--next",
+              );
 
-            if (!viewport || !track || !prevBtn || !nextBtn) return;
+              if (!viewport || !track || !prevBtn || !nextBtn) return;
 
-            const originalItems = Array.from(track.querySelectorAll(":scope > .products-carousel__item"));
-            const originalCount = originalItems.length;
-            if (!originalCount) return;
+              const originalItems = Array.from(
+                track.querySelectorAll(":scope > .products-carousel__item"),
+              );
+              const originalCount = originalItems.length;
+              if (!originalCount) return;
 
-            if (originalCount === 1) {
-              carousel.classList.add("is-static");
-              return;
-            }
-
-            const getGap = () => parseFloat(getComputedStyle(track).gap || "24");
-            const getItemStep = (items) => {
-              const first = items?.[0];
-              if (!first) return viewport.clientWidth;
-              return first.getBoundingClientRect().width + getGap();
-            };
-
-            const getVisibleCount = () => {
-              const step = getItemStep(originalItems);
-              if (step <= 0) return 1;
-              return Math.max(1, Math.floor((viewport.clientWidth + getGap()) / step));
-            };
-
-            const stripClones = () => {
-              track
-                .querySelectorAll(":scope > .products-carousel__item[data-clone='true']")
-                .forEach((node) => node.remove());
-            };
-
-            const setTrackPosition = (index, withAnimation) => {
-              const items = track.querySelectorAll(":scope > .products-carousel__item");
-              const step = getItemStep(items);
-              track.style.transition = withAnimation
-                ? "transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1)"
-                : "none";
-              track.style.transform = `translate3d(-${index * step}px, 0, 0)`;
-            };
-
-            let cloneCount = 0;
-            let currentIndex = 0;
-            let logicalIndex = 0;
-            let isAnimating = false;
-            let touchStartX = 0;
-            let touchCurrentX = 0;
-
-            const build = () => {
-              const previousLogical = logicalIndex;
-
-              stripClones();
-              originalItems.forEach((item) => track.appendChild(item));
-
-              cloneCount = Math.max(getVisibleCount() + 1, 2);
-
-              const prepend = [];
-              const append = [];
-              for (let i = 0; i < cloneCount; i++) {
-                const prevSource = originalItems[(originalCount - cloneCount + i + originalCount) % originalCount];
-                const nextSource = originalItems[i % originalCount];
-
-                const prevClone = prevSource.cloneNode(true);
-                prevClone.dataset.clone = "true";
-                prepend.push(prevClone);
-
-                const nextClone = nextSource.cloneNode(true);
-                nextClone.dataset.clone = "true";
-                append.push(nextClone);
+              if (originalCount === 1) {
+                carousel.classList.add("is-static");
+                return;
               }
 
-              prepend.forEach((clone) => track.insertBefore(clone, track.firstChild));
-              append.forEach((clone) => track.appendChild(clone));
+              const getGap = () =>
+                parseFloat(getComputedStyle(track).gap || "24");
+              const getItemStep = (items) => {
+                const first = items?.[0];
+                if (!first) return viewport.clientWidth;
+                return first.getBoundingClientRect().width + getGap();
+              };
 
-              logicalIndex = ((previousLogical % originalCount) + originalCount) % originalCount;
-              currentIndex = cloneCount + logicalIndex;
+              const getVisibleCount = () => {
+                const step = getItemStep(originalItems);
+                if (step <= 0) return 1;
+                return Math.max(
+                  1,
+                  Math.floor((viewport.clientWidth + getGap()) / step),
+                );
+              };
 
-              requestAnimationFrame(() => {
-                setTrackPosition(currentIndex, false);
-              });
-            };
+              const stripClones = () => {
+                track
+                  .querySelectorAll(
+                    ":scope > .products-carousel__item[data-clone='true']",
+                  )
+                  .forEach((node) => node.remove());
+              };
 
-            const move = (direction) => {
-              if (isAnimating) return;
-              isAnimating = true;
+              const setTrackPosition = (index, withAnimation) => {
+                const items = track.querySelectorAll(
+                  ":scope > .products-carousel__item",
+                );
+                const step = getItemStep(items);
+                track.style.transition = withAnimation
+                  ? "transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1)"
+                  : "none";
+                track.style.transform = `translate3d(-${index * step}px, 0, 0)`;
+              };
 
-              currentIndex += direction;
-              logicalIndex = ((logicalIndex + direction) % originalCount + originalCount) % originalCount;
-              setTrackPosition(currentIndex, true);
-            };
+              let cloneCount = 0;
+              let currentIndex = 0;
+              let logicalIndex = 0;
+              let isAnimating = false;
+              let touchStartX = 0;
+              let touchCurrentX = 0;
 
-            prevBtn.addEventListener("click", () => {
-              move(-1);
-            });
+              const build = () => {
+                const previousLogical = logicalIndex;
 
-            nextBtn.addEventListener("click", () => {
-              move(1);
-            });
+                stripClones();
+                originalItems.forEach((item) => track.appendChild(item));
 
-            track.addEventListener("transitionend", () => {
-              if (!isAnimating) return;
+                cloneCount = Math.max(getVisibleCount() + 1, 2);
 
-              if (currentIndex < cloneCount) {
-                currentIndex += originalCount;
-                setTrackPosition(currentIndex, false);
-              } else if (currentIndex >= cloneCount + originalCount) {
-                currentIndex -= originalCount;
-                setTrackPosition(currentIndex, false);
-              }
+                const prepend = [];
+                const append = [];
+                for (let i = 0; i < cloneCount; i++) {
+                  const prevSource =
+                    originalItems[
+                      (originalCount - cloneCount + i + originalCount) %
+                        originalCount
+                    ];
+                  const nextSource = originalItems[i % originalCount];
 
-              requestAnimationFrame(() => {
-                isAnimating = false;
-              });
-            });
+                  const prevClone = prevSource.cloneNode(true);
+                  prevClone.dataset.clone = "true";
+                  prepend.push(prevClone);
 
-            viewport.addEventListener(
-              "touchstart",
-              (e) => {
-                touchStartX = e.touches[0].clientX;
-                touchCurrentX = touchStartX;
-              },
-              { passive: true }
-            );
+                  const nextClone = nextSource.cloneNode(true);
+                  nextClone.dataset.clone = "true";
+                  append.push(nextClone);
+                }
 
-            viewport.addEventListener(
-              "touchmove",
-              (e) => {
-                touchCurrentX = e.touches[0].clientX;
-              },
-              { passive: true }
-            );
+                prepend.forEach((clone) =>
+                  track.insertBefore(clone, track.firstChild),
+                );
+                append.forEach((clone) => track.appendChild(clone));
 
-            viewport.addEventListener("touchend", () => {
-              const delta = touchCurrentX - touchStartX;
-              if (Math.abs(delta) < 40) return;
-              if (delta < 0) {
-                move(1);
-              } else {
+                logicalIndex =
+                  ((previousLogical % originalCount) + originalCount) %
+                  originalCount;
+                currentIndex = cloneCount + logicalIndex;
+
+                requestAnimationFrame(() => {
+                  setTrackPosition(currentIndex, false);
+                });
+              };
+
+              const move = (direction) => {
+                if (isAnimating) return;
+                isAnimating = true;
+
+                currentIndex += direction;
+                logicalIndex =
+                  (((logicalIndex + direction) % originalCount) +
+                    originalCount) %
+                  originalCount;
+                setTrackPosition(currentIndex, true);
+              };
+
+              prevBtn.addEventListener("click", () => {
                 move(-1);
-              }
-            });
+              });
 
-            let resizeTimer = null;
-            window.addEventListener("resize", () => {
-              clearTimeout(resizeTimer);
-              resizeTimer = setTimeout(build, 120);
-            });
+              nextBtn.addEventListener("click", () => {
+                move(1);
+              });
 
-            build();
-          });
+              track.addEventListener("transitionend", () => {
+                if (!isAnimating) return;
+
+                if (currentIndex < cloneCount) {
+                  currentIndex += originalCount;
+                  setTrackPosition(currentIndex, false);
+                } else if (currentIndex >= cloneCount + originalCount) {
+                  currentIndex -= originalCount;
+                  setTrackPosition(currentIndex, false);
+                }
+
+                requestAnimationFrame(() => {
+                  isAnimating = false;
+                });
+              });
+
+              viewport.addEventListener(
+                "touchstart",
+                (e) => {
+                  touchStartX = e.touches[0].clientX;
+                  touchCurrentX = touchStartX;
+                },
+                { passive: true },
+              );
+
+              viewport.addEventListener(
+                "touchmove",
+                (e) => {
+                  touchCurrentX = e.touches[0].clientX;
+                },
+                { passive: true },
+              );
+
+              viewport.addEventListener("touchend", () => {
+                const delta = touchCurrentX - touchStartX;
+                if (Math.abs(delta) < 40) return;
+                if (delta < 0) {
+                  move(1);
+                } else {
+                  move(-1);
+                }
+              });
+
+              let resizeTimer = null;
+              window.addEventListener("resize", () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(build, 120);
+              });
+
+              build();
+            });
         });
       </script>
     </th:block>
